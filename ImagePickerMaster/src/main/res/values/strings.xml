@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GlideTest</string>
+    <string name="pemission_error">权限错误，无法正常工作！</string>
+    <string name="all_images">所有图片</string>
+</resources>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/picker_all"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp">
+
+                <ImageView
+                    style="@style/BackImageView"
+                    android:onClick="close" />
+
+                <TextView
+                    android:id="@+id/tv_show_folder"
+                    android:drawableRight="@drawable/zhankai_shouiqi"
+                    android:onClick="showDir"
+                    android:text="相机胶卷"
+                    style="@style/TitleCenter"/>
+            </FrameLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_image_all"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <include layout="@layout/layout_big_image" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:gravity="center_vertical">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tv_pick_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:text="请先选择照片"
+                android:textColor="#444444"
+                android:textSize="16sp" />
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_gravity="center_vertical"
+                android:id="@+id/recycler_image_picked"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                tools:visibility="invisible" />
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/btn_pick_ok"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginRight="15dp"
+            android:textColor="#fff"
+            android:text="确认\n0/10"
+            android:background="@drawable/btn_ok_selector" />
+    </LinearLayout>
+</LinearLayout>

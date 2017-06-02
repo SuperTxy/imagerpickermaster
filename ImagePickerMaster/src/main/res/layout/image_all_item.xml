@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.apple.glidetest.view.SameHWLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/iv_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:src="@drawable/ic_photo_camera_white_48dp" />
+    <View
+        tools:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#4fff"
+        android:visibility="gone"
+        android:id="@+id/view_mask"/>
+
+    <ImageView
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:button="@null"
+        android:id="@+id/cb_selected"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="top|right"
+        android:background="@drawable/cb_select" />
+</com.example.apple.glidetest.view.SameHWLayout>
