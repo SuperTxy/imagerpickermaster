@@ -7,12 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.example.apple.glidetest.R;
 import com.example.apple.glidetest.bean.SelectImageProvider;
 import com.example.apple.glidetest.utils.GlideUtils;
 import com.example.apple.glidetest.utils.ListUtils;
-
 import java.io.File;
 import java.util.List;
 

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import com.example.apple.glidetest.ImagePickerActivty;
@@ -13,22 +14,28 @@ import com.example.apple.glidetest.utils.GlideUtils;
 import com.example.apple.glidetest.utils.PickerSettings;
 import java.io.File;
 import java.util.ArrayList;
+
 public class MainActivity extends Activity {
 
-
     GridView gvMain;
-    private ArrayList<String> imags;
+    private ArrayList<String> imags = new ArrayList<>();
     private MyGridAdapter adapter;
+    private int maxSelect = 10;
+    private Button btnOk;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         gvMain = (GridView) findViewById(R.id.gv_main);
-        findViewById(R.id.tv_main).setOnClickListener(new View.OnClickListener() {
+        btnOk = (Button) findViewById(R.id.tv_main);
+        btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(MainActivity.this, ImagePickerActivty.class), PickerSettings.PICKER_CODE);
+                int max = (imags == null || imags.size() == 0) ? maxSelect : maxSelect - imags.size();
+                Intent intent = new Intent(MainActivity.this, ImagePickerActivty.class);
+                intent.putExtra(PickerSettings.MAX_SELECT, max);
+                startActivityForResult(intent, PickerSettings.PICKER_CODE);
             }
         });
         adapter = new MyGridAdapter();
@@ -39,7 +46,8 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == PickerSettings.PICKER_CODE) {
-            imags = data.getStringArrayListExtra(PickerSettings.RESULT);
+            imags.addAll(data.getStringArrayListExtra(PickerSettings.RESULT));
+            btnOk.setEnabled(imags.size() != maxSelect);
             adapter.notifyDataSetChanged();
         }
     }

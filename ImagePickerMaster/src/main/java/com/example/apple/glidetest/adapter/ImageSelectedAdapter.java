@@ -6,9 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
 import com.example.apple.glidetest.R;
 import com.example.apple.glidetest.bean.SelectImageProvider;
 import com.example.apple.glidetest.utils.GlideUtils;
+
 import java.io.File;
 
 /**

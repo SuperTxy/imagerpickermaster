@@ -76,10 +76,13 @@ public class ImagePickerActivty extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker_activty);
+        int maxSelect = getIntent().getIntExtra(PickerSettings.MAX_SELECT, -1);
         initView();
         imageProvider = SelectImageProvider.getInstance();
+        imageProvider.setMaxSelect(maxSelect);
         folderProvider = FolderProvider.getInstance();
         imageProvider.clear();
+        btnPickOk.setText("确认\n0/"+maxSelect);
         initRecycler();
         checkReadStoragePermission();
         imageProvider.setOnSelectChangedListener(new SelectImageProvider.OnSelectChangedListener() {
@@ -355,6 +358,10 @@ public class ImagePickerActivty extends Activity {
                 }
             }
         }
+    }
+
+    public void close(View view) {
+        finish();
     }
 
     private class MyPagerAdapter extends PagerAdapter {

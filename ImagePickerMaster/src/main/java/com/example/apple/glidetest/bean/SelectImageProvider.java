@@ -10,7 +10,7 @@ public class SelectImageProvider {
 
     private static SelectImageProvider provider;
     private OnSelectChangedListener listener;
-    public final int maxSelect = 10;
+    public  int maxSelect = 10;
 
     public static SelectImageProvider getInstance() {
         if (provider == null) {
@@ -20,6 +20,10 @@ public class SelectImageProvider {
     }
 
     private SelectImageProvider() {
+    }
+
+    public void setMaxSelect(int maxSelect){
+        this.maxSelect = maxSelect;
     }
 
     private ArrayList<String> selectedImgs = new ArrayList<>();

@@ -30,16 +30,17 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     testCompile 'junit:junit:4.12'
 }
-def siteUrl = 'https://github.com/18895612697/imagerpickermaster' // github上项目的地址
-def gitUrl = 'https://github.com/18895612697/imagerpickermaster.git' //github上项目的git地址
+def siteUrl = 'https://github.com/SuperTxy/imagerpickermaster' // github上项目的地址
+def gitUrl = 'https://github.com/SuperTxy/imagerpickermaster.git' //github上项目的git地址
 group = 'com.txy.imagepicker'
+
 install {
     repositories.mavenInstaller {
         pom {
             project {
                 packaging 'aar'
                 // Add your description here
-                name '一款仿闲鱼的图片选择库'
+                name 'a image-picker library like xianyu'
                 url siteUrl
                 // Set your license
                 licenses {
@@ -50,8 +51,8 @@ install {
                 }
                 developers {
                     developer {
-                        id 'tanxiaoyan'//填写的一些基本信息
-                        name 'tanxiaoyan'
+                        id 'supertxy'//填写的一些基本信息
+                        name 'xiaoyantan'
                         email 'txyswl@gmail.com'
                     }
                 }
@@ -80,8 +81,10 @@ artifacts {
     archives javadocJar
     archives sourcesJar
 }
+
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 bintray {
     // 这里就使用到了，你之前在local.properties中添加的信息
     user = properties.getProperty("bintray.user")
@@ -89,7 +92,7 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "maven"
-        name = "ImagePickerMaster"//发布到JCenter上的项目名字
+        name = "imagepickermaster"//发布到JCenter上的项目名字
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
