@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
@@ -33,16 +35,14 @@ import com.example.apple.glidetest.adapter.ImageSelectedAdapter;
 import com.example.apple.glidetest.bean.Folder;
 import com.example.apple.glidetest.bean.FolderProvider;
 import com.example.apple.glidetest.bean.SelectImageProvider;
+import com.example.apple.glidetest.utils.FileUtils;
 import com.example.apple.glidetest.utils.ListUtils;
 import com.example.apple.glidetest.utils.OsUtils;
 import com.example.apple.glidetest.utils.PickerSettings;
 import com.example.apple.glidetest.view.SpaceItemDecoration;
 
 import java.io.File;
-
-/**
- * TODO android 6.0权限，7.0图片选择问题
- */
+import java.io.IOException;
 
 public class ImagePickerActivty extends Activity {
 
@@ -56,7 +56,10 @@ public class ImagePickerActivty extends Activity {
     LinearLayout pickerAll;
     LinearLayout bigImage;
 
-    private final int READ_STORAGE_CODE = 001;
+    private static final String FILE_PROVIDER = "com.example.apple.glidetest.fileprovider";
+    private final int PERMISSION_READ_STORAGE_CODE = 001;
+    private final int PERMISSION_CAREMA_CODE = 002;
+    private final int CAREMA_REQUEST_CODE = 003;
     private final int HORIZONTAL_COUNT = 3;  //  Recycler每行显示的图片个数
 
     private FolderProvider folderProvider;
@@ -67,6 +70,7 @@ public class ImagePickerActivty extends Activity {
 
     private MyPagerAdapter myPagerAdapter;
     private FolderPopup folderPopup;  //查看大图的popup
+    private File tmpFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,22 +121,22 @@ public class ImagePickerActivty extends Activity {
                 bigImage.setVisibility(View.GONE);
             }
         });
-       findViewById(R.id.tv_show_folder).setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               folderPopup.showPopup(tvShowFolder);
-               tvShowFolder.setSelected(true);
-           }
-       });
-       findViewById(R.id.btn_pick_ok).setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               Intent intent = getIntent();
-               intent.putStringArrayListExtra(PickerSettings.RESULT, imageProvider.getSelectedImgs());
-               setResult(RESULT_OK, intent);
-               finish();
-           }
-       });
+        findViewById(R.id.tv_show_folder).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                folderPopup.showPopup(tvShowFolder);
+                tvShowFolder.setSelected(true);
+            }
+        });
+        findViewById(R.id.btn_pick_ok).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = getIntent();
+                intent.putStringArrayListExtra(PickerSettings.RESULT, imageProvider.getSelectedImgs());
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
     }
 
     private void initRecycler() {
@@ -216,7 +220,45 @@ public class ImagePickerActivty extends Activity {
             int currentItem = ListUtils.getIndexInList(folderProvider.getSelectedFolder().imgs, path);
             pagerBigImage.setCurrentItem(currentItem);
         }
+
+        @Override
+        public void onCameraClick() {
+            requestCameraPermissions();
+        }
     };
+
+    private void requestCameraPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_CAREMA_CODE);
+        } else {
+            launchCamera();
+        }
+    }
+
+    private void launchCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            try {
+                tmpFile = FileUtils.createTmpFile(this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (tmpFile != null && tmpFile.exists()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Uri photoUri = FileProvider.getUriForFile(this, FILE_PROVIDER, tmpFile);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT,photoUri);
+                } else {
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tmpFile));
+                }
+                startActivityForResult(intent, CAREMA_REQUEST_CODE);
+            } else {
+                Toast.makeText(ImagePickerActivty.this, getString(R.string.image_error), Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(ImagePickerActivty.this, getString(R.string.can_not_launch_camera), Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void checkChanged(boolean isChecked, String path) {
         if (isChecked) {
@@ -265,7 +307,7 @@ public class ImagePickerActivty extends Activity {
 
     private void checkReadStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_STORAGE_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_READ_STORAGE_CODE);
         } else {
             loadFolderAndImages();
         }
@@ -274,15 +316,45 @@ public class ImagePickerActivty extends Activity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case READ_STORAGE_CODE:
+            case PERMISSION_READ_STORAGE_CODE:
                 if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     loadFolderAndImages();
                 } else {
                     Toast.makeText(ImagePickerActivty.this, getString(R.string.pemission_error), Toast.LENGTH_SHORT).show();
                 }
                 break;
+            case PERMISSION_CAREMA_CODE:
+                if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    launchCamera();
+                } else {
+                    Toast.makeText(ImagePickerActivty.this, getString(R.string.pemission_error), Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CAREMA_REQUEST_CODE) {
+            if(resultCode == RESULT_OK) {
+                if(tmpFile != null) {
+//                    notify system
+                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,Uri.fromFile(tmpFile)));
+                    imageProvider.add(tmpFile.getAbsolutePath());
+                    imageSelectedAdapter.notifyItemInserted(imageProvider.getCount());
+                }
+            }else{
+//               if user click cancel ,delete the temp file
+                if(tmpFile != null && tmpFile.exists()) {
+                    boolean success = tmpFile.delete();
+                    if(success) {
+                        tmpFile = null;
+                    }
+                }
+            }
+        }
     }
 
     private class MyPagerAdapter extends PagerAdapter {

@@ -2,4 +2,6 @@
     <string name="app_name">GlideTest</string>
     <string name="pemission_error">权限错误，无法正常工作！</string>
     <string name="all_images">所有图片</string>
+    <string name="can_not_launch_camera">无法启动相机！</string>
+    <string name="image_error">图片错误！</string>
 </resources>

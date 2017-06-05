@@ -20,31 +20,46 @@ import java.util.List;
  * Created by Apple on 17/5/27.
  */
 
-public class ImageAllAdapter extends RecyclerView.Adapter<ImageAllAdapter.ViewHolder> {
+public class ImageAllAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
     private List<String> imgs;
     private OnImageAllListener listener;
     private int checkChangedIndex = -1;
+    private final int CAMERA = 1;
+    private final int IMAGE = 2;
 
     public ImageAllAdapter(Context context) {
         this.context = context;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.image_all_item, null);
-        return new ViewHolder(view);
+    public int getItemViewType(int position) {
+        return position == 0 ? CAMERA : IMAGE;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.setData(imgs.get(position));
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == CAMERA) {
+            return new CameraHolder(new ImageView(context));
+        } else {
+            View view = LayoutInflater.from(context).inflate(R.layout.image_all_item, null);
+            return new ImageHolder(view);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof ImageHolder) {
+            ((ImageHolder) holder).setData(imgs.get(position - 1));
+        } else {
+            ((CameraHolder) holder).setData();
+        }
     }
 
     @Override
     public int getItemCount() {
-        return imgs == null ? 0 : imgs.size();
+        return imgs == null ? 0 : imgs.size() + 1;
     }
 
     public void refresh(List<String> imgs) {
@@ -57,12 +72,34 @@ public class ImageAllAdapter extends RecyclerView.Adapter<ImageAllAdapter.ViewHo
         notifyItemChanged(checkChangedIndex);
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class CameraHolder extends RecyclerView.ViewHolder {
+
+        private ImageView iv;
+
+        public CameraHolder(View itemView) {
+            super(itemView);
+            iv = (ImageView) itemView;
+        }
+
+        public void setData() {
+            iv.setImageResource(R.drawable.ic_photo_camera_white_48dp);
+            iv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (listener != null) {
+                        listener.onCameraClick();
+                    }
+                }
+            });
+        }
+    }
+
+    class ImageHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
         View viewMask;
         ImageView cbSelected;
 
-        public ViewHolder(View itemView) {
+        public ImageHolder(View itemView) {
             super(itemView);
             ivImage = (ImageView) itemView.findViewById(R.id.iv_image);
             cbSelected = (ImageView) itemView.findViewById(R.id.cb_selected);
@@ -107,5 +144,7 @@ public class ImageAllAdapter extends RecyclerView.Adapter<ImageAllAdapter.ViewHo
         void onCheckChanged(boolean isChecked, String path);
 
         void onItemClick(String path, boolean checked);
+
+        void onCameraClick();
     }
 }
