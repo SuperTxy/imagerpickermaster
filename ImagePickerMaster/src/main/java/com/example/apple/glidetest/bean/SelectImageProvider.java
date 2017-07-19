@@ -1,16 +1,20 @@
 package com.example.apple.glidetest.bean;
 
+import android.util.Log;
+
 import java.util.ArrayList;
+import java.util.Observable;
 
 /**
  * Created by Apple on 17/5/31.
  */
 
-public class SelectImageProvider {
+public class SelectImageProvider extends Observable {
 
     private static SelectImageProvider provider;
-    private OnSelectChangedListener listener;
-    public  int maxSelect = 10;
+    public int maxSelect = 10;
+    private static final String TAG = "SelectImageProvider";
+    private ArrayList<String> selectedImgs = new ArrayList<>();
 
     public static SelectImageProvider getInstance() {
         if (provider == null) {
@@ -22,23 +26,30 @@ public class SelectImageProvider {
     private SelectImageProvider() {
     }
 
-    public void setMaxSelect(int maxSelect){
+    public void setMaxSelect(int maxSelect) {
         this.maxSelect = maxSelect;
     }
 
-    private ArrayList<String> selectedImgs = new ArrayList<>();
-
     public void remove(String path) {
-        selectedImgs.remove(path);
-        if(listener != null) {
-            listener.onSelectChanged();
+        if (selectedImgs.contains(path)) {
+            selectedImgs.remove(path);
+            setChanged();
+            notifyObservers(new Change(Change.REMOVE, path));
+            Log.e("remove", selectedImgs.size() + "-->" + path);
+        }else{
+            Log.e("TAG", "此图片不存在，无法移除！");
         }
+
     }
 
     public void add(String path) {
-        selectedImgs.add(path);
-        if(listener != null) {
-            listener.onSelectChanged();
+        if (!selectedImgs.contains(path)) {
+            selectedImgs.add(path);
+            setChanged();
+            notifyObservers(new Change(Change.ADD, path));
+            Log.e("add", selectedImgs.size() + "-->" + path);
+        } else {
+            Log.e("TAG", "已经存在此图片了！");
         }
     }
 
@@ -50,22 +61,20 @@ public class SelectImageProvider {
         return selectedImgs.size() - 1;
     }
 
-    public int getCount(){
+    public int getCount() {
         return selectedImgs.size();
     }
 
     public void clear() {
+        setChanged();
+        notifyObservers();
         selectedImgs.clear();
     }
 
-    public boolean isSelectedMax(){
+    public boolean isSelectedMax() {
         return selectedImgs.size() == maxSelect;
     }
-    public interface OnSelectChangedListener {
-        void onSelectChanged();
-    }
-
-    public void setOnSelectChangedListener(OnSelectChangedListener listener) {
-        this.listener = listener;
+    public boolean isPathExist(String path){
+        return selectedImgs.contains(path);
     }
 }

@@ -7,28 +7,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import com.example.apple.glidetest.R;
+import com.example.apple.glidetest.bean.Change;
 import com.example.apple.glidetest.bean.SelectImageProvider;
 import com.example.apple.glidetest.utils.GlideUtils;
 import com.example.apple.glidetest.utils.ListUtils;
+
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by Apple on 17/5/27.
  */
 
-public class ImageAllAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ImageAllAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Observer {
 
     private Context context;
-    private List<String> imgs;
+    private List<String> imgs = new ArrayList<>();
     private OnImageAllListener listener;
-    private int checkChangedIndex = -1;
     private final int CAMERA = 1;
     private final int IMAGE = 2;
 
     public ImageAllAdapter(Context context) {
         this.context = context;
+        SelectImageProvider.getInstance().addObserver(this);
     }
 
     @Override
@@ -49,7 +55,7 @@ public class ImageAllAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof ImageHolder) {
-            ((ImageHolder) holder).setData(imgs.get(position - 1));
+            ((ImageHolder) holder).setData(position - 1);
         } else {
             ((CameraHolder) holder).setData();
         }
@@ -60,26 +66,31 @@ public class ImageAllAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return imgs == null ? 0 : imgs.size() + 1;
     }
 
-    public void refresh(List<String> imgs) {
-        this.imgs = imgs;
+    public void refresh(List<String> list) {
+        imgs.clear();
+        imgs.addAll(list);
         notifyDataSetChanged();
     }
 
-    public void changeChecked(String path) {
-        checkChangedIndex = ListUtils.getIndexInList(imgs, path);
-        notifyItemChanged(checkChangedIndex);
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg instanceof Change) {
+            Change change = (Change) arg;
+            int index = ListUtils.getIndexInList(imgs, change.path);
+            notifyItemChanged(index+1);
+        }
     }
 
-    class CameraHolder extends RecyclerView.ViewHolder {
+    private class CameraHolder extends RecyclerView.ViewHolder {
 
         private ImageView iv;
 
-        public CameraHolder(View itemView) {
+        CameraHolder(View itemView) {
             super(itemView);
             iv = (ImageView) itemView;
         }
 
-        public void setData() {
+        void setData() {
             iv.setImageResource(R.drawable.ic_photo_camera_white_48dp);
             iv.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -92,23 +103,23 @@ public class ImageAllAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    class ImageHolder extends RecyclerView.ViewHolder {
+    private class ImageHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
         View viewMask;
         ImageView cbSelected;
 
-        public ImageHolder(View itemView) {
+        private ImageHolder(View itemView) {
             super(itemView);
             ivImage = (ImageView) itemView.findViewById(R.id.iv_image);
             cbSelected = (ImageView) itemView.findViewById(R.id.cb_selected);
             viewMask = itemView.findViewById(R.id.view_mask);
         }
 
-        public void setData(final String path) {
-            boolean isSelected = SelectImageProvider.getInstance().getSelectedImgs().contains(path);
+        public void setData(final int pos) {
+            boolean isSelected = SelectImageProvider.getInstance().isPathExist(imgs.get(pos));
             cbSelected.setSelected(isSelected);
             viewMask.setVisibility(isSelected ? View.VISIBLE : View.GONE);
-            GlideUtils.loadImage(new File(path), context, ivImage);
+            GlideUtils.loadImage(new File(imgs.get(pos)), context, ivImage);
             cbSelected.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -117,17 +128,17 @@ public class ImageAllAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                         return;
                     }
                     cbSelected.setSelected(!cbSelected.isSelected());
-                    if (listener != null) {
-                        viewMask.setVisibility(cbSelected.isSelected() ? View.VISIBLE : View.GONE);
-                        listener.onCheckChanged(cbSelected.isSelected(), path);
-                    }
+                    viewMask.setVisibility(cbSelected.isSelected() ? View.VISIBLE : View.GONE);
+                    if (cbSelected.isSelected())
+                        SelectImageProvider.getInstance().add(imgs.get(pos));
+                    else SelectImageProvider.getInstance().remove(imgs.get(pos));
                 }
             });
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (listener != null) {
-                        listener.onItemClick(path, cbSelected.isSelected());
+                        listener.onItemClick(pos, cbSelected.isSelected());
                     }
                 }
             });
@@ -139,9 +150,8 @@ public class ImageAllAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public interface OnImageAllListener {
-        void onCheckChanged(boolean isChecked, String path);
 
-        void onItemClick(String path, boolean checked);
+        void onItemClick(int position, boolean checked);
 
         void onCameraClick();
     }

@@ -8,24 +8,30 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.apple.glidetest.R;
+import com.example.apple.glidetest.bean.Change;
 import com.example.apple.glidetest.bean.SelectImageProvider;
 import com.example.apple.glidetest.utils.GlideUtils;
+import com.example.apple.glidetest.utils.ListUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by Apple on 17/5/27.
  */
 
-public class ImageSelectedAdapter extends RecyclerView.Adapter<ImageSelectedAdapter.ViewHolder> {
+public class ImageSelectedAdapter extends RecyclerView.Adapter<ImageSelectedAdapter.ViewHolder> implements Observer {
 
     private Context context;
-    private OnImageSelectedListener listener;
-    private final SelectImageProvider imageProvider;
+    private List<String> imgs = new ArrayList<>();
 
-    public ImageSelectedAdapter(Context context) {
+    public ImageSelectedAdapter(Context context, List<String> list) {
         this.context = context;
-        imageProvider = SelectImageProvider.getInstance();
+        imgs.addAll(list);
+        SelectImageProvider.getInstance().addObserver(this);
     }
 
     @Override
@@ -36,12 +42,12 @@ public class ImageSelectedAdapter extends RecyclerView.Adapter<ImageSelectedAdap
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.setData(imageProvider.getSelectedImgs().get(position), position);
+        holder.setData();
     }
 
     @Override
     public int getItemCount() {
-        return imageProvider.getSelectedImgs().size();
+        return imgs == null ? 0 : imgs.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -50,30 +56,33 @@ public class ImageSelectedAdapter extends RecyclerView.Adapter<ImageSelectedAdap
 
         public ViewHolder(View itemView) {
             super(itemView);
-            ivImage= (ImageView) itemView.findViewById(R.id.iv_image);
-            ivDel= (ImageView) itemView.findViewById(R.id.iv_del);
+            ivImage = (ImageView) itemView.findViewById(R.id.iv_image);
+            ivDel = (ImageView) itemView.findViewById(R.id.iv_del);
         }
 
-        public void setData(final String path, final int position) {
-            GlideUtils.loadImage(new File(path), context, ivImage);
+        public void setData() {
+            GlideUtils.loadImage(new File(imgs.get(getAdapterPosition())), context, ivImage);
             ivDel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (listener != null) {
-                        imageProvider.remove(path);
-                        notifyItemRemoved(position);
-                        listener.onImageDel(path);
-                    }
+                    SelectImageProvider.getInstance().remove(imgs.get(getAdapterPosition()));
                 }
             });
         }
     }
 
-    public interface OnImageSelectedListener {
-        void onImageDel(String path);
-    }
-
-    public void setOnImageSelectedListener(OnImageSelectedListener listener) {
-        this.listener = listener;
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg instanceof Change) {
+            Change change = (Change) arg;
+            if (change.isAdd()) {
+                imgs.add(change.path);
+                notifyItemInserted(imgs.size() - 1);
+            } else {
+                int index = ListUtils.getIndexInList(imgs, change.path);
+                imgs.remove(change.path);
+                notifyItemRemoved(index);
+            }
+        }
     }
 }

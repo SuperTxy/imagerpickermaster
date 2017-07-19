@@ -1,33 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/big_image"
-    android:visibility="gone"
-    tools:visibility="visible"
     android:orientation="vertical">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="50dp"
+        android:background="#fff">
 
         <ImageView
             android:id="@+id/iv_big_back"
-            style="@style/BackImageView" />
+            style="@style/BackImageView"
+            android:layout_height="50dp"
+            android:paddingEnd="15dp" />
 
-        <TextView
-            style="@style/TitleCenter"
-            android:text="原图" />
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 
-        <CheckBox
+        <ImageView
+            android:layout_gravity="center_vertical"
             android:id="@+id/cb_big_check"
             style="@style/MyCheckBox"
-            android:layout_gravity="right|center_vertical"
             android:layout_marginRight="15dp" />
-    </FrameLayout>
+    </LinearLayout>
+
     <android.support.v4.view.ViewPager
-        android:id="@+id/pager_big_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</LinearLayout>
+        android:id="@+id/view_pager"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:background="#000" />
+
+    <TextView
+        android:id="@+id/tv_ok"
+        android:layout_width="60dp"
+        android:layout_height="25dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:background="#fff"
+        android:gravity="center"
+        android:text="确定" />
+</RelativeLayout>

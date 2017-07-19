@@ -1,7 +1,6 @@
 package com.example.apple.glidetest;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -13,48 +12,42 @@ import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.apple.glidetest.adapter.ImageAllAdapter;
 import com.example.apple.glidetest.adapter.ImageSelectedAdapter;
+import com.example.apple.glidetest.bean.Change;
 import com.example.apple.glidetest.bean.Folder;
 import com.example.apple.glidetest.bean.FolderProvider;
 import com.example.apple.glidetest.bean.SelectImageProvider;
 import com.example.apple.glidetest.utils.FileUtils;
-import com.example.apple.glidetest.utils.ListUtils;
 import com.example.apple.glidetest.utils.OsUtils;
 import com.example.apple.glidetest.utils.PickerSettings;
 import com.example.apple.glidetest.view.SpaceItemDecoration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 
-public class ImagePickerActivty extends Activity {
+public class ImagePickerActivty extends FragmentActivity implements Observer {
 
     RecyclerView recyclerImageAll;
     RecyclerView recyclerImagePicked;
-    ViewPager pagerBigImage;
     TextView tvShowFolder;
     TextView tvPickImage;
     Button btnPickOk;
-    CheckBox cbBigCheck;
     LinearLayout pickerAll;
-    LinearLayout bigImage;
 
     private static final String FILE_PROVIDER = "com.example.apple.glidetest.fileprovider";
     private final int PERMISSION_READ_STORAGE_CODE = 001;
@@ -68,7 +61,6 @@ public class ImagePickerActivty extends Activity {
     private ImageAllAdapter imageAllAdapter;
     private ImageSelectedAdapter imageSelectedAdapter;
 
-    private MyPagerAdapter myPagerAdapter;
     private FolderPopup folderPopup;  //查看大图的popup
     private File tmpFile;
 
@@ -82,48 +74,18 @@ public class ImagePickerActivty extends Activity {
         imageProvider.setMaxSelect(maxSelect);
         folderProvider = FolderProvider.getInstance();
         imageProvider.clear();
-        btnPickOk.setText("确认\n0/"+maxSelect);
+        imageProvider.addObserver(this);
         initRecycler();
         checkReadStoragePermission();
-        imageProvider.setOnSelectChangedListener(new SelectImageProvider.OnSelectChangedListener() {
-            @Override
-            public void onSelectChanged() {
-                btnPickOk.setEnabled(imageProvider.getCount() > 0);
-                btnPickOk.setText("确认\n" + imageProvider.getSelectedImgs().size() + "/" + imageProvider.maxSelect);
-            }
-        });
-        cbBigCheck.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (imageProvider.isSelectedMax() && !cbBigCheck.isSelected()) {
-                    Toast.makeText(ImagePickerActivty.this, "你已选择" + SelectImageProvider.getInstance().maxSelect + "张图片", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                cbBigCheck.setSelected(!cbBigCheck.isSelected());
-                String path = folderProvider.getSelectedFolder().imgs.get(pagerBigImage.getCurrentItem());
-                checkChanged(cbBigCheck.isSelected(), path);
-                imageAllAdapter.notifyItemChanged(pagerBigImage.getCurrentItem());
-            }
-        });
     }
 
     private void initView() {
         recyclerImageAll = (RecyclerView) findViewById(R.id.recycler_image_all);
         recyclerImagePicked = (RecyclerView) findViewById(R.id.recycler_image_picked);
-        pagerBigImage = (ViewPager) findViewById(R.id.pager_big_image);
         tvShowFolder = (TextView) findViewById(R.id.tv_show_folder);
         tvPickImage = (TextView) findViewById(R.id.tv_pick_hint);
         btnPickOk = (Button) findViewById(R.id.btn_pick_ok);
-        cbBigCheck = (CheckBox) findViewById(R.id.cb_big_check);
         pickerAll = (LinearLayout) findViewById(R.id.picker_all);
-        bigImage = (LinearLayout) findViewById(R.id.big_image);
-        findViewById(R.id.iv_big_back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pickerAll.setVisibility(View.VISIBLE);
-                bigImage.setVisibility(View.GONE);
-            }
-        });
         findViewById(R.id.tv_show_folder).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,13 +113,8 @@ public class ImagePickerActivty extends Activity {
         imageAllAdapter.setOnImageAllListener(onImageAllListener);
 //      底部选中图片Recycler
         recyclerImagePicked.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        imageSelectedAdapter = new ImageSelectedAdapter(this);
+        imageSelectedAdapter = new ImageSelectedAdapter(this,imageProvider.getSelectedImgs());
         recyclerImagePicked.setAdapter(imageSelectedAdapter);
-        imageSelectedAdapter.setOnImageSelectedListener(onImageSelectedListener);
-//      查看大图的pager
-        myPagerAdapter = new MyPagerAdapter();
-        pagerBigImage.setAdapter(myPagerAdapter);
-        pagerBigImage.addOnPageChangeListener(onPageChangeListener);
     }
 
     private void loadFolderAndImages() {
@@ -193,14 +150,12 @@ public class ImagePickerActivty extends Activity {
     private void initData() {
         final Folder selectedFolder = folderProvider.getSelectedFolder();
         imageAllAdapter.refresh(selectedFolder.imgs);
-        myPagerAdapter.notifyDataSetChanged();
         tvShowFolder.setText(selectedFolder.name);
         folderPopup = new FolderPopup(this, new FolderPopup.OnFolderSelectListener() {
             @Override
             public void onFolderSelected() {
                 tvShowFolder.setText(folderProvider.getSelectedFolder().name);
                 imageAllAdapter.refresh(folderProvider.getSelectedFolder().imgs);
-                myPagerAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -212,21 +167,15 @@ public class ImagePickerActivty extends Activity {
 
     private ImageAllAdapter.OnImageAllListener onImageAllListener = new ImageAllAdapter.OnImageAllListener() {
         @Override
-        public void onCheckChanged(boolean isChecked, String path) {
-            checkChanged(isChecked, path);
-        }
-
-        @Override
-        public void onItemClick(String path, boolean checked) {
-            pickerAll.setVisibility(View.GONE);
-            bigImage.setVisibility(View.VISIBLE);
-            int currentItem = ListUtils.getIndexInList(folderProvider.getSelectedFolder().imgs, path);
-            pagerBigImage.setCurrentItem(currentItem);
+        public void onItemClick(int pos, boolean checked) {
+            new PictureShowPopup(ImagePickerActivty.this).setDataAndPosition(folderProvider.getSelectedFolder().imgs,pos).show(recyclerImageAll);
         }
 
         @Override
         public void onCameraClick() {
-            requestCameraPermissions();
+            if(imageProvider.isSelectedMax())
+                Toast.makeText(ImagePickerActivty.this, "你已选择" + SelectImageProvider.getInstance().maxSelect + "张图片", Toast.LENGTH_SHORT).show();
+            else requestCameraPermissions();
         }
     };
 
@@ -250,7 +199,7 @@ public class ImagePickerActivty extends Activity {
             if (tmpFile != null && tmpFile.exists()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Uri photoUri = FileProvider.getUriForFile(this, FILE_PROVIDER, tmpFile);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT,photoUri);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 } else {
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tmpFile));
                 }
@@ -262,51 +211,6 @@ public class ImagePickerActivty extends Activity {
             Toast.makeText(ImagePickerActivty.this, getString(R.string.can_not_launch_camera), Toast.LENGTH_SHORT).show();
         }
     }
-
-    private void checkChanged(boolean isChecked, String path) {
-        if (isChecked) {
-            imageProvider.add(path);
-            imageSelectedAdapter.notifyItemInserted(imageProvider.getLastIndex());
-            recyclerImagePicked.scrollToPosition(imageProvider.getLastIndex());
-        } else {
-            int index = ListUtils.getIndexInList(imageProvider.getSelectedImgs(), path);
-            imageProvider.remove(path);
-            imageSelectedAdapter.notifyItemRemoved(index);
-        }
-        boolean imageEmpty = imageProvider.getSelectedImgs().size() == 0;
-        tvPickImage.setVisibility(imageEmpty ? View.VISIBLE : View.GONE);
-        recyclerImagePicked.setVisibility(imageEmpty ? View.GONE : View.VISIBLE);
-    }
-
-    private ImageSelectedAdapter.OnImageSelectedListener onImageSelectedListener = new ImageSelectedAdapter.OnImageSelectedListener() {
-        @Override
-        public void onImageDel(String path) {
-            String currPath = folderProvider.getSelectedFolder().imgs.get(pagerBigImage.getCurrentItem());
-            if (OsUtils.isVisible(bigImage) && currPath.equals(path)) {
-                cbBigCheck.setSelected(false);
-            }
-            imageAllAdapter.changeChecked(path);
-        }
-    };
-
-
-    private ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-        }
-
-        @Override
-        public void onPageSelected(int position) {
-            String path = folderProvider.getSelectedFolder().imgs.get(position);
-            cbBigCheck.setSelected(imageProvider.getSelectedImgs().contains(path));
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-
-        }
-    };
 
     private void checkReadStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -341,18 +245,18 @@ public class ImagePickerActivty extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAREMA_REQUEST_CODE) {
-            if(resultCode == RESULT_OK) {
-                if(tmpFile != null) {
+            if (resultCode == RESULT_OK) {
+                if (tmpFile != null) {
 //                    notify system
-                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,Uri.fromFile(tmpFile)));
+                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(tmpFile)));
                     imageProvider.add(tmpFile.getAbsolutePath());
                     imageSelectedAdapter.notifyItemInserted(imageProvider.getCount());
                 }
-            }else{
+            } else {
 //               if user click cancel ,delete the temp file
-                if(tmpFile != null && tmpFile.exists()) {
+                if (tmpFile != null && tmpFile.exists()) {
                     boolean success = tmpFile.delete();
-                    if(success) {
+                    if (success) {
                         tmpFile = null;
                     }
                 }
@@ -364,31 +268,18 @@ public class ImagePickerActivty extends Activity {
         finish();
     }
 
-    private class MyPagerAdapter extends PagerAdapter {
-
-        @Override
-        public int getCount() {
-            Folder selectedFolder = folderProvider.getSelectedFolder();
-            return selectedFolder == null ? 0 : selectedFolder.imgs.size();
-        }
-
-        @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return view == object;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            ImageView imageView = new ImageView(ImagePickerActivty.this);
-            File file = new File(folderProvider.getSelectedFolder().imgs.get(position));
-            Glide.with(ImagePickerActivty.this).load(file).into(imageView);
-            container.addView(imageView);
-            return imageView;
-        }
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);
+    @Override
+    public void update(Observable o, Object arg) {
+        btnPickOk.setEnabled(imageProvider.getCount() > 0);
+        btnPickOk.setText("确认\n" + imageProvider.getSelectedImgs().size() + "/" + imageProvider.maxSelect);
+        boolean imageEmpty = imageProvider.getSelectedImgs().size() == 0;
+        tvPickImage.setVisibility(imageEmpty ? View.VISIBLE : View.GONE);
+        recyclerImagePicked.setVisibility(imageEmpty ? View.GONE : View.VISIBLE);
+        if (arg instanceof Change) {
+            Change change = (Change) arg;
+            if (change.isAdd()) {
+                recyclerImagePicked.scrollToPosition(imageProvider.getLastIndex());
+            }
         }
     }
 }
