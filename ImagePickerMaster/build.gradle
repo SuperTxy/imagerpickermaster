@@ -31,7 +31,7 @@ dependencies {
 }
 def siteUrl = 'https://github.com/SuperTxy/imagerpickermaster' // github上项目的地址
 def gitUrl = 'https://github.com/SuperTxy/imagerpickermaster.git' //github上项目的git地址
-
+def  group='com.github.SuperTxy'
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
