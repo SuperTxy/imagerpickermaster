@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.apple.glidetest.CommonPickerActivity">
+    <com.example.apple.glidetest.view.TitleBar
+        android:id="@+id/titleBar"
+        android:layout_width="match_parent"
+        app:leftImage="@drawable/fanhui"
+        app:centerText="所有照片"
+        app:rightText="取消"
+        android:layout_height="50dp"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+    <Button
+        android:id="@+id/btnPickOk"
+        tools:text="确定(0/6)"
+        android:textSize="16sp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+</LinearLayout>

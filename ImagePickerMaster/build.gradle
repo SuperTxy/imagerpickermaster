@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.dcendents.android-maven'
 
 android {
@@ -24,14 +26,22 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+//    compile("com.github.hotchemi:permissionsdispatcher:$permission_version") {
+//        // if you don't use android.app.Fragment you can exclude support for them
+//        exclude module: "support-v13"
+//    }
+//    annotationProcessor "com.github.hotchemi:permissionsdispatcher-processor:$permission_version"
     compile 'com.android.support:recyclerview-v7:25.3.1'
+    compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.orhanobut:logger:1.15'
     testCompile 'junit:junit:4.12'
 }
-def siteUrl = 'https://github.com/SuperTxy/imagerpickermaster' // github上项目的地址
-def gitUrl = 'https://github.com/SuperTxy/imagerpickermaster.git' //github上项目的git地址
-def  group='com.github.SuperTxy'
+
+def group = 'com.github.SuperTxy'
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
@@ -47,4 +57,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives javadocJar
     archives sourcesJar
+}
+repositories {
+    mavenCentral()
 }

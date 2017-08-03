@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="#fff"
+    android:orientation="vertical">
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingLeft="19dp"
+        tools:src="@drawable/fanhui"
+        android:id="@+id/ivLeft"
+        android:paddingRight="19dp"/>
+    <TextView
+        android:layout_centerHorizontal="true"
+        tools:text="我是标题"
+        android:gravity="center"
+        android:textSize="17sp"
+        android:textColor="#333"
+        android:id="@+id/tvCenter"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+    <TextView
+        android:id="@+id/tvRight"
+        android:textSize="16sp"
+        tools:text="取消"
+        android:textColor="#333"
+        android:layout_alignParentRight="true"
+        android:gravity="center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingLeft="19dp"
+        android:paddingRight="15dp"/>
+
+    <ImageView
+        android:id="@+id/ivRight"
+        android:layout_alignParentRight="true"
+        android:gravity="center_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingLeft="19dp"
+        android:paddingRight="15dp" />
+</RelativeLayout>

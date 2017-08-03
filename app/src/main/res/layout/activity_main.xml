@@ -7,7 +7,7 @@
 
 
     <Button
-        android:id="@+id/tv_main"
+        android:id="@+id/tvMain"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:gravity="center"
@@ -17,7 +17,7 @@
 
     <GridView
         android:numColumns="4"
-        android:id="@+id/gv_main"
+        android:id="@+id/gvMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:horizontalSpacing="2dp"

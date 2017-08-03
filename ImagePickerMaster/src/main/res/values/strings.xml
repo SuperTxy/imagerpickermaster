@@ -1,7 +1,9 @@
 <resources>
-    <string name="app_name">GlideTest</string>
+    <string name="app_name">图片选择</string>
     <string name="pemission_error">权限错误，无法正常工作！</string>
     <string name="all_images">所有图片</string>
     <string name="can_not_launch_camera">无法启动相机！</string>
     <string name="image_error">图片错误！</string>
+    <string name="max_toast_suffix">, 可后续补充说明继续添加</string>
+    <string name="big_max_toast">您选择的图片数量已达到上限！</string>
 </resources>

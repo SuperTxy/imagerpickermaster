@@ -6,14 +6,16 @@
     android:orientation="horizontal">
     <ImageView
         tools:src="@drawable/default_image"
-        android:id="@+id/iv_folder"
+        android:id="@+id/ivFolder"
         android:layout_width="80dp"
         android:layout_height="80dp" />
     <TextView
-        android:id="@+id/tv_folder"
+        android:paddingRight="15dp"
+        android:drawableRight="@drawable/arrow_common_right"
+        android:id="@+id/tvFolder"
         android:paddingLeft="15dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:text="photo (1)"
+        tools:text="photo"
         android:gravity="center_vertical"/>
 </LinearLayout>
