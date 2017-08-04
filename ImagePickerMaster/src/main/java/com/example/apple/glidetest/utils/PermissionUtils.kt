@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat
  * Created by Apple on 17/8/3.
  */
 class PermissionUtils(private val context: Activity) {
+
     private var mHasPermissionRunnable: Runnable? = null
     private var mNoPermissionRunnable: Runnable? = null
     private var REQUEST_CODE_PERMISSION = 1000

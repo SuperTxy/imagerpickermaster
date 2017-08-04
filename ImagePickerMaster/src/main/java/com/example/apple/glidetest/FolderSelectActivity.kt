@@ -1,7 +1,7 @@
 package com.example.apple.glidetest
 
+import android.app.Activity
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
@@ -14,8 +14,7 @@ import kotlinx.android.synthetic.main.item_folder.view.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.io.File
 
-class FolderSelectActivity : AppCompatActivity() {
-
+class FolderSelectActivity : Activity() {
     private val folders = FolderProvider.instance.folders
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +26,7 @@ class FolderSelectActivity : AppCompatActivity() {
         }
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.adapter = FolderAdapter()
+//        TODO("Activity的转场动画")
     }
 
     inner class FolderAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -43,7 +43,7 @@ class FolderSelectActivity : AppCompatActivity() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
-            return FolderHolder(this@FolderSelectActivity.getView(R.layout.item_folder))
+            return FolderHolder(this@FolderSelectActivity.getView(R.layout.item_folder,parent))
         }
 
         override fun getItemCount(): Int {

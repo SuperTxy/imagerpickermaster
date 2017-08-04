@@ -7,10 +7,10 @@ package com.example.apple.glidetest.utils
 object PickerSettings {
     //    选择图片返回结果
     val RESULT = "result"
-    val PICKER_CODE = 1
     val MAX_SELECT = "max_select"
 
-    val FOLDER_SELECT_CODE = 100
+    val FOLDER_REQUEST_CODE = 100
     val BIG_REQUEST_CODE = 101
-    val COMMON_PICKER_REQUEST_CODE = 102
+    val PICKER_REQUEST_CODE = 102
+    val CAREMA_REQUEST_CODE = 103
 }

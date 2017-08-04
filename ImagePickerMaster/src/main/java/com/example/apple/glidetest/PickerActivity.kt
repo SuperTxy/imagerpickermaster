@@ -23,11 +23,10 @@ class PickerActivity : PickerBaseActivity() {
         fun start(context: Activity, maxSelect: Int) {
             val intent = Intent(context, PickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
-            context.startActivityForResult(intent, PickerSettings.COMMON_PICKER_REQUEST_CODE)
+            context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
         }
     }
 
-    private var allAdapter: CommonImageAdapter? = null
     private var selectedAdapter: ImageSelectedAdapter? = null
     private var imageSelector = SelectImageProvider.instance
 
@@ -38,48 +37,35 @@ class PickerActivity : PickerBaseActivity() {
         recyclerViewAll.addItemDecoration(SpaceItemDecoration(dp2px(2.0f), HORIZONTAL_COUNT))
         recyclerViewSelected.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         tvCamera.setOnClickListener { launchCamera() }
-        btnPickOk.setOnClickListener {
-            intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
-            setResult(RESULT_OK, intent)
-            finish()
-        }
-        ivLeft.setOnClickListener {
-            startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_SELECT_CODE)
-        }
-        tvRight.setOnClickListener { finish() }
+        btnPickOk.text = if (imageSelector.size >0 ) "完成" else "跳过"
+        btnOk = btnPickOk
+        btnCenter = tvCenter
+        btnLeft = ivLeft
+        btnRight = tvRight
+        initView()
     }
 
     override fun initData() {
         val selectedFolder = FolderProvider.instance.selectedFolder
-        allAdapter = CommonImageAdapter(this, selectedFolder!!.imgs)
-        recyclerViewAll.adapter = allAdapter
+        adapter = CommonImageAdapter(this, selectedFolder!!.imgs)
+        recyclerViewAll.adapter = adapter
         selectedAdapter = ImageSelectedAdapter(this, imageSelector.selectedImgs)
         recyclerViewSelected.adapter = selectedAdapter
-        allAdapter!!.itemClickListener = object : OnItemClickListener {
-            override fun onItemClick(position: Int, isChecked: Boolean) {
+        adapter!!.itemClickListener = object : OnItemClickListener {
+            override fun onItemClick(position: Int) {
                 BigImageActivity.start(this@PickerActivity, position)
             }
         }
     }
 
     override fun update(o: Observable?, arg: Any?) {
-        if (o is SelectImageProvider && arg is Change && arg.isAdd) {
-            recyclerViewSelected.scrollToPosition(imageSelector.size)
+        if (o is SelectImageProvider && arg is Change ) {
+            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount)
+            btnPickOk.text = if (imageSelector.size >0 ) "完成" else "跳过"
         }
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == PickerSettings.FOLDER_SELECT_CODE) {
-            if (resultCode == RESULT_OK) {
-                val selectedFolder = FolderProvider.instance.selectedFolder
-                tvCenter.text = selectedFolder!!.name
-                allAdapter!!.refresh(selectedFolder.imgs)
-            } else {
-                finish()
-            }
-        } else if (requestCode == PickerSettings.BIG_REQUEST_CODE && resultCode == RESULT_OK) {
-            allAdapter!!.refresh(imageSelector.selectedImgs)
-            selectedAdapter!!.refresh(imageSelector.selectedImgs)
-        }
+    override fun onBigResult() {
+        selectedAdapter!!.refresh(imageSelector.selectedImgs)
+        recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount)
     }
 }

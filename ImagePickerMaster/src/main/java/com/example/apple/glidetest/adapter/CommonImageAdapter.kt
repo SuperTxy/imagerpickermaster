@@ -56,23 +56,21 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
         val selectImageProvider = SelectImageProvider.instance
         if (holder is ImageHolder) {
             val pos: Int = if (showCamera) position - 1 else position
+            val path = images.get(pos)
             val cbSelected = holder.itemView.cbSelected
-            context.loadImage(File(images.get(pos)), holder.itemView.ivImage)
-            val isSelected = selectImageProvider.isPathExist(images.get(pos))
-            cbSelected.isSelected = isSelected
-            holder.itemView.viewMask.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
+            context.loadImage(File(path), holder.itemView.ivImage)
+            handleSelected(selectImageProvider.isPathExist(path), holder, path)
             cbSelected.setOnClickListener {
                 if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected)) return@setOnClickListener
-                cbSelected.isSelected = !cbSelected.isSelected
-                holder.itemView.viewMask.visibility = if (cbSelected.isSelected) View.VISIBLE else View.INVISIBLE
+                handleSelected(!cbSelected.isSelected, holder, path)
                 if (cbSelected.isSelected) {
-                    selectImageProvider.add(images.get(pos))
+                    selectImageProvider.add(path)
                 } else {
-                    selectImageProvider.remove(images.get(pos))
+                    selectImageProvider.remove(path)
                 }
             }
             holder.itemView.setOnClickListener {
-                itemClickListener?.onItemClick(pos, cbSelected.isSelected)
+                itemClickListener?.onItemClick(pos)
             }
         } else if (holder is CameraHolder) {
             val cameraView = holder.itemView as ImageView
@@ -83,6 +81,13 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
                 }
             }
         }
+    }
+
+    fun handleSelected(isSelected: Boolean, holder: ImageHolder, path: String) {
+        val cbSelected = holder.itemView.cbSelected
+        cbSelected.isSelected = isSelected
+        cbSelected.text = if (isSelected) SelectImageProvider.instance.getPathIndex(path) else ""
+        holder.itemView.viewMask.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
     }
 
     override fun update(o: Observable?, arg: Any?) {
@@ -99,6 +104,12 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
         this.images.clear()
         this.images.addAll(images)
         notifyDataSetChanged()
+    }
+
+    fun insertImage(image: String) {
+        var index = if (showCamera) 1 else 0
+        this.images.add(index, image)
+        notifyItemInserted(index)
     }
 
     inner class CameraHolder(view: View) : RecyclerView.ViewHolder(view)

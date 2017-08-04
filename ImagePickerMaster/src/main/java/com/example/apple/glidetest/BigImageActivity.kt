@@ -7,7 +7,6 @@ import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.example.apple.glidetest.bean.FolderProvider
 import com.example.apple.glidetest.bean.SelectImageProvider
@@ -15,9 +14,11 @@ import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.toastStrId
 import kotlinx.android.synthetic.main.activity_big_image.*
 import kotlinx.android.synthetic.main.title_bar.*
+import uk.co.senab.photoview.PhotoView
 import java.io.File
 
 class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
+
     companion object {
         val POSITION = "position"
         fun start(context: Activity, position: Int) {
@@ -34,12 +35,19 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_big_image)
-        val pos = intent.getIntExtra(POSITION, 0)
-        viewPager.currentItem = pos
-        viewPager.adapter = MyPagerAdapter()
-        onPageSelected(pos)
         selectedImages.clear()
         selectedImages.addAll(imageProvider.selectedImgs)
+        btnOK.isEnabled = selectedImages.size > 0
+        viewPager.addOnPageChangeListener(this)
+        viewPager.adapter = MyPagerAdapter()
+        val pos = intent.getIntExtra(POSITION, 0)
+//        应该在setAdapter之后调用setCurrentItem方法
+        viewPager.currentItem = pos
+        onPageSelected(pos)
+        initListener()
+    }
+
+    private fun initListener() {
         ivLeft.setOnClickListener {
             setResult(RESULT_CANCELED)
             finish()
@@ -50,14 +58,20 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
             finish()
         }
         ivRight.setOnClickListener {
-            btnOK.isEnabled = selectedImages.size > 0
             if (!ivRight.isSelected && selectedImages.size >= imageProvider.maxSelect) {
                 toastStrId(R.string.big_max_toast)
             } else {
                 val path = images.get(viewPager.currentItem)
                 ivRight.isSelected = !ivRight.isSelected
-                if (ivRight.isSelected) selectedImages.add(path)
-                else selectedImages.remove(path)
+                if (ivRight.isSelected) {
+                    selectedImages.add(path)
+                    ivRight.text = (selectedImages.indexOf(path)+1).toString()
+                }
+                else {
+                    selectedImages.remove(path)
+                    ivRight.text = ""
+                }
+                btnOK.isEnabled = selectedImages.size > 0
             }
         }
     }
@@ -65,7 +79,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     inner class MyPagerAdapter : PagerAdapter() {
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val imageView = ImageView(this@BigImageActivity)
+            val imageView = PhotoView(this@BigImageActivity)
             Glide.with(this@BigImageActivity).load(File(images.get(position))).into(imageView)
             container.addView(imageView)
             return imageView
@@ -90,6 +104,8 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
     override fun onPageSelected(position: Int) {
         ivRight.isSelected = selectedImages.contains(images.get(position))
+        if (ivRight.isSelected) ivRight.text = (selectedImages.indexOf(images.get(position))+1).toString()
+        else ivRight.text = ""
     }
 
     override fun onPageScrollStateChanged(state: Int) {

@@ -18,10 +18,13 @@
         android:visibility="gone"
         android:id="@+id/viewMask"/>
 
-    <ImageView
-        android:paddingTop="10dp"
-        android:paddingRight="10dp"
-        android:button="@null"
+    <TextView
+        android:gravity="center"
+        android:textSize="14sp"
+        tools:text="12"
+        android:textColor="#fff"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
         android:id="@+id/cbSelected"
         android:layout_width="30dp"
         android:layout_height="30dp"

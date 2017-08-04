@@ -27,11 +27,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-//    compile("com.github.hotchemi:permissionsdispatcher:$permission_version") {
-//        // if you don't use android.app.Fragment you can exclude support for them
-//        exclude module: "support-v13"
-//    }
-//    annotationProcessor "com.github.hotchemi:permissionsdispatcher-processor:$permission_version"
+    compile 'com.github.chrisbanes.photoview:library:1.2.4'
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:appcompat-v7:25.3.1'

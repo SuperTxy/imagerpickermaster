@@ -17,59 +17,60 @@ import static android.os.Environment.getExternalStorageState;
  */
 
 public class FileUtils {
-
-    private static final String JPEG_FILE_PREFIX = "IMG";
-    private static final String JPEG_FILE_SUFFIX= ".jpg";
-    private static final String WRITE_EXTERNAL_PERMISSION= "android.permission.WRITE_EXTERNAL_STORAGE";
+    /**
+     * /storage/emulated/0/DCIM/Camera
+     * /storage/emulated/0/DCIM
+     * /storage/emulated/0/DCIM/Screenshots
+     */
+    private static final String JPEG_FILE_PREFIX = "IMGa";
+    private static final String JPEG_FILE_SUFFIX = ".jpg";
+    private static final String WRITE_EXTERNAL_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";
 
     public static File createTmpFile(Context context) throws IOException {
         File dir;
-        if(TextUtils.equals(getExternalStorageState(),MEDIA_MOUNTED)) {
-            dir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DCIM);
-            if(!dir.exists()) {
-                dir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DCIM+"/Camera");
-                if(!dir.exists()) {
-                    dir = getCacheDirectory(context,true);
-                }
+        if (TextUtils.equals(getExternalStorageState(), MEDIA_MOUNTED)) {
+            dir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DCIM + "/Camera");
+            if (!dir.exists()) {
+                dir = getCacheDirectory(context, true);
             }
-        }else{
-            dir = getCacheDirectory(context,true);
+        } else {
+            dir = getCacheDirectory(context, true);
         }
-        return File.createTempFile(JPEG_FILE_PREFIX,JPEG_FILE_SUFFIX,dir);
+        return File.createTempFile(JPEG_FILE_PREFIX, JPEG_FILE_SUFFIX, dir);
     }
 
-    private static File getCacheDirectory(Context context,boolean preferExternal) {
+    private static File getCacheDirectory(Context context, boolean preferExternal) {
         File appCacheDir = null;
         String externalStorageState;
         try {
             externalStorageState = Environment.getExternalStorageState();
         } catch (NullPointerException e) {
             externalStorageState = "";
-        }catch (IncompatibleClassChangeError e){
+        } catch (IncompatibleClassChangeError e) {
             externalStorageState = "";
         }
-        if(preferExternal && TextUtils.equals(externalStorageState,MEDIA_MOUNTED) && hasExternalStoragePermission(context)) {
+        if (preferExternal && TextUtils.equals(externalStorageState, MEDIA_MOUNTED) && hasExternalStoragePermission(context)) {
             appCacheDir = getExternalCacheDir(context);
         }
-        if(appCacheDir == null) {
+        if (appCacheDir == null) {
             appCacheDir = context.getCacheDir();
         }
-        if(appCacheDir == null) {
+        if (appCacheDir == null) {
             String cacheDirPath = context.getFilesDir().getPath() + context.getPackageName() + "/cache/";
-            appCacheDir  = new File(cacheDirPath);
+            appCacheDir = new File(cacheDirPath);
         }
         return appCacheDir;
     }
 
     private static File getExternalCacheDir(Context context) {
-        File dataDir = new File(new File(Environment.getExternalStorageDirectory(),"Android"),"data");
-        File appCacheDir = new File(new File(dataDir,context.getPackageName()),"cache");
-        if(!appCacheDir.exists()) {
-            if(!appCacheDir.mkdirs()) {
-                return  null;
+        File dataDir = new File(new File(Environment.getExternalStorageDirectory(), "Android"), "data");
+        File appCacheDir = new File(new File(dataDir, context.getPackageName()), "cache");
+        if (!appCacheDir.exists()) {
+            if (!appCacheDir.mkdirs()) {
+                return null;
             }
             try {
-                new File(appCacheDir,".nomedia").createNewFile();
+                new File(appCacheDir, ".nomedia").createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -78,7 +79,7 @@ public class FileUtils {
 
     }
 
-    private static boolean hasExternalStoragePermission(Context context){
+    private static boolean hasExternalStoragePermission(Context context) {
         return PERMISSION_GRANTED == context.checkCallingOrSelfPermission(WRITE_EXTERNAL_PERMISSION);
     }
 }

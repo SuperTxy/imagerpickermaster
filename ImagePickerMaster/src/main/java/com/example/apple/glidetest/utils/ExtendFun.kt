@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.inflate
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import com.bumptech.glide.Glide
@@ -23,6 +24,7 @@ import java.io.File
 fun Activity.showAlertDialog(message: String, leftStr: String, rightStr: String, leftListener: OnClickListener?, rightListener: OnClickListener?) {
     val dialog = Dialog(this, R.style.mydialogstyle)
     val view = inflate(this, R.layout.alert_dialog, null)
+    dialog.setContentView(view)
     view.tv_alert_negative.text = leftStr
     view.tv_alert_positive.text = rightStr
     view.tv_alert_message.text = message
@@ -71,8 +73,8 @@ fun Context.loadImage(file: File, imageView: ImageView) {
             .placeholder(R.drawable.default_image).centerCrop().into(imageView)
 }
 
-fun Context.getView(layoutId: Int): View {
-    return LayoutInflater.from(this).inflate(layoutId, null)
+fun Context.getView(layoutId: Int, parent: ViewGroup? = null): View {
+    return LayoutInflater.from(this).inflate(layoutId, parent, false)
 }
 
 fun Context.toastStrId(resId: Int) {

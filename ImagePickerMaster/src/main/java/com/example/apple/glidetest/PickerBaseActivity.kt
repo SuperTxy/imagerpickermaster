@@ -4,11 +4,14 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
+import com.example.apple.glidetest.adapter.CommonImageAdapter
 import com.example.apple.glidetest.bean.Folder
 import com.example.apple.glidetest.bean.FolderProvider
 import com.example.apple.glidetest.bean.SelectImageProvider
@@ -24,20 +27,37 @@ import java.util.*
 
 abstract class PickerBaseActivity : Activity(), Observer {
 
-    private var imageProvider: SelectImageProvider = SelectImageProvider.instance
+    protected var imageProvider: SelectImageProvider = SelectImageProvider.instance
     private var tmpFile: File? = null
     private val FILE_PROVIDER = "com.example.apple.glidetest.fileprovider"
-    private val CAREMA_REQUEST_CODE: Int = 1
     protected val HORIZONTAL_COUNT: Int = 4
     private var permissionUtils: PermissionUtils? = null
+    protected var adapter: CommonImageAdapter? = null
+    protected var view: View? = null
+    protected var btnCenter: TextView? = null
+    protected var btnLeft: ImageView? = null
+    protected var btnRight: TextView? = null
+    protected var btnOk: TextView? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    fun initView() {
         permissionUtils = PermissionUtils(this)
         imageProvider.addObserver(this)
         imageProvider.clear()
         imageProvider.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
         permissionUtils?.checkStoragePermission(Runnable { loadFolderAndImages() })
+//        TODO("图片读取目录还有问题")
+        btnOk!!.setOnClickListener {
+            intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
+            setResult(RESULT_OK, intent)
+            finish()
+        }
+        btnLeft!!.setOnClickListener {
+            startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_REQUEST_CODE)
+        }
+        btnRight!!.setOnClickListener {
+            setResult(RESULT_CANCELED, intent)
+            finish()
+        }
     }
 
     fun loadFolderAndImages() {
@@ -76,7 +96,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
                     } else {
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tmpFile))
                     }
-                    startActivityForResult(intent, CAREMA_REQUEST_CODE)
+                    startActivityForResult(intent, PickerSettings.CAREMA_REQUEST_CODE)
                 } else {
                     Toast.makeText(this, "图片错误！", Toast.LENGTH_SHORT).show()
                 }
@@ -87,27 +107,48 @@ abstract class PickerBaseActivity : Activity(), Observer {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == CAREMA_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                if (tmpFile != null) {
-                    sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(tmpFile)))
-                    imageProvider.add(tmpFile!!.absolutePath)
-                }
-            } else {
+
+        when (requestCode) {
+            PickerSettings.BIG_REQUEST_CODE -> {
+                adapter!!.notifyDataSetChanged()
+                onBigResult()
+            }
+
+            PickerSettings.FOLDER_REQUEST_CODE -> {
+                if (resultCode == RESULT_OK) {
+                    val selectedFolder = FolderProvider.instance.selectedFolder
+                    btnCenter!!.text = selectedFolder!!.name
+                    adapter!!.refresh(selectedFolder.imgs)
+                } else finish()
+            }
+
+            PickerSettings.CAREMA_REQUEST_CODE -> {
+                if (resultCode == RESULT_OK) {
+                    if (tmpFile != null) {
+                        sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(tmpFile)))
+                        adapter!!.insertImage(tmpFile!!.absolutePath)
+                        imageProvider.add(tmpFile!!.absolutePath)
+                    }
+                } else {
 //               user click cancel
-                if (tmpFile != null && tmpFile!!.exists()) {
-                    if (tmpFile!!.delete()) {
-                        tmpFile = null
+                    if (tmpFile != null && tmpFile!!.exists()) {
+                        if (tmpFile!!.delete()) {
+                            tmpFile = null
+                        }
                     }
                 }
             }
         }
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionUtils?.onRequestPermissionsResult(requestCode,permissions,grantResults)
+        permissionUtils?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    abstract fun onBigResult()
+
     abstract fun initData()
+
 }

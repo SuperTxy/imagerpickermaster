@@ -17,31 +17,26 @@ import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
 
 class CommonPickerActivity : PickerBaseActivity() {
+
     companion object {
-        fun start(context: Activity, maxSelect:Int){
+        fun start(context: Activity, maxSelect: Int) {
             val intent = Intent(context, CommonPickerActivity::class.java)
-            intent.putExtra(PickerSettings.MAX_SELECT,maxSelect)
-            context.startActivityForResult(intent,PickerSettings.COMMON_PICKER_REQUEST_CODE)
+            intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
+            context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
         }
     }
-    private var adapter: CommonImageAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_common_picker)
         recyclerView.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT)
         recyclerView.addItemDecoration(SpaceItemDecoration(dp2px(2.0f), HORIZONTAL_COUNT))
-        btnPickOk.setOnClickListener {
-            intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
-            setResult(RESULT_OK, intent)
-            finish()
-        }
-        ivLeft.setOnClickListener {
-            startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_SELECT_CODE)
-        }
-        tvRight.setOnClickListener {
-            setResult(RESULT_CANCELED,intent)
-            finish() }
+        btnPickOk.text = "确定 (0/" + intent.getIntExtra(PickerSettings.MAX_SELECT, 1) + ")"
+        btnOk = btnPickOk
+        btnCenter = tvCenter
+        btnLeft = ivLeft
+        btnRight = tvRight
+        initView()
     }
 
     override fun update(o: Observable?, arg: Any?) {
@@ -61,24 +56,13 @@ class CommonPickerActivity : PickerBaseActivity() {
             }
         }
         adapter!!.itemClickListener = object : OnItemClickListener {
-            override fun onItemClick(position: Int, isChecked: Boolean) {
-                BigImageActivity.start(this@CommonPickerActivity,position)
+            override fun onItemClick(position: Int) {
+                BigImageActivity.start(this@CommonPickerActivity, position)
             }
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == PickerSettings.FOLDER_SELECT_CODE) {
-            if (resultCode == RESULT_OK) {
-                val selectedFolder = FolderProvider.instance.selectedFolder
-                tvCenter.text = selectedFolder!!.name
-                adapter!!.refresh(selectedFolder.imgs)
-            } else {
-                finish()
-            }
-        }else if (requestCode == PickerSettings.BIG_REQUEST_CODE && resultCode == RESULT_OK){
-            adapter!!.refresh(SelectImageProvider.instance.selectedImgs)
-            update(null,null)
-        }
+    override fun onBigResult() {
+        update(null, null)
     }
 }

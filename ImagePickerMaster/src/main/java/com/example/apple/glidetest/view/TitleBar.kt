@@ -36,31 +36,7 @@ class TitleBar @JvmOverloads constructor(context: Context, attributeSet: Attribu
             tvRight.text = rightText
         }
         if (rightImage != null) {
-            ivRight.setImageDrawable(rightImage)
+            ivRight.setBackgroundDrawable(rightImage)
         }
-//        ivLeft.setOnClickListener { v ->
-//            listener?.onLeftClick(v)
-//        }
-//        ivRight.setOnClickListener { v ->
-//            listener?.onRightClick(v)
-//        }
-//        tvRight.setOnClickListener { v ->
-//            listener?.onRightClick(v)
-//        }
     }
-
-//    var listener: OnTitleBarListener? = null
-//        set(value) {
-//            field = value
-//        }
-
-
-//    fun setTitle(title: String) {
-//        tvCenter.text = title
-//    }
-
-//    interface OnTitleBarListener {
-//        fun onLeftClick(v: View)
-//        fun onRightClick(v: View)
-//    }
 }

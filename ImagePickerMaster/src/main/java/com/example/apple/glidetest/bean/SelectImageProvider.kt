@@ -34,7 +34,7 @@ class SelectImageProvider private constructor() : Observable() {
         if (selectedImgs.contains(path)) {
             selectedImgs.remove(path)
             setChanged()
-            notifyObservers()
+            notifyObservers(Change(Change.REMOVE,path))
             Logger.d("remove->" + selectedImgs.size + "-->" + path)
         } else {
             Logger.e("此图片不存在，无法移除")
@@ -45,11 +45,16 @@ class SelectImageProvider private constructor() : Observable() {
         if (!selectedImgs.contains(path)) {
             selectedImgs.add(path)
             setChanged()
-            notifyObservers()
+            notifyObservers(Change(Change.ADD,path))
             Logger.d("add->" + selectedImgs.size + "-->" + path)
         } else {
             Logger.e("该图片已存在，无法添加")
         }
+    }
+
+    fun getPathIndex(path:String):String{
+        var index :Int = selectedImgs.indexOf(path)
+            return if (index != -1) (index + 1).toString() else ""
     }
 
     fun isPathExist(path: String): Boolean {
@@ -58,8 +63,6 @@ class SelectImageProvider private constructor() : Observable() {
 
     fun clear() {
         selectedImgs.clear()
-//        setChanged()
-//        notifyObservers()
     }
 
 

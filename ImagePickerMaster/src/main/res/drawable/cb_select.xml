@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_selected="true" android:drawable="@drawable/image_selected"/>
-    <item android:drawable="@drawable/image_unselected"/>
+    <item android:state_selected="true" >
+        <shape android:shape="oval">
+            <stroke android:width="1dp" android:color="#fff" />
+            <solid android:color="@color/colore93a3a"/>
+            <size android:height="15dp" android:width="15dp"/>
+        </shape>
+    </item>
+    <item android:state_selected="false">
+        <shape android:shape="oval">
+            <stroke android:width="1dp" android:color="#fff"/>
+            <solid android:color="@color/color22000000"/>
+            <size android:height="15dp" android:width="15dp"/>
+        </shape>
+    </item>
 </selector>
