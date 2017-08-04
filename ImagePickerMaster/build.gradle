@@ -58,10 +58,10 @@ def group = 'com.github.SuperTxy'
 //    options.addStringOption('encoding', 'UTF-8')
 //    options.addStringOption('charSet', 'UTF-8')
 //}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
+//artifacts {
+//    archives javadocJar
+//    archives sourcesJar
+//}
 repositories {
     mavenCentral()
 }
