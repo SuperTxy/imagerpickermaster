@@ -24,7 +24,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         tvMain.setOnClickListener {
-            PickerActivity.start(this,12)
+            PickerActivity.startForResult(this,12,imags)
         }
         adapter = MyGridAdapter()
         gvMain.adapter = adapter

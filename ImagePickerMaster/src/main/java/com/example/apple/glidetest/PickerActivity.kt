@@ -74,7 +74,7 @@ class PickerActivity : PickerBaseActivity() {
                 setResult(RESULT_OK, intent)
                 finish()
             }else {
-                listener!!.onSkipOrComplete(SelectImageProvider.instance.selectedImgs)
+                listener!!.onSkipOrComplete(this@PickerActivity,SelectImageProvider.instance.selectedImgs)
             }
         }
     }
@@ -94,17 +94,17 @@ class PickerActivity : PickerBaseActivity() {
 
     override fun update(o: Observable?, arg: Any?) {
         if (o is SelectImageProvider && arg is Change) {
-            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount)
+            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount-1)
             btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         }
     }
 
     override fun onBigResult() {
         selectedAdapter!!.refresh(imageSelector.selectedImgs)
-        recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount)
+        recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount -1)
     }
 
     interface OnSkipOrCompleteListener {
-        fun onSkipOrComplete(imgs: ArrayList<String>)
+        fun onSkipOrComplete(context: Activity,imgs: ArrayList<String>)
     }
 }

@@ -92,10 +92,14 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
 
     override fun update(o: Observable?, arg: Any?) {
         if (o is SelectImageProvider && arg is Change) {
-            var index = OsUtils.getIndexInList(images, arg.path)
-            if (index != -1) {
-                index = if (showCamera) index + 1 else index
-                notifyItemChanged(index)
+            if (arg.isAdd) {
+                var index = OsUtils.getIndexInList(images, arg.path)
+                if (index != -1) {
+                    index = if (showCamera) index + 1 else index
+                    notifyItemChanged(index)
+                }
+            }else{
+                notifyDataSetChanged()
             }
         }
     }

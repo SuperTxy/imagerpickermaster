@@ -26,7 +26,6 @@ import java.util.*
  */
 
 abstract class PickerBaseActivity : Activity(), Observer {
-
     protected var imageProvider: SelectImageProvider = SelectImageProvider.instance
     private var tmpFile: File? = null
     private val FILE_PROVIDER = "com.example.apple.glidetest.fileprovider"
@@ -130,7 +129,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
                 }
             }
         }
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
