@@ -19,7 +19,7 @@ import java.util.*
 class CommonPickerActivity : PickerBaseActivity() {
 
     companion object {
-        fun start(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>?) {
+        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>) {
             val intent = Intent(context, CommonPickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
             intent.putExtra(PickerSettings.INITIAL_SELECT,initialSelect)
@@ -33,10 +33,14 @@ class CommonPickerActivity : PickerBaseActivity() {
         recyclerView.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT)
         recyclerView.addItemDecoration(SpaceItemDecoration(dp2px(2.0f), HORIZONTAL_COUNT))
         btnPickOk.text = "确定 (0/" + intent.getIntExtra(PickerSettings.MAX_SELECT, 1) + ")"
-        btnOk = btnPickOk
         btnCenter = tvCenter
         btnLeft = ivLeft
         tvRight.setOnClickListener {
+            finish()
+        }
+        btnPickOk.setOnClickListener {
+            intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
+            setResult(RESULT_OK, intent)
             finish()
         }
         initView()

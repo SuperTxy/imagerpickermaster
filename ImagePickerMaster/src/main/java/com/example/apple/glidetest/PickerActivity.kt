@@ -24,11 +24,20 @@ import java.util.*
 
 class PickerActivity : PickerBaseActivity() {
     companion object {
-        fun start(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>?) {
+        private var listener: OnSkipOrCompleteListener? = null
+
+        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>) {
             val intent = Intent(context, PickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
             intent.putExtra(PickerSettings.INITIAL_SELECT, initialSelect)
             context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
+        }
+
+        fun start(context: Activity, maxSelect: Int, listener: OnSkipOrCompleteListener) {
+            val intent = Intent(context, PickerActivity::class.java)
+            intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
+            this.listener = listener
+            context.startActivity(intent)
         }
     }
 
@@ -43,19 +52,31 @@ class PickerActivity : PickerBaseActivity() {
         recyclerViewSelected.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         tvCamera.setOnClickListener { launchCamera() }
         btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
-        btnOk = btnPickOk
         btnCenter = tvCenter
         btnLeft = ivLeft
+        initListener()
+        initView()
+    }
+
+    private fun initListener() {
         tvRight.setOnClickListener {
             if (initialSelect != null)
-            finish()
-            else showAlertDialog(getString(R.string.confirm_to_exit),"退出","取消", object : OnClickListener {
+                finish()
+            else showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
                 override fun onClick(v: View) {
                     finish()
                 }
-            },null)
+            }, null)
         }
-        initView()
+        btnPickOk.setOnClickListener {
+            if (listener == null) {
+                intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
+                setResult(RESULT_OK, intent)
+                finish()
+            }else {
+                listener!!.onSkipOrComplete(SelectImageProvider.instance.selectedImgs)
+            }
+        }
     }
 
     override fun initData() {
@@ -81,5 +102,9 @@ class PickerActivity : PickerBaseActivity() {
     override fun onBigResult() {
         selectedAdapter!!.refresh(imageSelector.selectedImgs)
         recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount)
+    }
+
+    interface OnSkipOrCompleteListener {
+        fun onSkipOrComplete(imgs: ArrayList<String>)
     }
 }

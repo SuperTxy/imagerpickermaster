@@ -36,7 +36,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var view: View? = null
     protected var btnCenter: TextView? = null
     protected var btnLeft: ImageView? = null
-    protected var btnOk: TextView? = null
     protected var initialSelect: ArrayList<String>? = null
 
     fun initView() {
@@ -47,11 +46,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
         imageProvider.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
         permissionUtils?.checkStoragePermission(Runnable { loadFolderAndImages() })
 //        TODO("图片读取目录还有问题")
-        btnOk!!.setOnClickListener {
-            intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
-            setResult(RESULT_OK, intent)
-            finish()
-        }
         btnLeft!!.setOnClickListener {
             startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_REQUEST_CODE)
         }
