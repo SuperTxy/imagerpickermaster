@@ -6,4 +6,5 @@
     <string name="image_error">图片错误！</string>
     <string name="max_toast_suffix">, 可后续补充说明继续添加</string>
     <string name="big_max_toast">您选择的图片数量已达到上限！</string>
+    <string name="confirm_to_exit">确认退出此次编辑?</string>
 </resources>

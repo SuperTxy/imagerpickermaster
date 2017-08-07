@@ -8,6 +8,7 @@ object PickerSettings {
     //    选择图片返回结果
     val RESULT = "result"
     val MAX_SELECT = "max_select"
+    val INITIAL_SELECT = "initial_select"
 
     val FOLDER_REQUEST_CODE = 100
     val BIG_REQUEST_CODE = 101

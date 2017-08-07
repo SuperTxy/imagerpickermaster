@@ -19,9 +19,10 @@ import java.util.*
 class CommonPickerActivity : PickerBaseActivity() {
 
     companion object {
-        fun start(context: Activity, maxSelect: Int) {
+        fun start(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>?) {
             val intent = Intent(context, CommonPickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
+            intent.putExtra(PickerSettings.INITIAL_SELECT,initialSelect)
             context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
         }
     }
@@ -35,7 +36,9 @@ class CommonPickerActivity : PickerBaseActivity() {
         btnOk = btnPickOk
         btnCenter = tvCenter
         btnLeft = ivLeft
-        btnRight = tvRight
+        tvRight.setOnClickListener {
+            finish()
+        }
         initView()
     }
 
