@@ -9,9 +9,11 @@ object PickerSettings {
     val RESULT = "result"
     val MAX_SELECT = "max_select"
     val INITIAL_SELECT = "initial_select"
+    val BUNDLE = "bunlde"
 
     val FOLDER_REQUEST_CODE = 100
     val BIG_REQUEST_CODE = 101
     val PICKER_REQUEST_CODE = 102
     val CAREMA_REQUEST_CODE = 103
+
 }

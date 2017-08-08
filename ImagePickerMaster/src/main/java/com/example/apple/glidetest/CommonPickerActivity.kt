@@ -10,7 +10,6 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.listener.OnCameraClickListener
 import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.PickerSettings
-import com.example.apple.glidetest.utils.dp2px
 import com.example.apple.glidetest.view.SpaceItemDecoration
 import kotlinx.android.synthetic.main.activity_common_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
@@ -31,7 +30,7 @@ class CommonPickerActivity : PickerBaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_common_picker)
         recyclerView.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT)
-        recyclerView.addItemDecoration(SpaceItemDecoration(dp2px(2.0f), HORIZONTAL_COUNT))
+        recyclerView.addItemDecoration(SpaceItemDecoration(HORIZONTAL_COUNT))
         btnPickOk.text = "确定 (0/" + intent.getIntExtra(PickerSettings.MAX_SELECT, 1) + ")"
         btnCenter = tvCenter
         btnLeft = ivLeft

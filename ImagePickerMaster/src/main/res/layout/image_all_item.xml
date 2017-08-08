@@ -3,13 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
+    android:layout_marginRight="5dp"
+    android:layout_marginBottom="5dp"
     android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/ivImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:src="@drawable/ic_photo_camera_white_48dp" />
+        tools:src="@drawable/camera" />
     <View
         tools:visibility="visible"
         android:layout_width="match_parent"
@@ -20,14 +22,14 @@
 
     <TextView
         android:gravity="center"
-        android:textSize="14sp"
+        android:textSize="11sp"
         tools:text="12"
         android:textColor="#fff"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginRight="3dp"
         android:id="@+id/cbSelected"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="21dp"
+        android:layout_height="21dp"
         android:layout_gravity="top|right"
         android:background="@drawable/cb_select" />
 </com.example.apple.glidetest.view.SameHWLayout>

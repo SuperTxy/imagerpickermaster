@@ -5,16 +5,7 @@
     android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/ivImage"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_width="70dp"
-        android:layout_height="70dp" />
-    <!--<ImageView-->
-        <!--android:paddingRight="10dp"-->
-        <!--android:paddingBottom="10dp"-->
-        <!--android:src="@drawable/fatie_guanbi"-->
-        <!--android:id="@+id/iv_del"-->
-        <!--android:layout_gravity="left|top"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content" />-->
+        android:layout_marginLeft="10dp"
+        android:layout_width="56dp"
+        android:layout_height="56dp" />
 </FrameLayout>

@@ -4,14 +4,14 @@
         <shape android:shape="oval">
             <stroke android:width="1dp" android:color="#fff" />
             <solid android:color="@color/colore93a3a"/>
-            <size android:height="15dp" android:width="15dp"/>
+            <size android:height="21dp" android:width="21dp"/>
         </shape>
     </item>
     <item android:state_selected="false">
         <shape android:shape="oval">
             <stroke android:width="1dp" android:color="#fff"/>
-            <solid android:color="@color/color22000000"/>
-            <size android:height="15dp" android:width="15dp"/>
+            <solid android:color="@color/color666d6d6d"/>
+            <size android:height="21dp" android:width="21dp"/>
         </shape>
     </item>
 </selector>

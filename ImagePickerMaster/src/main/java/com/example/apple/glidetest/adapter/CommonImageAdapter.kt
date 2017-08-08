@@ -4,7 +4,6 @@ import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import com.example.apple.glidetest.R
 import com.example.apple.glidetest.bean.Change
 import com.example.apple.glidetest.bean.SelectImageProvider
@@ -13,6 +12,7 @@ import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.OsUtils
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
+import kotlinx.android.synthetic.main.camera.view.*
 import kotlinx.android.synthetic.main.image_all_item.view.*
 import java.io.File
 import java.util.*
@@ -46,7 +46,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == 0) {
-            return CameraHolder(ImageView(context))
+            return CameraHolder(context.getView(R.layout.camera))
         } else {
             return ImageHolder(context.getView(R.layout.image_all_item))
         }
@@ -73,8 +73,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
                 itemClickListener?.onItemClick(pos)
             }
         } else if (holder is CameraHolder) {
-            val cameraView = holder.itemView as ImageView
-            cameraView.setImageResource(R.drawable.ic_photo_camera_white_48dp)
+            val cameraView = holder.itemView.ivCamera
             cameraView.setOnClickListener {
                 if (!selectImageProvider.maxSelectToast(context, false)) {
                     cameraClickListener?.onCameraClick()

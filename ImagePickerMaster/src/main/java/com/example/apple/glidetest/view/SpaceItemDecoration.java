@@ -11,10 +11,9 @@ import android.view.View;
 public class SpaceItemDecoration extends RecyclerView.ItemDecoration {
 
     private  int count;
-    private int space;
+    private int space = 10;
 
-    public SpaceItemDecoration(int space,int count) {
-        this.space = space;
+    public SpaceItemDecoration(int count) {
         this.count = count;
     }
 

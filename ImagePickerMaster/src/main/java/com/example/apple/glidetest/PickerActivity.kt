@@ -15,17 +15,14 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.OnClickListener
 import com.example.apple.glidetest.utils.PickerSettings
-import com.example.apple.glidetest.utils.dp2px
 import com.example.apple.glidetest.utils.showAlertDialog
-import com.example.apple.glidetest.view.SpaceItemDecoration
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
 
 class PickerActivity : PickerBaseActivity() {
     companion object {
-        private var listener: OnSkipOrCompleteListener? = null
-
+        private val CLASSNAME: String = "className"
         fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>) {
             val intent = Intent(context, PickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
@@ -33,27 +30,33 @@ class PickerActivity : PickerBaseActivity() {
             context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
         }
 
-        fun start(context: Activity, maxSelect: Int, listener: OnSkipOrCompleteListener) {
+        fun start(context: Activity, maxSelect: Int, bundle: Bundle, className: String) {
             val intent = Intent(context, PickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
-            this.listener = listener
+            intent.putExtra(PickerSettings.BUNDLE, bundle)
+            intent.putExtra(CLASSNAME, className)
             context.startActivity(intent)
         }
     }
 
     private var selectedAdapter: ImageSelectedAdapter? = null
     private var imageSelector = SelectImageProvider.instance
+    private var bundle: Bundle? = null
+    private var className:String ?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_picker)
         recyclerViewAll.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT) as RecyclerView.LayoutManager?
-        recyclerViewAll.addItemDecoration(SpaceItemDecoration(dp2px(2.0f), HORIZONTAL_COUNT))
+//        recyclerViewAll.addItemDecoration(SpaceItemDecoration( HORIZONTAL_COUNT))
         recyclerViewSelected.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        tvCamera.setOnClickListener { launchCamera() }
+//        recyclerViewSelected.addItemDecoration(DividerItemDecoration(this,LinearLayoutManager.HORIZONTAL))
+        ivCamera.setOnClickListener { launchCamera() }
         btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         btnCenter = tvCenter
         btnLeft = ivLeft
+        bundle = intent.getBundleExtra(PickerSettings.BUNDLE)
+        className = intent.getStringExtra(CLASSNAME)
         initListener()
         initView()
     }
@@ -69,12 +72,16 @@ class PickerActivity : PickerBaseActivity() {
             }, null)
         }
         btnPickOk.setOnClickListener {
-            if (listener == null) {
+            if (initialSelect != null) {
                 intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
                 setResult(RESULT_OK, intent)
                 finish()
-            }else {
-                listener!!.onSkipOrComplete(this@PickerActivity,SelectImageProvider.instance.selectedImgs)
+            }else{
+                val intent = Intent(this, Class.forName(className))
+                bundle!!.putSerializable(PickerSettings.RESULT,SelectImageProvider.instance.selectedImgs)
+                intent.putExtra(PickerSettings.BUNDLE,bundle)
+                startActivity(intent)
+                finish()
             }
         }
     }
@@ -94,17 +101,13 @@ class PickerActivity : PickerBaseActivity() {
 
     override fun update(o: Observable?, arg: Any?) {
         if (o is SelectImageProvider && arg is Change) {
-            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount-1)
+            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount - 1)
             btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         }
     }
 
     override fun onBigResult() {
         selectedAdapter!!.refresh(imageSelector.selectedImgs)
-        recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount -1)
-    }
-
-    interface OnSkipOrCompleteListener {
-        fun onSkipOrComplete(context: Activity,imgs: ArrayList<String>)
+        recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount - 1)
     }
 }
