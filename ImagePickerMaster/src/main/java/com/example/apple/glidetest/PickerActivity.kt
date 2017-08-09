@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.example.apple.glidetest.adapter.CommonImageAdapter
 import com.example.apple.glidetest.adapter.ImageSelectedAdapter
@@ -17,6 +18,7 @@ import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.dp2px
 import com.example.apple.glidetest.utils.showAlertDialog
 import com.example.apple.glidetest.view.GridItemDecoration
+import com.renyibang.android.utils.StatusBarUtil
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -43,17 +45,21 @@ class PickerActivity : PickerBaseActivity() {
     private var selectedAdapter: ImageSelectedAdapter? = null
     private var imageSelector = SelectImageProvider.instance
     private var bundle: Bundle? = null
-    private var className:String ?=null
+    private var className: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        StatusBarUtil.setStatusBarColorWhite(this)
         setContentView(R.layout.activity_picker)
-        recyclerViewAll.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT)
+        recyclerViewAll.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT) as RecyclerView.LayoutManager?
         recyclerViewAll.addItemDecoration(GridItemDecoration.Builder(this).size(dp2px(5.0f)).color(R.color.white)
-                .margin(0,0).isExistHead(false).build())
+                .margin(0, 0).isExistHead(false).build())
         recyclerViewSelected.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         recyclerViewSelected.isFocusable = false
-        ivCamera.setOnClickListener { launchCamera() }
+        ivCamera.setOnClickListener {
+            if (imageSelector.maxSelectToast(this, false))
+            else launchCamera()
+        }
         btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         btnCenter = tvCenter
         btnLeft = ivLeft
@@ -78,10 +84,10 @@ class PickerActivity : PickerBaseActivity() {
                 intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
                 setResult(RESULT_OK, intent)
                 finish()
-            }else{
+            } else {
                 val intent = Intent(this, Class.forName(className))
-                bundle!!.putSerializable(PickerSettings.RESULT,SelectImageProvider.instance.selectedImgs)
-                intent.putExtra(PickerSettings.BUNDLE,bundle)
+                bundle!!.putSerializable(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
+                intent.putExtra(PickerSettings.BUNDLE, bundle)
                 startActivity(intent)
                 finish()
             }

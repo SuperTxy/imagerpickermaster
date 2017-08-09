@@ -12,6 +12,7 @@ import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.dp2px
 import com.example.apple.glidetest.view.GridItemDecoration
+import com.renyibang.android.utils.StatusBarUtil
 import kotlinx.android.synthetic.main.activity_common_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -29,6 +30,7 @@ class CommonPickerActivity : PickerBaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        StatusBarUtil.setStatusBarColorWhite(this)
         setContentView(R.layout.activity_common_picker)
         recyclerView.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT)
         recyclerView.addItemDecoration(GridItemDecoration.Builder(this).size(dp2px(5.0f)).color(R.color.white)
