@@ -14,7 +14,7 @@
     <com.example.apple.glidetest.view.TitleBar
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#1a1a1a"
+        app:backgroudColor="#1a1a1a"
         app:leftImage="@drawable/back_all_white"
         app:rightImage="@drawable/cb_select" />
 

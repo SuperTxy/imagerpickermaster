@@ -1,5 +1,8 @@
 package com.example.apple.glidetest.bean
 
+import android.text.TextUtils
+import java.io.File
+
 /**
  * Created by Apple on 17/7/31.
  */
@@ -42,6 +45,20 @@ class FolderProvider private constructor() {
     fun clear(){
         folders.clear()
         foldersMap.clear()
+    }
+
+    fun addCameraImage(path:String){
+        val dir = File(path).parentFile.absolutePath
+        if (!hasFolder(dir)) {
+            val name = dir.substring(dir.lastIndexOf('/') + 1)
+            addFolder(Folder(dir, name, path))
+        }
+        getFolderByDir(dir)!!.addImage(path,0)
+        if (!TextUtils.equals(getFolderByDir(dir)!!.name,folders.get(0).name) ) {
+            folders.get(0).addImage(path,0)
+            folders.get(0).firstImagePath = path
+        }
+        getFolderByDir(dir)!!.firstImagePath = path
     }
 
     val count: Int

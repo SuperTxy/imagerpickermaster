@@ -10,7 +10,8 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.listener.OnCameraClickListener
 import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.PickerSettings
-import com.example.apple.glidetest.view.SpaceItemDecoration
+import com.example.apple.glidetest.utils.dp2px
+import com.example.apple.glidetest.view.GridItemDecoration
 import kotlinx.android.synthetic.main.activity_common_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -30,8 +31,8 @@ class CommonPickerActivity : PickerBaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_common_picker)
         recyclerView.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT)
-        recyclerView.addItemDecoration(SpaceItemDecoration(HORIZONTAL_COUNT))
-        btnPickOk.text = "确定 (0/" + intent.getIntExtra(PickerSettings.MAX_SELECT, 1) + ")"
+        recyclerView.addItemDecoration(GridItemDecoration.Builder(this).size(dp2px(5.0f)).color(R.color.white)
+                .margin(0,0).isExistHead(false).build())
         btnCenter = tvCenter
         btnLeft = ivLeft
         tvRight.setOnClickListener {
@@ -43,6 +44,8 @@ class CommonPickerActivity : PickerBaseActivity() {
             finish()
         }
         initView()
+        var selctedCount = if (initialSelect != null) initialSelect!!.size else 0
+        btnPickOk.text = "确定 ("+selctedCount+"/" + intent.getIntExtra(PickerSettings.MAX_SELECT, 1) + ")"
     }
 
     override fun update(o: Observable?, arg: Any?) {

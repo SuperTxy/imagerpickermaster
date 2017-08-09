@@ -6,4 +6,9 @@
     <color name="window_bg">#00171718</color>
     <color name="colore93a3a">#e93a3a</color>
     <color name="color666d6d6d">#666d6d6d</color>
+    <color name="color333333">#333333</color>
+    <color name="color666666">#666666</color>
+    <color name="color777777">#777777</color>
+    <color name="colorb5b5b5">#b5b5b5</color>
+    <color name="white" >#ffffff</color>
 </resources>

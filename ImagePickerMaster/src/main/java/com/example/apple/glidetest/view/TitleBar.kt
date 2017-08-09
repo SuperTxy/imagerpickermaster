@@ -1,6 +1,8 @@
 package com.example.apple.glidetest.view
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +23,9 @@ class TitleBar @JvmOverloads constructor(context: Context, attributeSet: Attribu
         val leftImage = ta.getDrawable(R.styleable.TitleBar_leftImage)
         val rightText = ta.getString(R.styleable.TitleBar_rightText)
         val rightImage = ta.getDrawable(R.styleable.TitleBar_rightImage)
+        val backgroundColor = ta.getColor(R.styleable.TitleBar_backgroudColor,Color.WHITE)
         ta.recycle()
+        background = ColorDrawable(backgroundColor)
         if (leftImage == null) {
             ivLeft.visibility = View.GONE
         } else {

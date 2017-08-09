@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="50dp"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#fff"
     android:orientation="vertical">
 
     <ImageView
@@ -26,7 +25,7 @@
         android:id="@+id/tvRight"
         android:textSize="16sp"
         tools:text="取消"
-        android:textColor="#333"
+        android:textColor="@color/color777777"
         android:layout_alignParentRight="true"
         android:gravity="center_vertical"
         android:layout_width="wrap_content"

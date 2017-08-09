@@ -109,11 +109,11 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
         notifyDataSetChanged()
     }
 
-    fun insertImage(image: String) {
-        var index = if (showCamera) 1 else 0
-        this.images.add(index, image)
-        notifyItemInserted(index)
-    }
+//    fun insertImage(image: String) {
+//        var index = if (showCamera) 1 else 0
+//        this.images.add(index, image)
+//        notifyItemInserted(index)
+//    }
 
     inner class CameraHolder(view: View) : RecyclerView.ViewHolder(view)
 

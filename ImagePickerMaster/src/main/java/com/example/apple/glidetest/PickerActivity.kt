@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.example.apple.glidetest.adapter.CommonImageAdapter
 import com.example.apple.glidetest.adapter.ImageSelectedAdapter
@@ -15,7 +14,9 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.OnClickListener
 import com.example.apple.glidetest.utils.PickerSettings
+import com.example.apple.glidetest.utils.dp2px
 import com.example.apple.glidetest.utils.showAlertDialog
+import com.example.apple.glidetest.view.GridItemDecoration
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -47,10 +48,11 @@ class PickerActivity : PickerBaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_picker)
-        recyclerViewAll.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT) as RecyclerView.LayoutManager?
-//        recyclerViewAll.addItemDecoration(SpaceItemDecoration( HORIZONTAL_COUNT))
+        recyclerViewAll.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT)
+        recyclerViewAll.addItemDecoration(GridItemDecoration.Builder(this).size(dp2px(5.0f)).color(R.color.white)
+                .margin(0,0).isExistHead(false).build())
         recyclerViewSelected.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-//        recyclerViewSelected.addItemDecoration(DividerItemDecoration(this,LinearLayoutManager.HORIZONTAL))
+        recyclerViewSelected.isFocusable = false
         ivCamera.setOnClickListener { launchCamera() }
         btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         btnCenter = tvCenter

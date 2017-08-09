@@ -14,6 +14,7 @@
         app:rightText="取消" />
 
     <android.support.v7.widget.RecyclerView
+        android:background="#fff"
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

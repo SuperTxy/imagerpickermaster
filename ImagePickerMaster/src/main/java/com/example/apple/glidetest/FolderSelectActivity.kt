@@ -34,6 +34,7 @@ class FolderSelectActivity : Activity() {
             if (holder is FolderHolder) {
                 loadImage(File(folders.get(position).firstImagePath), holder.itemView.ivFolder)
                 holder.itemView.tvFolder.text = folders.get(position).name
+                holder.itemView.tvCount.text = "("+folders.get(position).count.toString()+")"
                 holder.itemView.setOnClickListener {
                     FolderProvider.instance.selectedFolder = folders.get(position)
                     setResult(RESULT_OK, intent)

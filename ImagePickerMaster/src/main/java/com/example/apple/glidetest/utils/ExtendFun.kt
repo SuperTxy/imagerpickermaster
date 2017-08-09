@@ -13,9 +13,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.GlideDrawable
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.example.apple.glidetest.R
+import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.alert_dialog.view.*
 import java.io.File
+import java.lang.Exception
 
 /**
  * Created by Apple on 17/7/31.
@@ -69,7 +74,17 @@ fun Context.getStatusBarHeight(): Int {
 }
 
 fun Context.loadImage(file: File, imageView: ImageView) {
-    Glide.with(this).load(file).error(R.drawable.default_image)
+
+    Glide.with(this).load(file).listener(object : RequestListener<File, GlideDrawable> {
+        override fun onException(e: Exception?, model: File?, target: Target<GlideDrawable>?, isFirstResource: Boolean): Boolean {
+            Logger.e(model?.absolutePath)
+            Logger.e(e?.message)
+            return false
+        }
+        override fun onResourceReady(resource: GlideDrawable?, model: File?, target: Target<GlideDrawable>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
+            return false
+        }
+    }).error(R.drawable.default_image)
             .placeholder(R.drawable.default_image).centerCrop().into(imageView)
 }
 

@@ -1,21 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal">
-    <ImageView
-        tools:src="@drawable/default_image"
-        android:id="@+id/ivFolder"
-        android:layout_width="80dp"
-        android:layout_height="80dp" />
-    <TextView
-        android:paddingRight="15dp"
-        android:drawableRight="@drawable/arrow_common_right"
-        android:id="@+id/tvFolder"
-        android:paddingLeft="15dp"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:orientation="vertical">
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:text="photo"
-        android:gravity="center_vertical"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="15dp"
+        android:paddingRight="23dp">
+
+        <ImageView
+            android:id="@+id/ivFolder"
+            android:layout_width="49dp"
+            android:layout_height="49dp"
+            tools:src="@drawable/default_image" />
+
+        <TextView
+            android:id="@+id/tvFolder"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
+            android:textColor="@color/color333333"
+            android:textSize="14sp"
+            tools:text="相机胶卷" />
+
+        <TextView
+            android:id="@+id/tvCount"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:drawableRight="@drawable/arrow_common_right"
+            android:gravity="center_vertical"
+            android:paddingLeft="5dp"
+            android:textColor="@color/color666666"
+            android:textSize="13sp"
+            tools:text="(328)" />
+    </LinearLayout>
+
+    <View
+        android:background="#f4f5f7"
+        style="@style/MyMinDivider" />
 </LinearLayout>

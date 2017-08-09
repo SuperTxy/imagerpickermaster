@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#fff"
     tools:context="com.example.apple.glidetest.PickerActivity">
 
     <com.example.apple.glidetest.view.TitleBar
@@ -27,7 +28,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerViewSelected"
         android:layout_width="match_parent"
-        android:layout_height="74dp" />
+        android:layout_height="wrap_content" />
 
     <View
         android:layout_marginTop="9dp"
@@ -39,10 +40,10 @@
         android:gravity="center_vertical">
 
         <ImageView
+            android:layout_marginLeft="15dp"
             android:id="@+id/ivCamera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="15dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:src="@drawable/camera" />
 
         <android.support.v4.widget.Space

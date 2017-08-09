@@ -5,6 +5,7 @@ package com.example.apple.glidetest.bean
  */
 
 class Folder(dir: String, name: String) {
+
     var dir: String
     var name: String
     var firstImagePath: String? = null
@@ -19,9 +20,10 @@ class Folder(dir: String, name: String) {
         this.firstImagePath = firstImagePath
     }
 
-    fun addImage(path: String) {
+    fun addImage(path: String,index:Int?=null) {
         if (path.isNotEmpty() && !imgs.contains(path)) {
-            imgs.add(path)
+            if (index!=null && index >= 0) imgs.add(index,path)
+            else imgs.add(path)
         }
     }
 

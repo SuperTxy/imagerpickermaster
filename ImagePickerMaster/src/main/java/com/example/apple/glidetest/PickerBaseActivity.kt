@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Handler
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
+import android.text.TextUtils
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -18,6 +19,7 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.utils.FileUtils
 import com.example.apple.glidetest.utils.PermissionUtils
 import com.example.apple.glidetest.utils.PickerSettings
+import com.orhanobut.logger.Logger
 import java.io.File
 import java.util.*
 
@@ -27,6 +29,7 @@ import java.util.*
 
 abstract class PickerBaseActivity : Activity(), Observer {
     protected var imageProvider: SelectImageProvider = SelectImageProvider.instance
+    protected var folderProvider :FolderProvider = FolderProvider.instance
     private var tmpFile: File? = null
     private val FILE_PROVIDER = "com.example.apple.glidetest.fileprovider"
     protected val HORIZONTAL_COUNT: Int = 4
@@ -53,24 +56,28 @@ abstract class PickerBaseActivity : Activity(), Observer {
     fun loadFolderAndImages() {
         Thread(Runnable {
             val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            val cursor = contentResolver.query(contentUri, null, null, null, null)
-            val allFolder = FolderProvider.instance.selectedFolder
+            val sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC"
+            val where = MediaStore.Images.Media.SIZE + " > " + 1000
+            val cursor = contentResolver.query(contentUri, null, where, null, sortOrder)
+            val allFolder = folderProvider.selectedFolder
             while (cursor.moveToNext()) {
                 val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
-                if (path.contains(".gif")) break
+                if (path.contains(".gif")) continue
                 if (allFolder?.firstImagePath == null) {
                     allFolder?.firstImagePath = path
                 }
                 allFolder?.addImage(path)
                 val dir = File(path).parentFile.absolutePath
-                if (!FolderProvider.instance.hasFolder(dir)) {
+                if (!folderProvider.hasFolder(dir)) {
                     val name = dir.substring(dir.lastIndexOf('/') + 1)
-                    FolderProvider.instance.addFolder(Folder(dir, name, path))
+                    folderProvider.addFolder(Folder(dir, name, path))
                 }
-                FolderProvider.instance.getFolderByDir(dir)?.addImage(path)
+                folderProvider.getFolderByDir(dir)?.addImage(path)
             }
             cursor.close()
-            Handler(mainLooper).post { initData() }
+            Handler(mainLooper).post {
+                initData()
+            }
         }).start()
     }
 
@@ -98,6 +105,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
+        val selectedFolder = folderProvider.selectedFolder
         when (requestCode) {
             PickerSettings.BIG_REQUEST_CODE -> {
                 adapter!!.notifyDataSetChanged()
@@ -106,7 +114,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
             PickerSettings.FOLDER_REQUEST_CODE -> {
                 if (resultCode == RESULT_OK) {
-                    val selectedFolder = FolderProvider.instance.selectedFolder
                     btnCenter!!.text = selectedFolder!!.name
                     adapter!!.refresh(selectedFolder.imgs)
                 } else finish()
@@ -116,8 +123,13 @@ abstract class PickerBaseActivity : Activity(), Observer {
                 if (resultCode == RESULT_OK) {
                     if (tmpFile != null) {
                         sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(tmpFile)))
-                        adapter!!.insertImage(tmpFile!!.absolutePath)
-                        imageProvider.add(tmpFile!!.absolutePath)
+                        val path = tmpFile!!.absolutePath
+                        Logger.e(path)
+                        imageProvider.add(path)
+                        val dir = tmpFile!!.parentFile.absolutePath
+                        folderProvider.addCameraImage(path)
+                        if (TextUtils.equals(selectedFolder!!.dir,dir)||selectedFolder.name.equals(folderProvider.folders.get(0).name))
+                            adapter!!.refresh(selectedFolder.imgs)
                     }
                 } else {
 //               user click cancel

@@ -6,6 +6,9 @@ import android.text.TextUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Environment.DIRECTORY_DCIM;
@@ -22,11 +25,13 @@ public class FileUtils {
      * /storage/emulated/0/DCIM
      * /storage/emulated/0/DCIM/Screenshots
      */
-    private static final String JPEG_FILE_PREFIX = "IMGa";
+    private static  String JPEG_FILE_PREFIX = "IMG_";
     private static final String JPEG_FILE_SUFFIX = ".jpg";
     private static final String WRITE_EXTERNAL_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";
 
     public static File createTmpFile(Context context) throws IOException {
+        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(new Date());
+        JPEG_FILE_PREFIX = JPEG_FILE_PREFIX + date+"_";
         File dir;
         if (TextUtils.equals(getExternalStorageState(), MEDIA_MOUNTED)) {
             dir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DCIM + "/Camera");
