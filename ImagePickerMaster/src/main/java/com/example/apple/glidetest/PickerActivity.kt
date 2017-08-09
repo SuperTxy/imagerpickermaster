@@ -13,12 +13,8 @@ import com.example.apple.glidetest.bean.Change
 import com.example.apple.glidetest.bean.FolderProvider
 import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.listener.OnItemClickListener
-import com.example.apple.glidetest.utils.OnClickListener
-import com.example.apple.glidetest.utils.PickerSettings
-import com.example.apple.glidetest.utils.dp2px
-import com.example.apple.glidetest.utils.showAlertDialog
+import com.example.apple.glidetest.utils.*
 import com.example.apple.glidetest.view.GridItemDecoration
-import com.example.apple.glidetest.utils.StatusBarUtil
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -60,13 +56,12 @@ class PickerActivity : PickerBaseActivity() {
             if (imageSelector.maxSelectToast(this, false))
             else launchCamera()
         }
-        btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         btnCenter = tvCenter
         btnLeft = ivLeft
         bundle = intent.getBundleExtra(PickerSettings.BUNDLE)
         className = intent.getStringExtra(CLASSNAME)
         initListener()
-        initView()
+        btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
     }
 
     private fun initListener() {
