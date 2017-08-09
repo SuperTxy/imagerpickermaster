@@ -12,7 +12,7 @@ import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.dp2px
 import com.example.apple.glidetest.view.GridItemDecoration
-import com.renyibang.android.utils.StatusBarUtil
+import com.example.apple.glidetest.utils.StatusBarUtil
 import kotlinx.android.synthetic.main.activity_common_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*

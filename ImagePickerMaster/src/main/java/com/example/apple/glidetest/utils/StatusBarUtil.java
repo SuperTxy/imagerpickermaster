@@ -1,4 +1,4 @@
-package com.renyibang.android.utils;
+package com.example.apple.glidetest.utils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
