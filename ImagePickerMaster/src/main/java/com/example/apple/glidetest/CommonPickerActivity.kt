@@ -1,9 +1,9 @@
 package com.example.apple.glidetest
 
 import android.app.Activity
-import android.app.Fragment
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import com.example.apple.glidetest.adapter.CommonImageAdapter
 import com.example.apple.glidetest.bean.FolderProvider
@@ -28,7 +28,7 @@ class CommonPickerActivity : PickerBaseActivity() {
             context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
         }
 
-        fun startForResult(fragment:Fragment,maxSelect: Int,initialSelect: ArrayList<String>){
+        fun startForResult(fragment: Fragment, maxSelect: Int, initialSelect: ArrayList<String>){
             val intent = Intent(fragment.activity, CommonPickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
             intent.putExtra(PickerSettings.INITIAL_SELECT,initialSelect)
