@@ -29,7 +29,7 @@ import java.util.*
 
 abstract class PickerBaseActivity : Activity(), Observer {
     protected var imageProvider: SelectImageProvider = SelectImageProvider.instance
-    protected var folderProvider :FolderProvider = FolderProvider.instance
+    protected var folderProvider: FolderProvider = FolderProvider.instance
     private var tmpFile: File? = null
     private val FILE_PROVIDER = "com.example.apple.glidetest.fileprovider"
     protected val HORIZONTAL_COUNT: Int = 4
@@ -46,7 +46,8 @@ abstract class PickerBaseActivity : Activity(), Observer {
         initialSelect = intent.getStringArrayListExtra(PickerSettings.INITIAL_SELECT)
         imageProvider.setSelect(initialSelect)
         imageProvider.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
-        permissionUtils?.checkStoragePermission(Runnable { loadFolderAndImages() })
+        permissionUtils?.checkStoragePermission(Runnable {
+            loadFolderAndImages() })
 //        TODO("图片读取目录还有问题")
         btnLeft!!.setOnClickListener {
             startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_REQUEST_CODE)
@@ -128,7 +129,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
                         imageProvider.add(path)
                         val dir = tmpFile!!.parentFile.absolutePath
                         folderProvider.addCameraImage(path)
-                        if (TextUtils.equals(selectedFolder!!.dir,dir)||selectedFolder.name.equals(folderProvider.folders.get(0).name))
+                        if (TextUtils.equals(selectedFolder!!.dir, dir) || selectedFolder.name.equals(folderProvider.folders.get(0).name))
                             adapter!!.refresh(selectedFolder.imgs)
                     }
                 } else {
