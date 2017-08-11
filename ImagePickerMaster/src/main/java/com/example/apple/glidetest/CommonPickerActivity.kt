@@ -1,6 +1,7 @@
 package com.example.apple.glidetest
 
 import android.app.Activity
+import android.app.Fragment
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
@@ -10,9 +11,9 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.listener.OnCameraClickListener
 import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.PickerSettings
+import com.example.apple.glidetest.utils.StatusBarUtil
 import com.example.apple.glidetest.utils.dp2px
 import com.example.apple.glidetest.view.GridItemDecoration
-import com.example.apple.glidetest.utils.StatusBarUtil
 import kotlinx.android.synthetic.main.activity_common_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -25,6 +26,13 @@ class CommonPickerActivity : PickerBaseActivity() {
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
             intent.putExtra(PickerSettings.INITIAL_SELECT,initialSelect)
             context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
+        }
+
+        fun startForResult(fragment:Fragment,maxSelect: Int,initialSelect: ArrayList<String>){
+            val intent = Intent(fragment.activity, CommonPickerActivity::class.java)
+            intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
+            intent.putExtra(PickerSettings.INITIAL_SELECT,initialSelect)
+            fragment.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
         }
     }
 
