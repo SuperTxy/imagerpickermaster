@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
 
 class PickerActivity : PickerBaseActivity() {
+
     companion object {
         private val CLASSNAME: String = "className"
         fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>) {
@@ -76,17 +77,7 @@ class PickerActivity : PickerBaseActivity() {
             }, null)
         }
         btnPickOk.setOnClickListener {
-            if (initialSelect != null) {
-                intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
-                setResult(RESULT_OK, intent)
-                finish()
-            } else {
-                val intent = Intent(this, Class.forName(className))
-                bundle!!.putSerializable(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
-                intent.putExtra(PickerSettings.BUNDLE, bundle)
-                startActivity(intent)
-                finish()
-            }
+           onPickerOk()
         }
     }
 
@@ -110,8 +101,17 @@ class PickerActivity : PickerBaseActivity() {
         }
     }
 
-    override fun onBigResult() {
-        selectedAdapter!!.refresh(imageSelector.selectedImgs)
-        recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount-1)
+    override fun onPickerOk() {
+        if (initialSelect != null) {
+            intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
+            setResult(RESULT_OK, intent)
+            finish()
+        } else {
+            val intent = Intent(this, Class.forName(className))
+            bundle!!.putSerializable(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
+            intent.putExtra(PickerSettings.BUNDLE, bundle)
+            startActivity(intent)
+            finish()
+        }
     }
 }

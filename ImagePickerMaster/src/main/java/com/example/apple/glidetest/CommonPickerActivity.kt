@@ -49,9 +49,7 @@ class CommonPickerActivity : PickerBaseActivity() {
             finish()
         }
         btnPickOk.setOnClickListener {
-            intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
-            setResult(RESULT_OK, intent)
-            finish()
+         onPickerOk()
         }
         initView()
         var selctedCount = if (initialSelect != null) initialSelect!!.size else 0
@@ -81,7 +79,9 @@ class CommonPickerActivity : PickerBaseActivity() {
         }
     }
 
-    override fun onBigResult() {
-        update(null, null)
+    override fun onPickerOk() {
+        intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
+        setResult(RESULT_OK, intent)
+        finish()
     }
 }

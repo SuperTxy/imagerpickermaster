@@ -109,8 +109,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         val selectedFolder = folderProvider.selectedFolder
         when (requestCode) {
             PickerSettings.BIG_REQUEST_CODE -> {
-                adapter!!.notifyDataSetChanged()
-                onBigResult()
+                if(resultCode == RESULT_OK) onPickerOk()
             }
 
             PickerSettings.FOLDER_REQUEST_CODE -> {
@@ -149,8 +148,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         permissionUtils?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    abstract fun onBigResult()
-
     abstract fun initData()
+    abstract fun onPickerOk()
 
 }
