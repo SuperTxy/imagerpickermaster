@@ -34,11 +34,18 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        context.loadImage(File(imgs.get(position)), holder.itemView.ivImage)
+        if (position == imgs.size) {
+            holder.itemView.tv_blank.visibility = View.VISIBLE
+            holder.itemView.tv_blank.text = (position + 1).toString()
+        } else {
+            context.loadImage(File(imgs.get(position)), holder.itemView.ivImage)
+            holder.itemView.tv_blank.visibility = View.GONE
+        }
     }
 
     override fun getItemCount(): Int {
-        return imgs.size
+        return if (imgs.size < SelectImageProvider.instance.maxSelect && imgs.size != 0)
+            imgs.size + 1 else imgs.size
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -47,11 +54,13 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
         if (o is SelectImageProvider && arg is Change) {
             if (arg.isAdd) {
                 imgs.add(arg.path)
-                notifyItemInserted(imgs.size - 1)
+//                notifyItemInserted(imgs.size - 1)
+                notifyDataSetChanged()
             } else {
                 val index = OsUtils.getIndexInList(imgs, arg.path)
                 imgs.remove(arg.path)
-                notifyItemRemoved(index)
+//                notifyItemRemoved(index)
+                notifyDataSetChanged()
             }
         }
     }

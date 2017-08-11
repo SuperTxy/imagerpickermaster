@@ -15,7 +15,6 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.*
 import com.example.apple.glidetest.view.GridItemDecoration
-import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -92,7 +91,6 @@ class PickerActivity : PickerBaseActivity() {
     }
 
     override fun initData() {
-        Logger.e(Thread.currentThread().name)
         val selectedFolder = FolderProvider.instance.selectedFolder
         adapter = CommonImageAdapter(this, selectedFolder!!.imgs)
         recyclerViewAll.adapter = adapter
@@ -107,13 +105,13 @@ class PickerActivity : PickerBaseActivity() {
 
     override fun update(o: Observable?, arg: Any?) {
         if (o is SelectImageProvider && arg is Change) {
-            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount - 1)
+            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount)
             btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         }
     }
 
     override fun onBigResult() {
         selectedAdapter!!.refresh(imageSelector.selectedImgs)
-        recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount - 1)
+        recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount-1)
     }
 }

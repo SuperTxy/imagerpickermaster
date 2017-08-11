@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#fff"
+    android:background="#f6f7f9"
     tools:context="com.example.apple.glidetest.PickerActivity">
 
     <com.example.apple.glidetest.view.TitleBar
@@ -36,6 +36,7 @@
         style="@style/MyMinDivider" />
 
     <LinearLayout
+        android:background="#fff"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:gravity="center_vertical">
