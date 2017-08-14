@@ -24,9 +24,10 @@
         android:layout_weight="1" />
 
     <Button
+        android:enabled="false"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/e93a3a_corner4dp_shape"
+        android:background="@drawable/btn_ok_selector"
         android:id="@+id/btnPickOk"
         android:layout_width="88dp"
         android:layout_height="30dp"
