@@ -36,6 +36,6 @@
             android:layout_width="55dp"
             android:layout_height="27dp"
             android:gravity="center"
-            tools:text="完成" />
+            android:text="完成" />
     </FrameLayout>
 </FrameLayout>
