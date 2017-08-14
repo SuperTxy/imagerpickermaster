@@ -96,7 +96,7 @@ class PickerActivity : PickerBaseActivity() {
 
     override fun update(o: Observable?, arg: Any?) {
         if (o is SelectImageProvider && arg is Change) {
-            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount - 1)
+            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount)
             btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         }
     }
