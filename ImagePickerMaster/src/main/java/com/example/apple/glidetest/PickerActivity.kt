@@ -68,7 +68,7 @@ class PickerActivity : PickerBaseActivity() {
 
     private fun initListener() {
         tvRight.setOnClickListener {
-            if (initialSelect != null)
+            if (initialSelect != null || imageSelector.size == 0)
                 finish()
             else showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
                 override fun onClick(v: View) {
