@@ -33,7 +33,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_big_image)
-        btnOK.text = if (imageProvider.selectedImgs.size > 0) "完成" else "跳过"
+        btnOK.isEnabled = imageProvider.selectedImgs.size > 0
         viewPager.addOnPageChangeListener(this)
         viewPager.adapter = MyPagerAdapter()
         val pos = intent.getIntExtra(POSITION, 0)
@@ -62,7 +62,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
                     imageProvider.remove(path)
                     ivRight.text = ""
                 }
-                btnOK.text = if (imageProvider.selectedImgs.size > 0) "完成" else "跳过"
+                btnOK.isEnabled = imageProvider.selectedImgs.size > 0
             }
         }
     }

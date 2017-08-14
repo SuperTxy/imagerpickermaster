@@ -64,7 +64,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
             context.loadImage(File(path), holder.itemView.ivImage)
             handleSelected(selectImageProvider.isPathExist(path), holder, path)
             cbSelected.setOnClickListener {
-                if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected)) return@setOnClickListener
+                if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected,needSuffix)) return@setOnClickListener
                 handleSelected(!cbSelected.isSelected, holder, path)
                 if (cbSelected.isSelected) {
                     selectImageProvider.add(path)
