@@ -53,13 +53,13 @@ class CommonPickerActivity : PickerBaseActivity() {
         }
         initView()
         var selctedCount = if (initialSelect != null) initialSelect!!.size else 0
-        btnPickOk.text = "确定 ("+selctedCount+"/" + intent.getIntExtra(PickerSettings.MAX_SELECT, 1) + ")"
+        btnPickOk.text = "完成 ("+selctedCount+"/" + intent.getIntExtra(PickerSettings.MAX_SELECT, 1) + ")"
     }
 
     override fun update(o: Observable?, arg: Any?) {
         val provider = SelectImageProvider.instance
         btnPickOk.isEnabled = provider.size > 0
-        btnPickOk.text = "确定 (" + provider.size + "/" + provider.maxSelect + ")"
+        btnPickOk.text = "完成 (" + provider.size + "/" + provider.maxSelect + ")"
     }
 
     override fun initData() {

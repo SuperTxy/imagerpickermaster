@@ -20,8 +20,11 @@ import kotlin.collections.ArrayList
 
 /**
  * Created by Apple on 17/8/1.
+ * @param needSuffix 选择图片为最大数的提示是否需要suffix
+ * @link SelectImageProvider.maxSelectToast
  */
-class CommonImageAdapter(private val context: Context, images: ArrayList<String>, private var showCamera: Boolean = false)
+class CommonImageAdapter(private val context: Context, images: ArrayList<String>,
+                         private var showCamera: Boolean = false,private val needSuffix:Boolean = false)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Observer {
 
     private var images: ArrayList<String> = ArrayList()

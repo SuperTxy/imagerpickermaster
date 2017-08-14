@@ -77,13 +77,13 @@ class PickerActivity : PickerBaseActivity() {
             }, null)
         }
         btnPickOk.setOnClickListener {
-           onPickerOk()
+            onPickerOk()
         }
     }
 
     override fun initData() {
         val selectedFolder = FolderProvider.instance.selectedFolder
-        adapter = CommonImageAdapter(this, selectedFolder!!.imgs)
+        adapter = CommonImageAdapter(this, selectedFolder!!.imgs, false, imageSelector.maxSelect == 6)
         recyclerViewAll.adapter = adapter
         selectedAdapter = ImageSelectedAdapter(this, imageSelector.selectedImgs)
         recyclerViewSelected.adapter = selectedAdapter
@@ -96,7 +96,7 @@ class PickerActivity : PickerBaseActivity() {
 
     override fun update(o: Observable?, arg: Any?) {
         if (o is SelectImageProvider && arg is Change) {
-            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount-1)
+            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount - 1)
             btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         }
     }
