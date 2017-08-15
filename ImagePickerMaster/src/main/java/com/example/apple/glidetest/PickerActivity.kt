@@ -15,6 +15,7 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.*
 import com.example.apple.glidetest.view.GridItemDecoration
+import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -48,6 +49,9 @@ class PickerActivity : PickerBaseActivity() {
         super.onCreate(savedInstanceState)
         StatusBarUtil.setStatusBarColorWhite(this)
         setContentView(R.layout.activity_picker)
+        if (adapter!=null) {
+            Logger.e(adapter.toString())
+        }
         recyclerViewAll.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT) as RecyclerView.LayoutManager?
         recyclerViewAll.addItemDecoration(GridItemDecoration.Builder(this).size(dp2px(5.0f)).color(R.color.white)
                 .margin(0, 0).isExistHead(false).build())
@@ -62,14 +66,16 @@ class PickerActivity : PickerBaseActivity() {
         bundle = intent.getBundleExtra(PickerSettings.BUNDLE)
         className = intent.getStringExtra(CLASSNAME)
         initListener()
-        initView()
+        initView(savedInstanceState)
         btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
     }
 
     private fun initListener() {
         tvRight.setOnClickListener {
-            if (initialSelect != null || imageSelector.size == 0)
+            if (initialSelect != null || imageSelector.size == 0) {
+                setResult(RESULT_CANCELED,intent)
                 finish()
+            }
             else showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
                 override fun onClick(v: View) {
                     finish()

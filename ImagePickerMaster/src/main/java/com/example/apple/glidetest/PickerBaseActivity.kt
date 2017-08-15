@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
 import android.support.v4.content.FileProvider
@@ -40,15 +41,20 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var btnLeft: ImageView? = null
     protected var initialSelect: ArrayList<String>? = null
 
-    fun initView() {
+    fun initView(savedInstanceState: Bundle?) {
         permissionUtils = PermissionUtils(this)
         imageProvider.addObserver(this)
         initialSelect = intent.getStringArrayListExtra(PickerSettings.INITIAL_SELECT)
-        imageProvider.setSelect(initialSelect)
-        imageProvider.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
-        permissionUtils?.checkStoragePermission(Runnable {
-            loadFolderAndImages() })
-//        TODO("图片读取目录还有问题")
+        if (savedInstanceState == null) {
+            imageProvider.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
+            imageProvider.setSelect(initialSelect)
+            permissionUtils?.checkStoragePermission(Runnable {
+                loadFolderAndImages()
+            })
+        } else {
+            tmpFile = savedInstanceState.getSerializable("tmpFile") as File?
+            initData()
+        }
         btnLeft!!.setOnClickListener {
             startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_REQUEST_CODE)
         }
@@ -109,7 +115,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         val selectedFolder = folderProvider.selectedFolder
         when (requestCode) {
             PickerSettings.BIG_REQUEST_CODE -> {
-                if(resultCode == RESULT_OK) onPickerOk()
+                if (resultCode == RESULT_OK) onPickerOk()
             }
 
             PickerSettings.FOLDER_REQUEST_CODE -> {
@@ -124,12 +130,13 @@ abstract class PickerBaseActivity : Activity(), Observer {
                     if (tmpFile != null) {
                         sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(tmpFile)))
                         val path = tmpFile!!.absolutePath
-                        Logger.e(path)
                         imageProvider.add(path)
                         val dir = tmpFile!!.parentFile.absolutePath
                         folderProvider.addCameraImage(path)
                         if (TextUtils.equals(selectedFolder!!.dir, dir) || selectedFolder.name.equals(folderProvider.folders.get(0).name))
                             adapter!!.refresh(selectedFolder.imgs)
+                    } else {
+                        Logger.e("Activity重新创建，没保存tmpFile")
                     }
                 } else {
 //               user click cancel
@@ -148,7 +155,11 @@ abstract class PickerBaseActivity : Activity(), Observer {
         permissionUtils?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        if(tmpFile!=null)
+            outState!!.putSerializable("tmpFile",tmpFile)
+    }
     abstract fun initData()
     abstract fun onPickerOk()
-
 }
