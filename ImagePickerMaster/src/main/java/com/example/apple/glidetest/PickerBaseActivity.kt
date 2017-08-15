@@ -29,8 +29,8 @@ import java.util.*
  */
 
 abstract class PickerBaseActivity : Activity(), Observer {
-    protected var imageProvider: SelectImageProvider = SelectImageProvider.instance
-    protected var folderProvider: FolderProvider = FolderProvider.instance
+    protected var imageProvider: SelectImageProvider? = null
+    protected var folderProvider: FolderProvider? = null
     private var tmpFile: File? = null
     private val FILE_PROVIDER = "com.example.apple.glidetest.fileprovider"
     protected val HORIZONTAL_COUNT: Int = 4
@@ -42,12 +42,14 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var initialSelect: ArrayList<String>? = null
 
     fun initView(savedInstanceState: Bundle?) {
+        imageProvider = SelectImageProvider.instance
+        folderProvider = FolderProvider.instance
         permissionUtils = PermissionUtils(this)
-        imageProvider.addObserver(this)
+        imageProvider!!.addObserver(this)
         initialSelect = intent.getStringArrayListExtra(PickerSettings.INITIAL_SELECT)
         if (savedInstanceState == null) {
-            imageProvider.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
-            imageProvider.setSelect(initialSelect)
+            imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
+            imageProvider!!.setSelect(initialSelect)
             permissionUtils?.checkStoragePermission(Runnable {
                 loadFolderAndImages()
             })
@@ -66,7 +68,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
             val sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC"
             val where = MediaStore.Images.Media.SIZE + " > " + 1000
             val cursor = contentResolver.query(contentUri, null, where, null, sortOrder)
-            val allFolder = folderProvider.selectedFolder
+            val allFolder = folderProvider!!.selectedFolder
             while (cursor.moveToNext()) {
                 val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
                 if (path.contains(".gif")) continue
@@ -75,11 +77,11 @@ abstract class PickerBaseActivity : Activity(), Observer {
                 }
                 allFolder?.addImage(path)
                 val dir = File(path).parentFile.absolutePath
-                if (!folderProvider.hasFolder(dir)) {
+                if (!folderProvider!!.hasFolder(dir)) {
                     val name = dir.substring(dir.lastIndexOf('/') + 1)
-                    folderProvider.addFolder(Folder(dir, name, path))
+                    folderProvider!!.addFolder(Folder(dir, name, path))
                 }
-                folderProvider.getFolderByDir(dir)?.addImage(path)
+                folderProvider!!.getFolderByDir(dir)?.addImage(path)
             }
             cursor.close()
             Handler(mainLooper).post {
@@ -112,7 +114,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        val selectedFolder = folderProvider.selectedFolder
+        val selectedFolder = folderProvider!!.selectedFolder
         when (requestCode) {
             PickerSettings.BIG_REQUEST_CODE -> {
                 if (resultCode == RESULT_OK) onPickerOk()
@@ -130,10 +132,10 @@ abstract class PickerBaseActivity : Activity(), Observer {
                     if (tmpFile != null) {
                         sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(tmpFile)))
                         val path = tmpFile!!.absolutePath
-                        imageProvider.add(path)
+                        imageProvider!!.add(path)
                         val dir = tmpFile!!.parentFile.absolutePath
-                        folderProvider.addCameraImage(path)
-                        if (TextUtils.equals(selectedFolder!!.dir, dir) || selectedFolder.name.equals(folderProvider.folders.get(0).name))
+                        folderProvider!!.addCameraImage(path)
+                        if (TextUtils.equals(selectedFolder!!.dir, dir) || selectedFolder.name.equals(folderProvider!!.folders.get(0).name))
                             adapter!!.refresh(selectedFolder.imgs)
                     } else {
                         Logger.e("Activity重新创建，没保存tmpFile")
@@ -157,9 +159,16 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        if(tmpFile!=null)
-            outState!!.putSerializable("tmpFile",tmpFile)
+        if (tmpFile != null)
+            outState!!.putSerializable("tmpFile", tmpFile)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        imageProvider = null
+        folderProvider = null
+    }
+
     abstract fun initData()
     abstract fun onPickerOk()
 }
