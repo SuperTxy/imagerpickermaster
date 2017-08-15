@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.example.apple.glidetest.bean.FolderProvider
+import com.example.apple.glidetest.utils.StatusBarUtil
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
 import kotlinx.android.synthetic.main.activity_folder_select.*
@@ -19,6 +20,7 @@ class FolderSelectActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        StatusBarUtil.setStatusBarColorWhite(this)
         setContentView(R.layout.activity_folder_select)
         tvRight.setOnClickListener {
             setResult(RESULT_CANCELED,intent)

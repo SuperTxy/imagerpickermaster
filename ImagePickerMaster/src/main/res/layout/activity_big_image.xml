@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
@@ -15,7 +16,7 @@
     <com.example.apple.glidetest.view.TitleBar
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        app:backgroudColor="#1a1a1a"
+        app:backgroudColor="@color/color1a1a1a"
         app:leftImage="@drawable/back_all_white"
         app:rightImage="@drawable/cb_select" />
 
