@@ -18,13 +18,13 @@ class MainActivity : Activity() {
 
     private val imags = ArrayList<String>()
     private var adapter: MyGridAdapter? = null
-    private val maxSelect = 12
+    private val maxSelect = 6
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         tvMain.setOnClickListener {
-            PickerActivity.startForResult(this,12,imags,false)
+            PickerActivity.startForResult(this,6,imags,false,true)
         }
         adapter = MyGridAdapter()
         gvMain.adapter = adapter
