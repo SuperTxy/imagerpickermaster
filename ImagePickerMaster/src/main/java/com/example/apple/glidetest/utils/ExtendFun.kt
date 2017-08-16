@@ -73,9 +73,8 @@ fun Context.getStatusBarHeight(): Int {
     return statusBarHeight
 }
 
-fun Context.loadImage(file: File, imageView: ImageView) {
-
-    Glide.with(this).load(file).listener(object : RequestListener<File, GlideDrawable> {
+fun loadImage(file: File, imageView: ImageView) {
+    Glide.with(imageView.context).load(file).listener(object : RequestListener<File, GlideDrawable> {
         override fun onException(e: Exception?, model: File?, target: Target<GlideDrawable>?, isFirstResource: Boolean): Boolean {
             Logger.e(model?.absolutePath)
             Logger.e(e?.message)
@@ -84,8 +83,7 @@ fun Context.loadImage(file: File, imageView: ImageView) {
         override fun onResourceReady(resource: GlideDrawable?, model: File?, target: Target<GlideDrawable>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
             return false
         }
-    }).error(R.drawable.default_image)
-            .placeholder(R.drawable.default_image).centerCrop().into(imageView)
+    }).error(R.drawable.default_image).centerCrop().into(imageView)
 }
 
 fun Context.getView(layoutId: Int, parent: ViewGroup? = null): View {

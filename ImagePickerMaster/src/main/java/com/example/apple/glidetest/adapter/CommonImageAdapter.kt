@@ -61,7 +61,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
             val pos: Int = if (showCamera) position - 1 else position
             val path = images.get(pos)
             val cbSelected = holder.itemView.cbSelected
-            context.loadImage(File(path), holder.itemView.ivImage)
+            loadImage(File(path), holder.itemView.ivImage)
             handleSelected(selectImageProvider.isPathExist(path), holder, path)
             holder.itemView.flSelected.setOnClickListener {
                 if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected,needSuffix)) return@setOnClickListener

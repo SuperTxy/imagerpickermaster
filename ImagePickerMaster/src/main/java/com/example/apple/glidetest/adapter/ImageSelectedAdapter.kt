@@ -9,7 +9,6 @@ import com.example.apple.glidetest.bean.Change
 import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
-import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.image_seleted_item.view.*
 import java.io.File
 import java.util.*
@@ -25,7 +24,6 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
     private val imgs = ArrayList<String>()
 
     init {
-        Logger.e("ImageSelectedAdapter")
         imgs.addAll(list)
         SelectImageProvider.instance.addObserver(this)
     }
@@ -39,7 +37,7 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
             holder.itemView.tv_blank.visibility = View.VISIBLE
             holder.itemView.tv_blank.text = (position + 1).toString()
         } else {
-            context.loadImage(File(imgs.get(position)), holder.itemView.ivImage)
+            loadImage(File(imgs.get(position)), holder.itemView.ivImage)
             holder.itemView.tv_blank.visibility = View.GONE
         }
     }
@@ -55,7 +53,6 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
         if (o is SelectImageProvider && arg is Change) {
             if (arg.isAdd) {
                 imgs.add(arg.path)
-                Logger.e("ImageSelectedAdapter  update "+imgs.size+"-->"+Thread.currentThread().name)
                 notifyDataSetChanged()
             } else {
 //                val index = OsUtils.getIndexInList(imgs, arg.path)
