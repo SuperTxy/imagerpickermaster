@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         app:centerText="所有照片"
-        app:leftImage="@drawable/fanhui"
+        app:showFolderBack="true"
         app:rightText="取消" />
 
     <android.support.v7.widget.RecyclerView

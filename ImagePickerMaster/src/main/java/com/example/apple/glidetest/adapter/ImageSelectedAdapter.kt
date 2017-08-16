@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import com.example.apple.glidetest.R
 import com.example.apple.glidetest.bean.Change
 import com.example.apple.glidetest.bean.SelectImageProvider
-import com.example.apple.glidetest.utils.OsUtils
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
+import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.image_seleted_item.view.*
 import java.io.File
 import java.util.*
@@ -25,6 +25,7 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
     private val imgs = ArrayList<String>()
 
     init {
+        Logger.e("ImageSelectedAdapter")
         imgs.addAll(list)
         SelectImageProvider.instance.addObserver(this)
     }
@@ -54,20 +55,24 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
         if (o is SelectImageProvider && arg is Change) {
             if (arg.isAdd) {
                 imgs.add(arg.path)
-//                notifyItemInserted(imgs.size - 1)
+                Logger.e("ImageSelectedAdapter  update "+imgs.size+"-->"+Thread.currentThread().name)
                 notifyDataSetChanged()
             } else {
-                val index = OsUtils.getIndexInList(imgs, arg.path)
+//                val index = OsUtils.getIndexInList(imgs, arg.path)
                 imgs.remove(arg.path)
-//                notifyItemRemoved(index)
                 notifyDataSetChanged()
             }
+            listener?.onUpdateMove()
         }
     }
 
-    fun refresh(selectedImgs: ArrayList<String>) {
-        imgs.clear()
-        imgs.addAll(selectedImgs)
-        notifyDataSetChanged()
+    private var listener: OnUpdateMoveListener? = null
+
+    fun setOnUpdateMoveListener(listener: OnUpdateMoveListener) {
+        this.listener = listener
+    }
+
+    interface OnUpdateMoveListener {
+        fun onUpdateMove()
     }
 }

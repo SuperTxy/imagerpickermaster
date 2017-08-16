@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.apple.glidetest.view.SameHWLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.apple.glidetest.view.SameHWLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -10,24 +9,30 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:src="@drawable/camera" />
+
     <View
-        tools:visibility="visible"
+        android:id="@+id/viewMask"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#4fff"
         android:visibility="gone"
-        android:id="@+id/viewMask"/>
+        tools:visibility="visible" />
 
-    <TextView
-        android:gravity="center"
-        android:textSize="11sp"
-        tools:text="12"
-        android:textColor="#fff"
-        android:layout_marginTop="3dp"
-        android:layout_marginRight="3dp"
-        android:id="@+id/cbSelected"
-        android:layout_width="21dp"
-        android:layout_height="21dp"
+    <FrameLayout
+        android:id="@+id/flSelected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="top|right"
-        android:background="@drawable/cb_select" />
+        android:padding="3dp">
+
+        <TextView
+            android:id="@+id/cbSelected"
+            android:layout_width="21dp"
+            android:layout_height="21dp"
+            android:background="@drawable/cb_select"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:textSize="11sp"
+            tools:text="12" />
+    </FrameLayout>
 </com.example.apple.glidetest.view.SameHWLayout>

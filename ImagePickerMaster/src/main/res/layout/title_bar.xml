@@ -1,46 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingLeft="19dp"
-        tools:src="@drawable/fanhui"
+        tools:visibility="gone"
         android:id="@+id/ivLeft"
-        android:paddingRight="19dp"/>
-    <TextView
-        android:layout_centerHorizontal="true"
-        tools:text="我是标题"
-        android:gravity="center"
-        android:textSize="17sp"
-        android:textColor="#333"
-        android:id="@+id/tvCenter"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent" />
-    <TextView
-        android:id="@+id/tvRight"
-        android:textSize="16sp"
-        tools:text="取消"
-        android:textColor="@color/color777777"
-        android:layout_alignParentRight="true"
-        android:gravity="center_vertical"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:paddingLeft="19dp"
-        android:paddingRight="15dp"/>
+        android:paddingRight="19dp" />
 
     <TextView
-        android:textSize="14sp"
-        android:textColor="#fff"
-        android:id="@+id/ivRight"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:id="@+id/tvLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:drawableLeft="@drawable/fanhui"
+        android:drawablePadding="10dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="19dp"
+        android:paddingRight="19dp"
+        android:text="相册"
+        android:textColor="@color/color777777"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tvCenter"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
         android:gravity="center"
+        android:textColor="#333"
+        android:textSize="17sp"
+        tools:text="我是标题" />
+
+    <TextView
+        android:id="@+id/tvRight"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:gravity="center_vertical"
+        android:paddingLeft="19dp"
+        android:paddingRight="15dp"
+        android:textColor="@color/color777777"
+        android:textSize="16sp"
+        tools:text="取消" />
+
+    <TextView
+        android:id="@+id/ivRight"
         android:layout_width="26dp"
         android:layout_height="26dp"
-        android:layout_marginRight="15dp" />
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:textColor="#fff"
+        android:textSize="14sp" />
 </RelativeLayout>

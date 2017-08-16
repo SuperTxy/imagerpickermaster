@@ -63,7 +63,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
             val cbSelected = holder.itemView.cbSelected
             context.loadImage(File(path), holder.itemView.ivImage)
             handleSelected(selectImageProvider.isPathExist(path), holder, path)
-            cbSelected.setOnClickListener {
+            holder.itemView.flSelected.setOnClickListener {
                 if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected,needSuffix)) return@setOnClickListener
                 handleSelected(!cbSelected.isSelected, holder, path)
                 if (cbSelected.isSelected) {
@@ -112,11 +112,6 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
         notifyDataSetChanged()
     }
 
-//    fun insertImage(image: String) {
-//        var index = if (showCamera) 1 else 0
-//        this.images.add(index, image)
-//        notifyItemInserted(index)
-//    }
 
     inner class CameraHolder(view: View) : RecyclerView.ViewHolder(view)
 

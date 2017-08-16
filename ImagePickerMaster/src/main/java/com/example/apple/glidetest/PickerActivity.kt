@@ -24,9 +24,10 @@ class PickerActivity : PickerBaseActivity() {
 
     companion object {
         private val CLASSNAME: String = "className"
-        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>) {
+        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>, isModified: Boolean) {
             val intent = Intent(context, PickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
+            intent.putExtra("isModified", isModified)
             intent.putExtra(PickerSettings.INITIAL_SELECT, initialSelect)
             context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
         }
@@ -44,12 +45,14 @@ class PickerActivity : PickerBaseActivity() {
     private var imageSelector = SelectImageProvider.instance
     private var bundle: Bundle? = null
     private var className: String? = null
+    private var isModified: Boolean? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StatusBarUtil.setStatusBarColorWhite(this)
         setContentView(R.layout.activity_picker)
-        if (adapter!=null) {
+        isModified = intent.getBooleanExtra("isModified", false)
+        if (adapter != null) {
             Logger.e(adapter.toString())
         }
         recyclerViewAll.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT) as RecyclerView.LayoutManager?
@@ -62,7 +65,7 @@ class PickerActivity : PickerBaseActivity() {
             else launchCamera()
         }
         btnCenter = tvCenter
-        btnLeft = ivLeft
+        btnLeft = tvLeft
         bundle = intent.getBundleExtra(PickerSettings.BUNDLE)
         className = intent.getStringExtra(CLASSNAME)
         initListener()
@@ -71,16 +74,18 @@ class PickerActivity : PickerBaseActivity() {
     }
 
     private fun initListener() {
+//        TODO(有內容不判斷)
         tvRight.setOnClickListener {
-            if (initialSelect != null || imageSelector.size == 0) {
-                setResult(RESULT_CANCELED,intent)
+            if (isModified == true || imageSelector.size > 0) {
+                showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
+                    override fun onClick(v: View) {
+                        finish()
+                    }
+                }, null)
+            } else {
                 finish()
+                setResult(RESULT_CANCELED, intent)
             }
-            else showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
-                override fun onClick(v: View) {
-                    finish()
-                }
-            }, null)
         }
         btnPickOk.setOnClickListener {
             onPickerOk()
@@ -98,11 +103,15 @@ class PickerActivity : PickerBaseActivity() {
                 BigImageActivity.start(this@PickerActivity, position)
             }
         }
+        selectedAdapter?.setOnUpdateMoveListener(object : ImageSelectedAdapter.OnUpdateMoveListener {
+            override fun onUpdateMove() {
+                recyclerViewSelected.smoothScrollToPosition(selectedAdapter!!.itemCount - 1)
+            }
+        })
     }
 
     override fun update(o: Observable?, arg: Any?) {
         if (o is SelectImageProvider && arg is Change) {
-            recyclerViewSelected.scrollToPosition(selectedAdapter!!.itemCount)
             btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         }
     }

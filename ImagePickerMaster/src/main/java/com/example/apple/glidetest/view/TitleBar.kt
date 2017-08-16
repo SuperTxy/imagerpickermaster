@@ -24,6 +24,7 @@ class TitleBar @JvmOverloads constructor(context: Context, attributeSet: Attribu
         val rightText = ta.getString(R.styleable.TitleBar_rightText)
         val rightImage = ta.getDrawable(R.styleable.TitleBar_rightImage)
         val backgroundColor = ta.getColor(R.styleable.TitleBar_backgroudColor,Color.WHITE)
+        val showFolderBack = ta.getBoolean(R.styleable.TitleBar_showFolderBack,false)
         ta.recycle()
         background = ColorDrawable(backgroundColor)
         if (leftImage == null) {
@@ -41,6 +42,10 @@ class TitleBar @JvmOverloads constructor(context: Context, attributeSet: Attribu
         }
         if (rightImage != null) {
             ivRight.setBackgroundDrawable(rightImage)
+        }
+        if(showFolderBack){
+            tvLeft.visibility= View.VISIBLE
+            ivLeft.visibility = View.GONE
         }
     }
 }

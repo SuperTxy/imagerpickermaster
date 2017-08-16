@@ -44,7 +44,7 @@ class CommonPickerActivity : PickerBaseActivity() {
         recyclerView.addItemDecoration(GridItemDecoration.Builder(this).size(dp2px(5.0f)).color(R.color.white)
                 .margin(0,0).isExistHead(false).build())
         btnCenter = tvCenter
-        btnLeft = ivLeft
+        btnLeft = tvLeft
         tvRight.setOnClickListener {
             finish()
         }

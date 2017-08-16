@@ -10,7 +10,6 @@ import android.provider.MediaStore
 import android.support.v4.content.FileProvider
 import android.text.TextUtils
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.example.apple.glidetest.adapter.CommonImageAdapter
@@ -27,7 +26,6 @@ import java.util.*
 /**
  * Created by Apple on 17/7/31.
  */
-
 abstract class PickerBaseActivity : Activity(), Observer {
     protected var imageProvider: SelectImageProvider? = null
     protected var folderProvider: FolderProvider? = null
@@ -38,7 +36,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var adapter: CommonImageAdapter? = null
     protected var view: View? = null
     protected var btnCenter: TextView? = null
-    protected var btnLeft: ImageView? = null
+    protected var btnLeft: View? = null
     protected var initialSelect: ArrayList<String>? = null
 
     fun initView(savedInstanceState: Bundle?) {
