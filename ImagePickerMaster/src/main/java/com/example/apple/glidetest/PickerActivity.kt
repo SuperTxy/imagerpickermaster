@@ -105,7 +105,8 @@ class PickerActivity : PickerBaseActivity() {
         }
         selectedAdapter?.setOnUpdateMoveListener(object : ImageSelectedAdapter.OnUpdateMoveListener {
             override fun onUpdateMove() {
-                recyclerViewSelected.smoothScrollToPosition(selectedAdapter!!.itemCount - 1)
+                var itemCount = selectedAdapter!!.itemCount
+                if (itemCount > 0) recyclerViewSelected.scrollToPosition(itemCount - 1)
             }
         })
     }
