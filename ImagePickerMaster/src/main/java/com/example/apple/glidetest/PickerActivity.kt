@@ -24,10 +24,12 @@ class PickerActivity : PickerBaseActivity() {
 
     companion object {
         private val CLASSNAME: String = "className"
-        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>, isModified: Boolean) {
+        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>,
+                           isModified: Boolean, isAddImg: Boolean? = false) {
             val intent = Intent(context, PickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
             intent.putExtra("isModified", isModified)
+            intent.putExtra("isAddImg", isAddImg)
             intent.putExtra(PickerSettings.INITIAL_SELECT, initialSelect)
             context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
         }
@@ -46,12 +48,14 @@ class PickerActivity : PickerBaseActivity() {
     private var bundle: Bundle? = null
     private var className: String? = null
     private var isModified: Boolean? = null
+    private var isAddImg: Boolean? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StatusBarUtil.setStatusBarColorWhite(this)
         setContentView(R.layout.activity_picker)
         isModified = intent.getBooleanExtra("isModified", false)
+        isAddImg = intent.getBooleanExtra("isAddImg", false)
         if (adapter != null) {
             Logger.e(adapter.toString())
         }
@@ -76,7 +80,7 @@ class PickerActivity : PickerBaseActivity() {
 
     private fun initListener() {
         tvRight.setOnClickListener {
-            if (isModified == true || imageSelector.size > 0) {
+            if (isAddImg == false && (isModified == true || imageSelector.size > 0)) {
                 showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
                     override fun onClick(v: View) {
                         finish()
