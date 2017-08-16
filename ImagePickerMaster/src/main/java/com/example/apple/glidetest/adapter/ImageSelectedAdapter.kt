@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import com.example.apple.glidetest.R
 import com.example.apple.glidetest.bean.Change
 import com.example.apple.glidetest.bean.SelectImageProvider
+import com.example.apple.glidetest.utils.OsUtils
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
 import kotlinx.android.synthetic.main.image_seleted_item.view.*
@@ -53,11 +54,19 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
         if (o is SelectImageProvider && arg is Change) {
             if (arg.isAdd) {
                 imgs.add(arg.path)
-                notifyDataSetChanged()
+                if (imgs.size == itemCount)
+                    notifyItemRemoved(itemCount - 1)
+                notifyItemInserted(imgs.size - 1)
+                if (imgs.size == itemCount - 1)
+                    notifyItemChanged(itemCount - 1)
             } else {
-//                val index = OsUtils.getIndexInList(imgs, arg.path)
+                val index = OsUtils.getIndexInList(imgs, arg.path)
                 imgs.remove(arg.path)
-                notifyDataSetChanged()
+                notifyItemRemoved(index)
+                if (imgs.size == SelectImageProvider.instance.maxSelect - 1)
+                    notifyItemInserted(itemCount - 1)
+                if(imgs.size == 0) notifyItemRemoved(0)
+                else notifyItemChanged(itemCount - 1)
             }
             listener?.onUpdateMove()
         }

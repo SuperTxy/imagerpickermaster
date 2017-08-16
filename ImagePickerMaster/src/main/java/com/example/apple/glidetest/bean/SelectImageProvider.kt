@@ -17,6 +17,9 @@ class SelectImageProvider private constructor() : Observable() {
         val instance: SelectImageProvider by lazy { SelectImageProvider() }
     }
 
+    var needSuffix: Boolean = false
+    set(value) {field = value}
+
     var maxSelect: Int = 1
         get() = field
         set(value) {
@@ -68,7 +71,7 @@ class SelectImageProvider private constructor() : Observable() {
     }
 
 
-    fun maxSelectToast(context: Context, isSelected: Boolean, needSuffix: Boolean = false): Boolean {
+    fun maxSelectToast(context: Context, isSelected: Boolean): Boolean {
         if (!isSelected && selectedImgs.size == maxSelect) {
             var toast = "最多只能选择" + maxSelect + "张图片"
             toast = if (needSuffix) toast + context.getString(R.string.max_toast_suffix) else toast

@@ -24,7 +24,7 @@ import kotlin.collections.ArrayList
  * @link SelectImageProvider.maxSelectToast
  */
 class CommonImageAdapter(private val context: Context, images: ArrayList<String>,
-                         private var showCamera: Boolean = false,private val needSuffix:Boolean = false)
+                         private var showCamera: Boolean = false)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Observer {
 
     private var images: ArrayList<String> = ArrayList()
@@ -64,7 +64,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
             loadImage(File(path), holder.itemView.ivImage)
             handleSelected(selectImageProvider.isPathExist(path), holder, path)
             holder.itemView.flSelected.setOnClickListener {
-                if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected,needSuffix)) return@setOnClickListener
+                if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected)) return@setOnClickListener
                 handleSelected(!cbSelected.isSelected, holder, path)
                 if (cbSelected.isSelected) {
                     selectImageProvider.add(path)

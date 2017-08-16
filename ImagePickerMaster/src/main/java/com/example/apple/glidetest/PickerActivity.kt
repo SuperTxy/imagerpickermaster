@@ -71,10 +71,10 @@ class PickerActivity : PickerBaseActivity() {
         initListener()
         initView(savedInstanceState)
         btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
+        imageSelector.needSuffix = imageSelector.maxSelect == 6
     }
 
     private fun initListener() {
-//        TODO(有內容不判斷)
         tvRight.setOnClickListener {
             if (isModified == true || imageSelector.size > 0) {
                 showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
@@ -94,7 +94,7 @@ class PickerActivity : PickerBaseActivity() {
 
     override fun initData() {
         val selectedFolder = FolderProvider.instance.selectedFolder
-        adapter = CommonImageAdapter(this, selectedFolder!!.imgs, false, imageSelector.maxSelect == 6)
+        adapter = CommonImageAdapter(this, selectedFolder!!.imgs)
         recyclerViewAll.adapter = adapter
         selectedAdapter = ImageSelectedAdapter(this, imageSelector.selectedImgs)
         recyclerViewSelected.adapter = selectedAdapter

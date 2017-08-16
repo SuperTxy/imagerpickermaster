@@ -19,11 +19,14 @@
         tools:visibility="visible" />
 
     <FrameLayout
+        android:paddingTop="3dp"
+        android:paddingRight="3dp"
+        android:paddingLeft="7dp"
+        android:paddingBottom="7dp"
         android:id="@+id/flSelected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|right"
-        android:padding="3dp">
+        android:layout_gravity="top|right">
 
         <TextView
             android:id="@+id/cbSelected"
