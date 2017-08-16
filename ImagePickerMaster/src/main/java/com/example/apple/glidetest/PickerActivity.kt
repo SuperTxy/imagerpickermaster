@@ -88,7 +88,7 @@ class PickerActivity : PickerBaseActivity() {
                 }, null)
             } else {
                 finish()
-                setResult(RESULT_CANCELED, intent)
+                setResult(RESULT_FIRST_USER, intent)
             }
         }
         btnPickOk.setOnClickListener {
