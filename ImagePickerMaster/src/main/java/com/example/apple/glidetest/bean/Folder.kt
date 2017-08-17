@@ -29,4 +29,11 @@ class Folder(dir: String, name: String) {
 
     var count: Int = 0
         get() {return imgs.size}
+
+    fun clear(){
+        dir = ""
+        name =""
+        firstImagePath = null
+        imgs.clear()
+    }
 }

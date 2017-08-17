@@ -44,6 +44,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         folderProvider = FolderProvider.instance
         permissionUtils = PermissionUtils(this)
         imageProvider!!.addObserver(this)
+        folderProvider!!.clear()
         initialSelect = intent.getStringArrayListExtra(PickerSettings.INITIAL_SELECT)
         if (savedInstanceState == null) {
             imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)

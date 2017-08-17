@@ -79,7 +79,6 @@ class PickerActivity : PickerBaseActivity() {
     }
 
     private fun initListener() {
-        Logger.e("isAddImg"+isAddImg)
         tvRight.setOnClickListener {
             if (isAddImg == false && (isModified == true || imageSelector.size > 0)) {
                 showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
@@ -88,7 +87,6 @@ class PickerActivity : PickerBaseActivity() {
                     }
                 }, null)
             } else {
-                Logger.e("PickerActivity  finish")
                 setResult(12, intent)
                 finish()
             }

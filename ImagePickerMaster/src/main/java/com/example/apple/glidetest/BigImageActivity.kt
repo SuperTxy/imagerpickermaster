@@ -53,7 +53,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
             finish()
         }
         ivRight.setOnClickListener {
-            if (imageProvider.maxSelectToast(this@BigImageActivity, tvRight.isSelected))
+            if (imageProvider.maxSelectToast(this@BigImageActivity, ivRight.isSelected))
             else {
                 val path = images.get(viewPager.currentItem)
                 ivRight.isSelected = !ivRight.isSelected

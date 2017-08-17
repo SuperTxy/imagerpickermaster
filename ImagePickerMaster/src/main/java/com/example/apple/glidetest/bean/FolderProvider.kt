@@ -43,8 +43,7 @@ class FolderProvider private constructor() {
     }
 
     fun clear(){
-        folders.clear()
-        foldersMap.clear()
+       selectedFolder = folders.get(0)
     }
 
     fun addCameraImage(path:String){
