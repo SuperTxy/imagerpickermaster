@@ -59,10 +59,10 @@ task sourcesJar(type: Jar) {
 //    options.addStringOption('encoding', 'UTF-8')
 //    options.addStringOption('charSet', 'UTF-8')
 //}
-//artifacts {
+artifacts {
 //    archives javadocJar
-//    archives sourcesJar
-//}
+    archives sourcesJar
+}
 repositories {
     mavenCentral()
 }
