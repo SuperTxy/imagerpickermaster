@@ -88,7 +88,7 @@ class PickerActivity : PickerBaseActivity() {
                     }
                 }, null)
             } else {
-                Logger.e("finish")
+                Logger.e("PickerActivity  finish")
                 setResult(12, intent)
                 finish()
             }
