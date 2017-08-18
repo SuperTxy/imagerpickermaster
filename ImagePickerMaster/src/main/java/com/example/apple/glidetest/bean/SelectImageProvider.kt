@@ -66,6 +66,7 @@ class SelectImageProvider private constructor() : Observable() {
 
     fun setSelect(imgs: ArrayList<String>?) {
         selectedImgs.clear()
+        needSuffix = false
         if (imgs != null) selectedImgs.addAll(imgs)
 
     }
