@@ -86,8 +86,11 @@ class PickerActivity : PickerBaseActivity() {
                         finish()
                     }
                 }, null)
-            } else {
+            } else if(isAddImg == true){
                 setResult(12, intent)
+                finish()
+            }else{
+                setResult(RESULT_CANCELED,intent)
                 finish()
             }
         }
