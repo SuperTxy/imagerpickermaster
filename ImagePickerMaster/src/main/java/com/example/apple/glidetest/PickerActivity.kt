@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.KeyEvent
 import android.view.View
 import com.example.apple.glidetest.adapter.CommonImageAdapter
 import com.example.apple.glidetest.adapter.ImageSelectedAdapter
@@ -80,19 +81,7 @@ class PickerActivity : PickerBaseActivity() {
 
     private fun initListener() {
         tvRight.setOnClickListener {
-            if (isAddImg == false && (isModified == true || imageSelector.size > 0)) {
-                showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
-                    override fun onClick(v: View) {
-                        finish()
-                    }
-                }, null)
-            } else if(isAddImg == true){
-                setResult(12, intent)
-                finish()
-            }else{
-                setResult(RESULT_CANCELED,intent)
-                finish()
-            }
+          onKeyDown(KeyEvent.KEYCODE_BACK,null)
         }
         btnPickOk.setOnClickListener {
             onPickerOk()
@@ -136,5 +125,25 @@ class PickerActivity : PickerBaseActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            if (isAddImg == false && (isModified == true || imageSelector.size > 0)) {
+                showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
+                    override fun onClick(v: View) {
+                        finish()
+                    }
+                }, null)
+            } else if(isAddImg == true){
+                setResult(12, intent)
+                finish()
+            }else{
+                setResult(RESULT_CANCELED,intent)
+                finish()
+            }
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }
