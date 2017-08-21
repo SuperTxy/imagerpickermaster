@@ -34,7 +34,6 @@ class PermissionUtils(private val context: Activity) {
         mNoPermissionRunnable = null
         if (isPermissionsGranted(permissions)) hasPermissionDo.run()
         else if (ActivityCompat.shouldShowRequestPermissionRationale(context, permissions.get(0))) {
-            TODO("询问是否需要单独处理")
             context.toastStr("沒有权限哦")
         } else {
             mHasPermissionRunnable = hasPermissionDo

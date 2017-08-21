@@ -28,7 +28,6 @@ class FolderSelectActivity : Activity() {
         }
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.adapter = FolderAdapter()
-//        TODO("Activity的转场动画")
     }
 
     inner class FolderAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
