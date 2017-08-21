@@ -34,7 +34,7 @@ class PermissionUtils(private val context: Activity) {
         mNoPermissionRunnable = null
         if (isPermissionsGranted(permissions)) hasPermissionDo.run()
         else if (ActivityCompat.shouldShowRequestPermissionRationale(context, permissions.get(0))) {
-            context.showPermissionDialog("不开启存储权限，无法访问相册哦~")
+            noPermissionDo.run()
         } else {
             mHasPermissionRunnable = hasPermissionDo
             mNoPermissionRunnable = noPermissionDo
