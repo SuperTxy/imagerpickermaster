@@ -43,7 +43,7 @@ class PermissionUtils(private val context: Activity) {
     }
 
 
-    private fun isPermissionsGranted(permissions: Array<out String>): Boolean {
+     fun isPermissionsGranted(permissions: Array<out String>): Boolean {
         for (it in permissions) {
             if (ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED)
                 return false

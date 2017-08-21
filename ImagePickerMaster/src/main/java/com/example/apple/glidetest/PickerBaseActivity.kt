@@ -1,5 +1,6 @@
 package com.example.apple.glidetest
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -19,6 +20,7 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.utils.FileUtils
 import com.example.apple.glidetest.utils.PermissionUtils
 import com.example.apple.glidetest.utils.PickerSettings
+import com.example.apple.glidetest.utils.toastStr
 import com.orhanobut.logger.Logger
 import java.io.File
 import java.util.*
@@ -57,7 +59,10 @@ abstract class PickerBaseActivity : Activity(), Observer {
             initData()
         }
         btnLeft!!.setOnClickListener {
-            startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_REQUEST_CODE)
+            var permission = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (permissionUtils!!.isPermissionsGranted(permission)) {
+                startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_REQUEST_CODE)
+            } else toastStr("沒有权限哦！")
         }
     }
 
