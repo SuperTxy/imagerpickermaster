@@ -40,6 +40,14 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var btnCenter: TextView? = null
     protected var btnLeft: View? = null
     protected var initialSelect: ArrayList<String>? = null
+    protected var llEmptyView: View? = null
+    protected var btnReload: TextView? = null
+    protected var tvText: TextView? = null
+
+    override fun onResume() {
+        super.onResume()
+        llEmptyView!!.visibility = if (isReadPermissionGranted()) View.GONE else View.VISIBLE
+    }
 
     fun initView(savedInstanceState: Bundle?) {
         imageProvider = SelectImageProvider.instance
@@ -51,6 +59,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         if (savedInstanceState == null) {
             imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
             imageProvider!!.setSelect(initialSelect)
+//            tvText!!.text = getString(R.string.image_is_reading)
             permissionUtils?.checkStoragePermission(Runnable {
                 loadFolderAndImages()
             })
@@ -58,12 +67,27 @@ abstract class PickerBaseActivity : Activity(), Observer {
             tmpFile = savedInstanceState.getSerializable("tmpFile") as File?
             initData()
         }
+
         btnLeft!!.setOnClickListener {
-            var permission = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-            if (permissionUtils!!.isPermissionsGranted(permission)) {
+            if (isReadPermissionGranted()) {
                 startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_REQUEST_CODE)
             } else toastStr("沒有权限哦！")
         }
+
+        btnReload!!.setOnClickListener {
+            if (isReadPermissionGranted()) {
+//                tvText!!.text = getString(R.string.image_is_reading)
+                loadFolderAndImages()
+            } else {
+                permissionUtils?.checkStoragePermission(Runnable {
+                    loadFolderAndImages()
+                })
+            }
+        }
+    }
+
+    fun isReadPermissionGranted(): Boolean {
+        return permissionUtils!!.isPermissionsGranted(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE))
     }
 
     fun loadFolderAndImages() {

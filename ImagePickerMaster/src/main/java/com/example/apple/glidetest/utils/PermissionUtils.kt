@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import com.example.apple.glidetest.R
 
 /**
  * Created by Apple on 17/8/3.
@@ -18,12 +19,12 @@ class PermissionUtils(private val context: Activity) {
     fun checkStoragePermission(hasPermissionDo: Runnable) {
         var permission = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
         checkPermission(permission, hasPermissionDo, Runnable {
-            context.showPermissionDialog("不开启存储权限，无法访问相册哦~")
+            context.showPermissionDialog(context.getString(R.string.not_open_read_permission))
         })
     }
 
     fun checkCameraPermission(hasPermissionDo: Runnable) {
-        var permission = arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        var permission = arrayOf(Manifest.permission.CAMERA)
         checkPermission(permission, hasPermissionDo, Runnable {
             context.showPermissionDialog("不开启相机权限，无法拍照哦~")
         })

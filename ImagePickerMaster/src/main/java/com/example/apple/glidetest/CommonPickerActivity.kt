@@ -43,8 +43,7 @@ class CommonPickerActivity : PickerBaseActivity() {
         recyclerView.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT)
         recyclerView.addItemDecoration(GridItemDecoration.Builder(this).size(dp2px(5.0f)).color(R.color.white)
                 .margin(0,0).isExistHead(false).build())
-        btnCenter = tvCenter
-        btnLeft = tvLeft
+        baseView()
         tvRight.setOnClickListener {
             finish()
         }
@@ -55,6 +54,14 @@ class CommonPickerActivity : PickerBaseActivity() {
         var selctedCount = if (initialSelect != null) initialSelect!!.size else 0
         btnPickOk.isEnabled = selctedCount > 0
         btnPickOk.text = "完成 ("+selctedCount+"/" + intent.getIntExtra(PickerSettings.MAX_SELECT, 1) + ")"
+    }
+
+    private fun baseView() {
+        btnCenter = tvCenter
+        btnLeft = tvLeft
+        llEmptyView = emptyView
+        btnReload = tvReload
+        tvText = tvHint
     }
 
     override fun update(o: Observable?, arg: Any?) {

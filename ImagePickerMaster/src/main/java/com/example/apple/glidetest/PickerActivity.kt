@@ -69,14 +69,21 @@ class PickerActivity : PickerBaseActivity() {
             if (imageSelector.maxSelectToast(this, false))
             else launchCamera()
         }
-        btnCenter = tvCenter
-        btnLeft = tvLeft
+        baseView()
         bundle = intent.getBundleExtra(PickerSettings.BUNDLE)
         className = intent.getStringExtra(CLASSNAME)
         initListener()
         initView(savedInstanceState)
         btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         imageSelector.needSuffix = imageSelector.maxSelect == 6
+    }
+
+    private fun baseView() {
+        btnCenter = tvCenter
+        btnLeft = tvLeft
+        llEmptyView = emptyView
+        btnReload = tvReload
+        tvText = tvHint
     }
 
     private fun initListener() {

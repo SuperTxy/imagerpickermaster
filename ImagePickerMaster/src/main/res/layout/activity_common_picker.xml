@@ -1,38 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    tools:context="com.example.apple.glidetest.CommonPickerActivity">
+    android:fitsSystemWindows="true">
 
-    <com.example.apple.glidetest.view.TitleBar
-        android:id="@+id/titleBar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:centerText="所有照片"
-        app:showFolderBack="true"
-        app:rightText="取消" />
+        android:layout_height="match_parent"
+        android:background="#fff"
+        android:fitsSystemWindows="true"
+        android:orientation="vertical"
+        tools:context="com.example.apple.glidetest.CommonPickerActivity">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        <com.example.apple.glidetest.view.TitleBar
+            android:id="@+id/titleBar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:centerText="所有照片"
+            app:rightText="取消"
+            app:showFolderBack="true" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnPickOk"
+            android:layout_width="88dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/btn_ok_selector"
+            android:enabled="false"
+            android:textColor="#fff"
+            android:textSize="14sp"
+            tools:text="确定(0/6)" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/emptyView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
-    <Button
-        android:enabled="false"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/btn_ok_selector"
-        android:id="@+id/btnPickOk"
-        android:layout_width="88dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center_horizontal"
-        android:textColor="#fff"
-        android:textSize="14sp"
-        tools:text="确定(0/6)" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvHint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="20dp"
+            android:drawableTop="@drawable/default_image"
+            android:gravity="center_horizontal"
+            android:text="数据获取失败，点击重新加载试试"
+            android:textColor="@color/color777777"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvReload"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/e93a3a_corner4dp_stroke1dp_shape"
+            android:gravity="center"
+            android:text="重新加载"
+            android:textColor="@color/colore93a3a"
+            android:textSize="15sp" />
+    </LinearLayout>
+</FrameLayout>
