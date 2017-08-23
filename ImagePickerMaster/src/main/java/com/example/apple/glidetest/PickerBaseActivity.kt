@@ -67,6 +67,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
                 loadFolderAndImages()
             })
         } else {
+            imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
             tmpFile = savedInstanceState.getSerializable("tmpFile") as File?
             initData()
         }
