@@ -10,9 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#fff"
-        android:fitsSystemWindows="true"
-        android:orientation="vertical"
-        tools:context="com.example.apple.glidetest.CommonPickerActivity">
+        android:orientation="vertical">
 
         <com.example.apple.glidetest.view.TitleBar
             android:id="@+id/titleBar"
@@ -43,6 +41,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:background="#fff"
         tools:visibility="visible"
         android:visibility="gone"
         android:id="@+id/emptyView"

@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
-import com.example.apple.glidetest.PickerActivity
+import com.example.apple.glidetest.CommonPickerActivity
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.loadImage
 import kotlinx.android.synthetic.main.activity_main.*
@@ -24,7 +24,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         tvMain.setOnClickListener {
-            PickerActivity.startForResult(this,6,imags,false,true)
+            CommonPickerActivity.startForResult(this,6,imags)
         }
         adapter = MyGridAdapter()
         gvMain.adapter = adapter
