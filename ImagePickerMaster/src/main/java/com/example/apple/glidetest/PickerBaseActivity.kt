@@ -46,6 +46,9 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     override fun onResume() {
         super.onResume()
+        if (llEmptyView!!.visibility == View.VISIBLE && isReadPermissionGranted()){
+            loadFolderAndImages()
+        }
         llEmptyView!!.visibility = if (isReadPermissionGranted()) View.GONE else View.VISIBLE
     }
 
