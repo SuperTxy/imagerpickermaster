@@ -60,18 +60,20 @@ abstract class PickerBaseActivity : Activity(), Observer {
         folderProvider!!.clear()
         initialSelect = intent.getStringArrayListExtra(PickerSettings.INITIAL_SELECT)
         if (savedInstanceState == null) {
-            imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
-            imageProvider!!.setSelect(initialSelect)
 //            tvText!!.text = getString(R.string.image_is_reading)
+            imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 0)
+            imageProvider!!.setSelect(initialSelect)
             permissionUtils?.checkStoragePermission(Runnable {
                 loadFolderAndImages()
             })
         } else {
-            imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 1)
+            if(imageProvider!!.maxSelect == 0){
+                imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT,0)
+                imageProvider!!.setSelect(initialSelect)
+            }
             tmpFile = savedInstanceState.getSerializable("tmpFile") as File?
             initData()
         }
-
         btnLeft!!.setOnClickListener {
             if (isReadPermissionGranted()) {
                 startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_REQUEST_CODE)

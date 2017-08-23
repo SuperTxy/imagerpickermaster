@@ -20,10 +20,10 @@ class SelectImageProvider private constructor() : Observable() {
     var needSuffix: Boolean = false
     set(value) {field = value}
 
-    var maxSelect: Int = 1
+    var maxSelect: Int = 0
         get() = field
         set(value) {
-            field = if (value > 0) value else 1
+            field = if (value > 0) value else 0
         }
     var selectedImgs = ArrayList<String>()
         get() = field

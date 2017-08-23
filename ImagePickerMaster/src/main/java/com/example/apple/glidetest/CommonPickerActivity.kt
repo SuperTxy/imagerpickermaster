@@ -51,7 +51,7 @@ class CommonPickerActivity : PickerBaseActivity() {
          onPickerOk()
         }
         initView(savedInstanceState)
-        var selctedCount = if (initialSelect != null) initialSelect!!.size else 0
+        var selctedCount = imageProvider!!.selectedImgs.size
         btnPickOk.isEnabled = selctedCount > 0
         btnPickOk.text = "完成 ("+selctedCount+"/" + intent.getIntExtra(PickerSettings.MAX_SELECT, 1) + ")"
     }
