@@ -163,8 +163,9 @@ abstract class PickerBaseActivity : Activity(), Observer {
                         imageProvider!!.add(path)
                         val dir = tmpFile!!.parentFile.absolutePath
                         folderProvider!!.addCameraImage(path)
-                        if (TextUtils.equals(selectedFolder!!.dir, dir) || selectedFolder.name.equals(folderProvider!!.folders.get(0).name))
+                        if (TextUtils.equals(selectedFolder!!.dir, dir) || selectedFolder.name.equals(folderProvider!!.folders.get(0).name)) {
                             adapter!!.refresh(selectedFolder.imgs)
+                        }
                     } else {
                         Logger.e("Activity重新创建，没保存tmpFile")
                     }

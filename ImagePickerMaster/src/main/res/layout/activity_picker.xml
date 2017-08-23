@@ -87,7 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawablePadding="20dp"
-            android:drawableTop="@drawable/default_image"
+            android:drawableTop="@drawable/reload"
             android:gravity="center_horizontal"
             android:text="数据获取失败，点击重新加载试试"
             android:textColor="@color/color777777"
