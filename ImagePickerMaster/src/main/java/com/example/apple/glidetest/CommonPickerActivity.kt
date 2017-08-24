@@ -44,7 +44,7 @@ class CommonPickerActivity : PickerBaseActivity() {
         recyclerView.addItemDecoration(GridItemDecoration.Builder(this).size(dp2px(5.0f)).color(R.color.white)
                 .margin(0,0).isExistHead(false).build())
         baseView()
-        tvRight.setOnClickListener {
+        tvLeft.setOnClickListener {
             finish()
         }
         btnPickOk.setOnClickListener {
@@ -58,7 +58,6 @@ class CommonPickerActivity : PickerBaseActivity() {
 
     private fun baseView() {
         btnCenter = tvCenter
-        btnLeft = tvLeft
         llEmptyView = emptyView
         btnReload = tvReload
         tvText = tvHint

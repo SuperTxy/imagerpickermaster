@@ -19,12 +19,11 @@
         android:id="@+id/tvLeft"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:drawableLeft="@drawable/fanhui"
         android:drawablePadding="10dp"
         android:gravity="center_vertical"
         android:paddingLeft="19dp"
         android:paddingRight="19dp"
-        android:text="相册"
+        android:text="取消"
         android:textColor="@color/color777777"
         android:textSize="16sp" />
 

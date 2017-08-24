@@ -6,6 +6,7 @@
         <attr name="rightText" format="string"/>
         <attr name="rightImage" format="reference"/>
         <attr name="backgroudColor" format="color"/>
-        <attr name="showFolderBack" format="boolean"/>
+        <attr name="leftText" format="string"/>
+        <attr name="centerImg" format="reference"/>
     </declare-styleable>
 </resources>

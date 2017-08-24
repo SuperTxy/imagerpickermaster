@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.RelativeLayout
 import com.example.apple.glidetest.R
+import com.example.apple.glidetest.utils.dp2px
 import kotlinx.android.synthetic.main.title_bar.view.*
 
 /**
@@ -24,7 +25,8 @@ class TitleBar @JvmOverloads constructor(context: Context, attributeSet: Attribu
         val rightText = ta.getString(R.styleable.TitleBar_rightText)
         val rightImage = ta.getDrawable(R.styleable.TitleBar_rightImage)
         val backgroundColor = ta.getColor(R.styleable.TitleBar_backgroudColor,Color.WHITE)
-        val showFolderBack = ta.getBoolean(R.styleable.TitleBar_showFolderBack,false)
+        val leftText = ta.getString(R.styleable.TitleBar_leftText)
+        val centerImg = ta.getDrawable(R.styleable.TitleBar_centerImg)
         ta.recycle()
         background = ColorDrawable(backgroundColor)
         if (leftImage == null) {
@@ -43,9 +45,14 @@ class TitleBar @JvmOverloads constructor(context: Context, attributeSet: Attribu
         if (rightImage != null) {
             ivRight.setBackgroundDrawable(rightImage)
         }
-        if(showFolderBack){
+        if(!leftText.isNullOrEmpty()){
             tvLeft.visibility= View.VISIBLE
-            ivLeft.visibility = View.GONE
+            tvLeft.text = leftText
+        }
+        if (centerImg !=null){
+            centerImg.setBounds(0,0,centerImg.minimumWidth,centerImg.minimumHeight)
+            tvCenter.setCompoundDrawables(null,null,centerImg,null)
+            tvCenter.compoundDrawablePadding = context.dp2px(5f)
         }
     }
 }

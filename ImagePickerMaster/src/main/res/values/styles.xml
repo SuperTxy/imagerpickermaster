@@ -31,4 +31,9 @@
         <item name="android:layout_height">0.5dp</item>
         <item name="android:background">#eeeeee</item>
     </style>
+
+    <style name="popup_folder_anim">
+        <item name="android:windowEnterAnimation">@anim/popup_show</item>
+        <item name="android:windowExitAnimation">@anim/popup_dismiss</item>
+    </style>
 </resources>

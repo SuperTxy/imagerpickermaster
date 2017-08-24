@@ -16,9 +16,9 @@
             android:id="@+id/titleBar"
             android:layout_width="match_parent"
             android:layout_height="50dp"
+            app:centerImg="@drawable/zhankai_shape"
             app:centerText="所有照片"
-            app:rightText="取消"
-            app:showFolderBack="true" />
+            app:leftText="取消" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
@@ -41,14 +41,13 @@
     </LinearLayout>
 
     <LinearLayout
-        android:background="#fff"
-        tools:visibility="visible"
-        android:visibility="gone"
         android:id="@+id/emptyView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#fff"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tvHint"

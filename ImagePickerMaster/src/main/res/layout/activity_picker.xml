@@ -14,11 +14,11 @@
         android:orientation="vertical">
 
         <com.example.apple.glidetest.view.TitleBar
+            app:centerImg="@drawable/zhankai_shape"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             app:centerText="所有图片"
-            app:rightText="取消"
-            app:showFolderBack="true" />
+            app:leftText="取消" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerViewAll"

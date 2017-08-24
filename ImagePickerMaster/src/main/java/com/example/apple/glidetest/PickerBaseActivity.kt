@@ -20,7 +20,6 @@ import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.utils.FileUtils
 import com.example.apple.glidetest.utils.PermissionUtils
 import com.example.apple.glidetest.utils.PickerSettings
-import com.example.apple.glidetest.utils.toastStr
 import com.orhanobut.logger.Logger
 import java.io.File
 import java.util.*
@@ -38,15 +37,15 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var adapter: CommonImageAdapter? = null
     protected var view: View? = null
     protected var btnCenter: TextView? = null
-    protected var btnLeft: View? = null
     protected var initialSelect: ArrayList<String>? = null
     protected var llEmptyView: View? = null
     protected var btnReload: TextView? = null
     protected var tvText: TextView? = null
+    protected var folderPopup: FolderPopup? = null
 
     override fun onResume() {
         super.onResume()
-        if (llEmptyView!!.visibility == View.VISIBLE && isReadPermissionGranted()){
+        if (llEmptyView!!.visibility == View.VISIBLE && isReadPermissionGranted()) {
             loadFolderAndImages()
         }
         llEmptyView!!.visibility = if (isReadPermissionGranted()) View.GONE else View.VISIBLE
@@ -67,18 +66,14 @@ abstract class PickerBaseActivity : Activity(), Observer {
                 loadFolderAndImages()
             })
         } else {
-            if(imageProvider!!.maxSelect == 0){
-                imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT,0)
+            if (imageProvider!!.maxSelect == 0) {
+                imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 0)
                 imageProvider!!.setSelect(initialSelect)
             }
             tmpFile = savedInstanceState.getSerializable("tmpFile") as File?
             initData()
         }
-        btnLeft!!.setOnClickListener {
-            if (isReadPermissionGranted()) {
-                startActivityForResult(Intent(this, FolderSelectActivity::class.java), PickerSettings.FOLDER_REQUEST_CODE)
-            } else toastStr("沒有权限哦！")
-        }
+        folderPopup = FolderPopup(this)
 
         btnReload!!.setOnClickListener {
             if (isReadPermissionGranted()) {
@@ -87,6 +82,16 @@ abstract class PickerBaseActivity : Activity(), Observer {
             } else {
                 permissionUtils?.checkStoragePermission(Runnable {
                     loadFolderAndImages()
+                })
+            }
+        }
+        btnCenter!!.setOnClickListener {
+            if (!folderPopup!!.isShowing()) {
+                folderPopup!!.show(btnCenter!!, object : FolderPopup.OnFolderSelectedListener {
+                    override fun OnFolderSelected() {
+                        btnCenter!!.text = folderProvider!!.selectedFolder!!.name
+                        adapter!!.refresh(folderProvider!!.selectedFolder!!.imgs)
+                    }
                 })
             }
         }
@@ -153,14 +158,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
             PickerSettings.BIG_REQUEST_CODE -> {
                 if (resultCode == RESULT_OK) onPickerOk()
             }
-
-            PickerSettings.FOLDER_REQUEST_CODE -> {
-                if (resultCode == RESULT_OK) {
-                    btnCenter!!.text = selectedFolder!!.name
-                    adapter!!.refresh(selectedFolder.imgs)
-                } else finish()
-            }
-
             PickerSettings.CAREMA_REQUEST_CODE -> {
                 if (resultCode == RESULT_OK) {
                     if (tmpFile != null) {

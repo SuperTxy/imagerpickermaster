@@ -6,15 +6,15 @@ import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.KeyEvent
-import android.view.View
 import com.example.apple.glidetest.adapter.CommonImageAdapter
 import com.example.apple.glidetest.adapter.ImageSelectedAdapter
 import com.example.apple.glidetest.bean.Change
 import com.example.apple.glidetest.bean.FolderProvider
 import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.listener.OnItemClickListener
-import com.example.apple.glidetest.utils.*
+import com.example.apple.glidetest.utils.PickerSettings
+import com.example.apple.glidetest.utils.StatusBarUtil
+import com.example.apple.glidetest.utils.dp2px
 import com.example.apple.glidetest.view.GridItemDecoration
 import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.activity_picker.*
@@ -25,12 +25,9 @@ class PickerActivity : PickerBaseActivity() {
 
     companion object {
         private val CLASSNAME: String = "className"
-        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>,
-                           isModified: Boolean, isAddImg: Boolean? = false) {
+        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>) {
             val intent = Intent(context, PickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
-            intent.putExtra("isModified", isModified)
-            intent.putExtra("isAddImg", isAddImg)
             intent.putExtra(PickerSettings.INITIAL_SELECT, initialSelect)
             context.startActivityForResult(intent, PickerSettings.PICKER_REQUEST_CODE)
         }
@@ -55,8 +52,6 @@ class PickerActivity : PickerBaseActivity() {
         super.onCreate(savedInstanceState)
         StatusBarUtil.setStatusBarColorWhite(this)
         setContentView(R.layout.activity_picker)
-        isModified = intent.getBooleanExtra("isModified", false)
-        isAddImg = intent.getBooleanExtra("isAddImg", false)
         if (adapter != null) {
             Logger.e(adapter.toString())
         }
@@ -80,15 +75,14 @@ class PickerActivity : PickerBaseActivity() {
 
     private fun baseView() {
         btnCenter = tvCenter
-        btnLeft = tvLeft
         llEmptyView = emptyView
         btnReload = tvReload
         tvText = tvHint
     }
 
     private fun initListener() {
-        tvRight.setOnClickListener {
-          onKeyDown(KeyEvent.KEYCODE_BACK,null)
+        tvLeft.setOnClickListener {
+         finish()
         }
         btnPickOk.setOnClickListener {
             onPickerOk()
@@ -132,25 +126,5 @@ class PickerActivity : PickerBaseActivity() {
             startActivity(intent)
             finish()
         }
-    }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK){
-            if (isAddImg == false && (isModified == true || imageSelector.size > 0)) {
-                showAlertDialog(getString(R.string.confirm_to_exit), "退出", "取消", object : OnClickListener {
-                    override fun onClick(v: View) {
-                        finish()
-                    }
-                }, null)
-            } else if(isAddImg == true){
-                setResult(12, intent)
-                finish()
-            }else{
-                setResult(RESULT_CANCELED,intent)
-                finish()
-            }
-            return true
-        }
-        return super.onKeyDown(keyCode, event)
     }
 }
