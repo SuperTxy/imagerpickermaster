@@ -59,7 +59,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
         folderProvider!!.clear()
         initialSelect = intent.getStringArrayListExtra(PickerSettings.INITIAL_SELECT)
         if (savedInstanceState == null) {
-//            tvText!!.text = getString(R.string.image_is_reading)
             imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 0)
             imageProvider!!.setSelect(initialSelect)
             permissionUtils?.checkStoragePermission(Runnable {
@@ -77,7 +76,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
         btnReload!!.setOnClickListener {
             if (isReadPermissionGranted()) {
-//                tvText!!.text = getString(R.string.image_is_reading)
                 loadFolderAndImages()
             } else {
                 permissionUtils?.checkStoragePermission(Runnable {

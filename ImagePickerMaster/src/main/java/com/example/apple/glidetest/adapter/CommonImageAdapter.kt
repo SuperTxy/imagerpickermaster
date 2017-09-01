@@ -12,6 +12,7 @@ import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.utils.OsUtils
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
+import com.example.apple.glidetest.utils.toastStr
 import kotlinx.android.synthetic.main.camera.view.*
 import kotlinx.android.synthetic.main.image_all_item.view.*
 import java.io.File
@@ -65,6 +66,10 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
             handleSelected(selectImageProvider.isPathExist(path), holder, path)
             holder.itemView.flSelected.setOnClickListener {
                 if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected)) return@setOnClickListener
+                if (!File(path).exists()){
+                    context.toastStr("此图片已被删除")
+                    return@setOnClickListener
+                }
                 handleSelected(!cbSelected.isSelected, holder, path)
                 if (cbSelected.isSelected) {
                     selectImageProvider.add(path)

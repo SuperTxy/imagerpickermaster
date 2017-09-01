@@ -22,7 +22,7 @@ class FolderProvider private constructor() {
 
     init {
         selectedFolder = Folder("", "所有图片")
-        folders.add(selectedFolder!!)
+        addFolder(selectedFolder!!)
     }
 
     companion object {
@@ -30,8 +30,10 @@ class FolderProvider private constructor() {
     }
 
     fun addFolder(folder: Folder) {
-        folders.add(folder)
-        foldersMap.put(folder.dir, folder)
+        if (!foldersMap.containsKey(folder.dir)) {
+            folders.add(folder)
+            foldersMap.put(folder.dir, folder)
+        }
     }
 
     fun hasFolder(dir: String): Boolean {
@@ -42,19 +44,24 @@ class FolderProvider private constructor() {
         return foldersMap.get(dir)
     }
 
-    fun clear(){
-       selectedFolder = folders.get(0)
+    fun clear() {
+        folders.clear()
+        for (it in foldersMap.keys) {
+            foldersMap.remove(it)
+        }
+        selectedFolder = Folder("", "所有图片")
+        addFolder(selectedFolder!!)
     }
 
-    fun addCameraImage(path:String){
+    fun addCameraImage(path: String) {
         val dir = File(path).parentFile.absolutePath
         if (!hasFolder(dir)) {
             val name = dir.substring(dir.lastIndexOf('/') + 1)
             addFolder(Folder(dir, name, path))
         }
-        getFolderByDir(dir)!!.addImage(path,0)
-        if (!TextUtils.equals(getFolderByDir(dir)!!.name,folders.get(0).name) ) {
-            folders.get(0).addImage(path,0)
+        getFolderByDir(dir)!!.addImage(path, 0)
+        if (!TextUtils.equals(getFolderByDir(dir)!!.name, folders.get(0).name)) {
+            folders.get(0).addImage(path, 0)
             folders.get(0).firstImagePath = path
         }
         getFolderByDir(dir)!!.firstImagePath = path

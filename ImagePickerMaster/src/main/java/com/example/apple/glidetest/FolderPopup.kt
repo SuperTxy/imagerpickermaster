@@ -29,14 +29,17 @@ class FolderPopup(private val context: Context) {
     private var contentView: View? = null
 
     init {
-         contentView = View.inflate(context, R.layout.popup_folder_popup, null)
+        contentView = View.inflate(context, R.layout.popup_folder_popup, null)
 //        var height = context.getScreenHeight() - context.getStatusBarHeight() - context.dp2px(50f)
         popupWindow = PopupWindow(contentView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true)
         popupWindow.setBackgroundDrawable(ColorDrawable(Color.parseColor("#ffffff")))
         contentView!!.recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         contentView!!.recyclerView.adapter = FolderAdapter()
         popupWindow.animationStyle = R.style.popup_folder_anim
-        contentView!!.tvCenter.isSelected  =true
+        contentView!!.tvCenter.isSelected = true
+        contentView!!.tvCenter.setOnClickListener {
+            popupWindow.dismiss()
+        }
     }
 
 
@@ -48,7 +51,8 @@ class FolderPopup(private val context: Context) {
     inner class FolderAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
             if (holder is FolderHolder) {
-                loadImage(File(folders.get(position).firstImagePath), holder.itemView.ivFolder)
+                if (folders.get(position).firstImagePath != null)
+                    loadImage(File(folders.get(position).firstImagePath), holder.itemView.ivFolder)
                 holder.itemView.tvFolder.text = folders.get(position).name
                 holder.itemView.tvCount.text = "(" + folders.get(position).count.toString() + ")"
                 holder.itemView.setOnClickListener {
