@@ -111,6 +111,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
             while (cursor.moveToNext()) {
                 val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
                 if (path.contains(".gif")) continue
+                if(!File(path).exists()) continue
                 if (allFolder?.firstImagePath == null) {
                     allFolder?.firstImagePath = path
                 }

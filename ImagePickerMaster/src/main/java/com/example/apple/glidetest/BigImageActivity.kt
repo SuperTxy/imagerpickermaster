@@ -12,6 +12,7 @@ import com.example.apple.glidetest.bean.FolderProvider
 import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
+import com.example.apple.glidetest.utils.toastStr
 import kotlinx.android.synthetic.main.activity_big_image.*
 import kotlinx.android.synthetic.main.title_bar.*
 import uk.co.senab.photoview.PhotoView
@@ -33,7 +34,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        StatusBarUtil.setStatusBarColor(this,R.color.color1a1a1a)
+        StatusBarUtil.setStatusBarColor(this, R.color.color1a1a1a)
         setContentView(R.layout.activity_big_image)
         btnOK.isEnabled = imageProvider.selectedImgs.size > 0
         viewPager.addOnPageChangeListener(this)
@@ -53,9 +54,11 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
             finish()
         }
         ivRight.setOnClickListener {
+            val path = images.get(viewPager.currentItem)
             if (imageProvider.maxSelectToast(this@BigImageActivity, ivRight.isSelected))
+            else if (!File(path).exists())
+                toastStr("此图片已被删除")
             else {
-                val path = images.get(viewPager.currentItem)
                 ivRight.isSelected = !ivRight.isSelected
                 if (ivRight.isSelected) {
                     imageProvider.add(path)

@@ -25,13 +25,12 @@ public class FileUtils {
      * /storage/emulated/0/DCIM
      * /storage/emulated/0/DCIM/Screenshots
      */
-    private static  String JPEG_FILE_PREFIX = "IMG_";
     private static final String JPEG_FILE_SUFFIX = ".jpg";
     private static final String WRITE_EXTERNAL_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";
 
     public static File createTmpFile(Context context) throws IOException {
         String date = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(new Date());
-        JPEG_FILE_PREFIX = JPEG_FILE_PREFIX + date+"_";
+        String JPEG_FILE_PREFIX = "IMG_" + date+"_";
         File dir;
         if (TextUtils.equals(getExternalStorageState(), MEDIA_MOUNTED)) {
             dir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DCIM + "/Camera");
