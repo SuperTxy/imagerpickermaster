@@ -198,8 +198,11 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     override fun onDestroy() {
         super.onDestroy()
-        imageProvider!!.deleteObserver(this)
-        imageProvider!!.deleteObserver(adapter)
+//        imageProvider!!.deleteObserver(this)
+//        imageProvider!!.deleteObserver(adapter)
+        imageProvider!!.deleteObservers()
+        Logger.e(imageProvider!!.countObservers().toString())
+
     }
 
     abstract fun initData()

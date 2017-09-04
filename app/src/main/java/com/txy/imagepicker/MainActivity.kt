@@ -37,6 +37,7 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == PickerSettings.PICKER_REQUEST_CODE) {
+            imags.clear()
             imags.addAll(data!!.getStringArrayListExtra(PickerSettings.RESULT))
             tvPicker.isEnabled = imags.size != maxSelect
             adapter!!.notifyDataSetChanged()
