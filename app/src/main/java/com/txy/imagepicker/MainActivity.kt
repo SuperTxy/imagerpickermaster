@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
+import com.example.apple.glidetest.CommonPickerActivity
 import com.example.apple.glidetest.PickerActivity
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.loadImage
@@ -23,8 +24,11 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        tvMain.setOnClickListener {
+        tvPicker.setOnClickListener {
            PickerActivity.startForResult(this,6,imags)
+        }
+        tvCommonPicker.setOnClickListener {
+            CommonPickerActivity.startForResult(this,12,imags)
         }
         adapter = MyGridAdapter()
         gvMain.adapter = adapter
@@ -34,7 +38,7 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == PickerSettings.PICKER_REQUEST_CODE) {
             imags.addAll(data!!.getStringArrayListExtra(PickerSettings.RESULT))
-            tvMain.isEnabled = imags.size != maxSelect
+            tvPicker.isEnabled = imags.size != maxSelect
             adapter!!.notifyDataSetChanged()
         }
     }

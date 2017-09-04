@@ -41,6 +41,7 @@ public class FileUtils {
         } else {
             dir = getCacheDirectory(context, true);
         }
+//        ENAMETOOLONG (File name too long)
         return File.createTempFile(JPEG_FILE_PREFIX, JPEG_FILE_SUFFIX, dir);
     }
 

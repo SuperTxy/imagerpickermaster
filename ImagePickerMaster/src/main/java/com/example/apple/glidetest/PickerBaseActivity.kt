@@ -2,6 +2,7 @@ package com.example.apple.glidetest
 
 import android.Manifest
 import android.app.Activity
+import android.content.ComponentCallbacks2
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -13,6 +14,7 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.example.apple.glidetest.adapter.CommonImageAdapter
 import com.example.apple.glidetest.bean.Folder
 import com.example.apple.glidetest.bean.FolderProvider
@@ -201,4 +203,11 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     abstract fun initData()
     abstract fun onPickerOk()
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level == ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN){
+            Glide.with(this).onTrimMemory(level)
+        }
+    }
 }

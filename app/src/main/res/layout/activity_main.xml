@@ -5,13 +5,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
     <Button
-        android:id="@+id/tvMain"
+        android:id="@+id/tvPicker"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:gravity="center"
-        android:text="选择照片"
+        android:text="Picker_Activity"
+        android:textColor="#e93a3a"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/tvCommonPicker"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:text="Common_Picker_Activity"
         android:textColor="#e93a3a"
         android:textSize="16sp" />
 

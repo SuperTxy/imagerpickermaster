@@ -45,8 +45,6 @@ class PickerActivity : PickerBaseActivity() {
     private var imageSelector = SelectImageProvider.instance
     private var bundle: Bundle? = null
     private var className: String? = null
-    private var isModified: Boolean? = null
-    private var isAddImg: Boolean? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

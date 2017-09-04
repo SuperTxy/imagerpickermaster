@@ -13,7 +13,6 @@ import com.example.apple.glidetest.utils.OsUtils
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
 import com.example.apple.glidetest.utils.toastStr
-import kotlinx.android.synthetic.main.camera.view.*
 import kotlinx.android.synthetic.main.image_all_item.view.*
 import java.io.File
 import java.util.*
@@ -81,8 +80,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
                 itemClickListener?.onItemClick(pos)
             }
         } else if (holder is CameraHolder) {
-            val cameraView = holder.itemView.ivCamera
-            cameraView.setOnClickListener {
+            holder.itemView.setOnClickListener {
                 if (!selectImageProvider.maxSelectToast(context, false)) {
                     cameraClickListener?.onCameraClick()
                 }
