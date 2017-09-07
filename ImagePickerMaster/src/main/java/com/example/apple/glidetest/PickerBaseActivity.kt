@@ -131,6 +131,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
     }
 
     fun launchCamera() {
+        if (adapter == null) return
         permissionUtils?.checkCameraPermission(Runnable {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (intent.resolveActivity(packageManager) != null) {
