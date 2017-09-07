@@ -13,6 +13,7 @@ import com.example.apple.glidetest.utils.OsUtils
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
 import com.example.apple.glidetest.utils.toastStr
+import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.image_all_item.view.*
 import java.io.File
 import java.util.*
@@ -61,7 +62,11 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
             val pos: Int = if (showCamera) position - 1 else position
             val path = images.get(pos)
             val cbSelected = holder.itemView.cbSelected
-            loadImage(File(path), holder.itemView.ivImage)
+            if (File(path).exists()) {
+                loadImage(File(path), holder.itemView.ivImage)
+            }else{
+                Logger.e(path)
+            }
             handleSelected(selectImageProvider.isPathExist(path), holder, path)
             holder.itemView.flSelected.setOnClickListener {
                 if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected)) return@setOnClickListener
