@@ -13,7 +13,6 @@ import com.example.apple.glidetest.utils.OsUtils
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
 import com.example.apple.glidetest.utils.toastStr
-import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.image_all_item.view.*
 import java.io.File
 import java.util.*
@@ -62,15 +61,11 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
             val pos: Int = if (showCamera) position - 1 else position
             val path = images.get(pos)
             val cbSelected = holder.itemView.cbSelected
-            if (File(path).exists()) {
-                loadImage(File(path), holder.itemView.ivImage)
-            }else{
-                Logger.e(path)
-            }
+            loadImage(path, holder.itemView.ivImage)
             handleSelected(selectImageProvider.isPathExist(path), holder, path)
             holder.itemView.flSelected.setOnClickListener {
                 if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected)) return@setOnClickListener
-                if (!File(path).exists()){
+                if (!File(path).exists()) {
                     context.toastStr("此图片已被删除")
                     return@setOnClickListener
                 }
@@ -108,7 +103,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
                     index = if (showCamera) index + 1 else index
                     notifyItemChanged(index)
                 }
-            }else{
+            } else {
                 notifyDataSetChanged()
             }
         }

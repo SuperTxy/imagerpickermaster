@@ -9,4 +9,5 @@
     <string name="confirm_to_exit">确认退出此次编辑?</string>
     <string name="not_open_read_permission">不开启存储权限，无法访问相册哦~</string>
     <string name="image_is_reading">图片读取中，请耐心等待！</string>
+    <string name="provider_name">com.txy.imagepicker.fileprovider</string>
 </resources>

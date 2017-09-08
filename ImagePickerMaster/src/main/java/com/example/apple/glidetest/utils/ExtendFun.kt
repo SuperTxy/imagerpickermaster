@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.Settings
 import android.view.LayoutInflater
@@ -80,9 +81,35 @@ fun loadImage(file: File, imageView: ImageView) {
             Logger.e(e?.message)
             return false
         }
+
         override fun onResourceReady(resource: GlideDrawable?, model: File?, target: Target<GlideDrawable>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
             return false
         }
+    }).error(R.drawable.default_image).centerCrop().into(imageView)
+}
+
+fun loadImage(path:String,imageView: ImageView){
+    if(!File(path).exists()) {
+        Logger.e("此图片文件不存在！")
+        return
+    }
+    if (path.endsWith(".gif"))
+        loadGifImage(File(path),imageView)
+    else loadImage(File(path),imageView)
+}
+
+fun loadGifImage(file: File, imageView: ImageView) {
+    Glide.with(imageView.context).load(file).asBitmap().listener(object :  RequestListener<File, Bitmap> {
+        override fun onException(e: Exception?, model: File?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+            Logger.e(model?.absolutePath)
+            Logger.e(e?.message)
+            return false
+        }
+
+        override fun onResourceReady(resource: Bitmap?, model: File?, target: Target<Bitmap>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
+            return false
+        }
+
     }).error(R.drawable.default_image).centerCrop().into(imageView)
 }
 

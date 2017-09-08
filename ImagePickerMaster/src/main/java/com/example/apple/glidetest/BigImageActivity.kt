@@ -8,6 +8,7 @@ import android.support.v4.view.ViewPager
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.apple.glidetest.bean.FolderProvider
 import com.example.apple.glidetest.bean.SelectImageProvider
 import com.example.apple.glidetest.utils.PickerSettings
@@ -76,7 +77,11 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val imageView = PhotoView(this@BigImageActivity)
-            Glide.with(this@BigImageActivity).load(File(images.get(position))).into(imageView)
+            val path = File(images.get(position))
+            val request = Glide.with(this@BigImageActivity)
+            if (path.endsWith(".gif"))
+                request.load(path).asGif().diskCacheStrategy(DiskCacheStrategy.SOURCE).into(imageView)
+            else request.load(path).into(imageView)
             container.addView(imageView)
             return imageView
         }

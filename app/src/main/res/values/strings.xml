@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ImagePicker</string>
+    <string name="provider_name">com.txy.imagepicker.fileprovider</string>
 </resources>
