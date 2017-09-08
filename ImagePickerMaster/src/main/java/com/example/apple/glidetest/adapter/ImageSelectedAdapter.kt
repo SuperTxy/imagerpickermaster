@@ -11,7 +11,6 @@ import com.example.apple.glidetest.utils.OsUtils
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadImage
 import kotlinx.android.synthetic.main.image_seleted_item.view.*
-import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -38,7 +37,7 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
             holder.itemView.tv_blank.visibility = View.VISIBLE
             holder.itemView.tv_blank.text = (position + 1).toString()
         } else {
-            loadImage(File(imgs.get(position)), holder.itemView.ivImage)
+            loadImage(imgs.get(position), holder.itemView.ivImage)
             holder.itemView.tv_blank.visibility = View.GONE
         }
     }

@@ -18,7 +18,9 @@ class SelectImageProvider private constructor() : Observable() {
     }
 
     var needSuffix: Boolean = false
-    set(value) {field = value}
+        set(value) {
+            field = value
+        }
 
     var maxSelect: Int = 0
         get() = field
@@ -30,6 +32,8 @@ class SelectImageProvider private constructor() : Observable() {
         set(value) {
             field = value
         }
+    var damageImgs = ArrayList<String>()
+
     var size: Int = 0
         get() = selectedImgs.size
 
@@ -65,12 +69,15 @@ class SelectImageProvider private constructor() : Observable() {
     }
 
     fun setSelect(imgs: ArrayList<String>?) {
-        selectedImgs.clear()
+        clear()
         needSuffix = false
         if (imgs != null) selectedImgs.addAll(imgs)
-
     }
 
+    fun clear() {
+        selectedImgs.clear()
+        damageImgs.clear()
+    }
 
     fun maxSelectToast(context: Context, isSelected: Boolean): Boolean {
         if (!isSelected && selectedImgs.size == maxSelect) {

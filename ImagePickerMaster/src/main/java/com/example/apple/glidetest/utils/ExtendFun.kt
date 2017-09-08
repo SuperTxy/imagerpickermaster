@@ -18,6 +18,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.apple.glidetest.R
+import com.example.apple.glidetest.bean.SelectImageProvider
 import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.alert_dialog.view.*
 import java.io.File
@@ -103,6 +104,7 @@ fun loadGifImage(file: File, imageView: ImageView) {
         override fun onException(e: Exception?, model: File?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
             Logger.e(model?.absolutePath)
             Logger.e(e?.message)
+            SelectImageProvider.instance.damageImgs.add(file.absolutePath)
             return false
         }
 

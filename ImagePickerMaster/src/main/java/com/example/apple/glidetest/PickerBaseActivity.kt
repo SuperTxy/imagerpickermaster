@@ -106,7 +106,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         Thread(Runnable {
             val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             val sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC"
-            val where = MediaStore.Images.Media.SIZE + " > " + 1000
+            val where = MediaStore.Images.Media.SIZE + " > " + 2000
             val cursor = contentResolver.query(contentUri, null, where, null, sortOrder)
             val allFolder = folderProvider!!.selectedFolder
             while (cursor.moveToNext()) {
