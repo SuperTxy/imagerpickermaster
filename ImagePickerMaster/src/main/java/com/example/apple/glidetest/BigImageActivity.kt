@@ -57,8 +57,11 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         ivRight.setOnClickListener {
             val path = images.get(viewPager.currentItem)
             if (imageProvider.maxSelectToast(this@BigImageActivity, ivRight.isSelected))
-            else if (!File(path).exists())
+            else if (!File(path).exists() && !ivRight.isSelected)
                 toastStr("此图片已被删除")
+            else if (imageProvider.damageImgs.contains(path) &&  !ivRight.isSelected){
+               toastStr("此图片文件已损坏！")
+            }
             else {
                 ivRight.isSelected = !ivRight.isSelected
                 if (ivRight.isSelected) {

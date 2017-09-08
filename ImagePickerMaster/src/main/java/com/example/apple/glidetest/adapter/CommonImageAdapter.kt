@@ -42,6 +42,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
         this.images.addAll(images)
         SelectImageProvider.instance.addObserver(this)
     }
+
     override fun getItemViewType(position: Int): Int {
         return if (position == 0 && showCamera) 0 else 1
     }
@@ -64,11 +65,11 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
             handleSelected(selectImageProvider.isPathExist(path), holder, path)
             holder.itemView.flSelected.setOnClickListener {
                 if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected)) return@setOnClickListener
-                if (!File(path).exists()) {
+                if (!File(path).exists() && !cbSelected.isSelected) {
                     context.toastStr("此图片已被删除！")
                     return@setOnClickListener
                 }
-                if (selectImageProvider.damageImgs.contains(path)){
+                if (selectImageProvider.damageImgs.contains(path) && !cbSelected.isSelected) {
                     context.toastStr("此图片文件已损坏！")
                     return@setOnClickListener
                 }

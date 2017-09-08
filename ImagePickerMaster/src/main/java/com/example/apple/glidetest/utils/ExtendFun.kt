@@ -80,6 +80,9 @@ fun loadImage(file: File, imageView: ImageView) {
         override fun onException(e: Exception?, model: File?, target: Target<GlideDrawable>?, isFirstResource: Boolean): Boolean {
             Logger.e(model?.absolutePath)
             Logger.e(e?.message)
+            if ("setDataSource failed: status = 0x80000000".equals(e?.message)){
+                SelectImageProvider.instance.damageImgs.add(file.absolutePath)
+            }
             return false
         }
 
