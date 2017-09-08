@@ -33,7 +33,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var imageProvider: SelectImageProvider? = null
     protected var folderProvider: FolderProvider? = null
     private var tmpFile: File? = null
-    private val FILE_PROVIDER = "com.example.apple.glidetest.fileprovider"
+    private var FILE_PROVIDER:String ?=null
     protected val HORIZONTAL_COUNT: Int = 4
     private var permissionUtils: PermissionUtils? = null
     protected var adapter: CommonImageAdapter? = null
@@ -54,6 +54,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
     }
 
     fun initView(savedInstanceState: Bundle?) {
+        FILE_PROVIDER = getString(R.string.provider_name)
         imageProvider = SelectImageProvider.instance
         folderProvider = FolderProvider.instance
         permissionUtils = PermissionUtils(this)
@@ -139,6 +140,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
                 tmpFile = FileUtils.createTmpFile(this)
                 if (tmpFile!!.exists()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Logger.e(FILE_PROVIDER)
                         val photoUri = FileProvider.getUriForFile(this, FILE_PROVIDER, tmpFile)
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
                     } else {
