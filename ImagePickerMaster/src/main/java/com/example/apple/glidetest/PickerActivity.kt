@@ -9,14 +9,15 @@ import android.support.v7.widget.RecyclerView
 import com.example.apple.glidetest.adapter.CommonImageAdapter
 import com.example.apple.glidetest.adapter.ImageSelectedAdapter
 import com.example.apple.glidetest.bean.Change
-import com.example.apple.glidetest.bean.FolderProvider
-import com.example.apple.glidetest.bean.SelectImageProvider
+import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.listener.OnItemClickListener
+import com.example.apple.glidetest.provider.FolderProvider
+import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
-import com.example.apple.glidetest.utils.dp2px
 import com.example.apple.glidetest.view.GridItemDecoration
 import com.orhanobut.logger.Logger
+import com.txy.androidutils.ScreenUtils
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -25,7 +26,7 @@ class PickerActivity : PickerBaseActivity() {
 
     companion object {
         private val CLASSNAME: String = "className"
-        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<String>) {
+        fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<Media>) {
             val intent = Intent(context, PickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
             intent.putExtra(PickerSettings.INITIAL_SELECT, initialSelect)
@@ -42,7 +43,7 @@ class PickerActivity : PickerBaseActivity() {
     }
 
     private var selectedAdapter: ImageSelectedAdapter? = null
-    private var imageSelector = SelectImageProvider.instance
+    private var imageSelector = SelectMediaProvider.instance
     private var bundle: Bundle? = null
     private var className: String? = null
 
@@ -54,7 +55,8 @@ class PickerActivity : PickerBaseActivity() {
             Logger.e(adapter.toString())
         }
         recyclerViewAll.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT) as RecyclerView.LayoutManager?
-        recyclerViewAll.addItemDecoration(GridItemDecoration.Builder(this).size(dp2px(5.0f)).color(R.color.white)
+        recyclerViewAll.addItemDecoration(GridItemDecoration.Builder(this)
+                .size(ScreenUtils.dp2px(this,5)).color(R.color.white)
                 .margin(0, 0).isExistHead(false).build())
         recyclerViewSelected.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         recyclerViewSelected.isFocusable = false
@@ -89,9 +91,9 @@ class PickerActivity : PickerBaseActivity() {
 
     override fun initData() {
         val selectedFolder = FolderProvider.instance.selectedFolder
-        adapter = CommonImageAdapter(this, selectedFolder!!.imgs)
+        adapter = CommonImageAdapter(this, selectedFolder!!.medias)
         recyclerViewAll.adapter = adapter
-        selectedAdapter = ImageSelectedAdapter(this, imageSelector.selectedImgs)
+        selectedAdapter = ImageSelectedAdapter(this, imageSelector.selectedMedias)
         recyclerViewSelected.adapter = selectedAdapter
         adapter!!.itemClickListener = object : OnItemClickListener {
             override fun onItemClick(position: Int) {
@@ -107,19 +109,19 @@ class PickerActivity : PickerBaseActivity() {
     }
 
     override fun update(o: Observable?, arg: Any?) {
-        if (o is SelectImageProvider && arg is Change) {
+        if (o is SelectMediaProvider && arg is Change) {
             btnPickOk.text = if (imageSelector.size > 0) "完成" else "跳过"
         }
     }
 
     override fun onPickerOk() {
         if (initialSelect != null) {
-            intent.putStringArrayListExtra(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
+            intent.putExtra(PickerSettings.RESULT, SelectMediaProvider.instance.selectedMedias)
             setResult(RESULT_OK, intent)
             finish()
         } else {
             val intent = Intent(this, Class.forName(className))
-            bundle!!.putSerializable(PickerSettings.RESULT, SelectImageProvider.instance.selectedImgs)
+            bundle!!.putSerializable(PickerSettings.RESULT, SelectMediaProvider.instance.selectedMedias)
             intent.putExtra(PickerSettings.BUNDLE, bundle)
             startActivity(intent)
             finish()

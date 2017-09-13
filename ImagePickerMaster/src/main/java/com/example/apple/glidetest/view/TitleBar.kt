@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.RelativeLayout
 import com.example.apple.glidetest.R
-import com.example.apple.glidetest.utils.dp2px
+import com.txy.androidutils.ScreenUtils
 import kotlinx.android.synthetic.main.title_bar.view.*
 
 /**
@@ -52,7 +52,7 @@ class TitleBar @JvmOverloads constructor(context: Context, attributeSet: Attribu
         if (centerImg !=null){
             centerImg.setBounds(0,0,centerImg.minimumWidth,centerImg.minimumHeight)
             tvCenter.setCompoundDrawables(null,null,centerImg,null)
-            tvCenter.compoundDrawablePadding = context.dp2px(5f)
+            tvCenter.compoundDrawablePadding = ScreenUtils.dp2px(context,5)
         }
     }
 }

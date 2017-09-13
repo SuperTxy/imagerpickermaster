@@ -1,135 +1,98 @@
 package com.example.apple.glidetest.utils
 
-import android.app.Activity
-import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
-import android.provider.Settings
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.inflate
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.GlideDrawable
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.apple.glidetest.R
-import com.example.apple.glidetest.bean.SelectImageProvider
+import com.example.apple.glidetest.bean.Media
+import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.orhanobut.logger.Logger
-import kotlinx.android.synthetic.main.alert_dialog.view.*
 import java.io.File
 import java.lang.Exception
 
 /**
  * Created by Apple on 17/7/31.
  */
-//    扩展函数
-fun Activity.showAlertDialog(message: String, leftStr: String, rightStr: String, leftListener: OnClickListener?, rightListener: OnClickListener?) {
-    val dialog = Dialog(this, R.style.mydialogstyle)
-    val view = inflate(this, R.layout.alert_dialog, null)
-    dialog.setContentView(view)
-    view.tv_alert_negative.text = leftStr
-    view.tv_alert_positive.text = rightStr
-    view.tv_alert_message.text = message
-    view.tv_alert_negative.setOnClickListener { v ->
-        leftListener?.onClick(v)
-        dialog.dismiss()
-    }
-    view.tv_alert_positive.setOnClickListener { v ->
-        rightListener?.onClick(v)
-        dialog.dismiss()
-    }
-    dialog.show()
+
+fun loadImage(media: Media, imageView: ImageView) {
+    if (media.dir.isNullOrEmpty()) {
+        Logger.e("此文件不存在！")
+    } else if (media.isVideo)
+        loadBitmap(media,imageView)
+    else if (media.isGif)
+        Glide.with(imageView.context).load(File(media.path)).asGif()
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE).error(R.drawable.default_image).into(imageView)
+    else Glide.with(imageView.context).load(File(media.path)).error(R.drawable.default_image).into(imageView)
 }
 
-fun Activity.showPermissionDialog(message: String) {
-    showAlertDialog(message, "取消", "去开启", null, object : OnClickListener {
-        override fun onClick(v: View) {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            intent.setData(Uri.parse("package:" + packageName))
-            startActivity(intent)
-        }
-    })
-}
-
-fun Context.dp2px(dpValue: Float): Int {
-    val scale = resources.displayMetrics.density
-    return (dpValue * scale + 0.5).toInt()
-}
-
-fun Context.getScreenHeight(): Int {
-    val displayMetrics = resources.displayMetrics
-    return displayMetrics.heightPixels
-}
-
-fun Context.getStatusBarHeight(): Int {
-    var statusBarHeight = -1
-    val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
-    if (resourceId > 0) {
-        statusBarHeight = resources.getDimensionPixelSize(resourceId)
-    }
-    return statusBarHeight
-}
-
-fun loadImage(file: File, imageView: ImageView) {
-    Glide.with(imageView.context).load(file).listener(object : RequestListener<File, GlideDrawable> {
-        override fun onException(e: Exception?, model: File?, target: Target<GlideDrawable>?, isFirstResource: Boolean): Boolean {
-            Logger.e(model?.absolutePath)
-            Logger.e(e?.message)
-            if ("setDataSource failed: status = 0x80000000".equals(e?.message)){
-                SelectImageProvider.instance.damageImgs.add(file.absolutePath)
+fun loadBitmap(media: Media, imageView: ImageView) {
+    if (media.dir.isNullOrEmpty()) {
+        Logger.e("此文件不存在！")
+    } else {
+        Glide.with(imageView.context).load(File(media.path)).asBitmap().listener(object : RequestListener<File, Bitmap> {
+            override fun onException(e: Exception?, model: File?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
+                Logger.e(model?.absolutePath)
+                Logger.e(e?.message)
+                SelectMediaProvider.instance.damageMedias.add(media)
+                return false
             }
-            return false
-        }
 
-        override fun onResourceReady(resource: GlideDrawable?, model: File?, target: Target<GlideDrawable>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
-            return false
-        }
-    }).error(R.drawable.default_image).centerCrop().into(imageView)
-}
+            override fun onResourceReady(resource: Bitmap?, model: File?, target: Target<Bitmap>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
+                return false
+            }
 
-fun loadImage(path:String,imageView: ImageView){
-    if(!File(path).exists()) {
-        Logger.e("此图片文件不存在！")
-        return
+        }).error(R.drawable.default_image).centerCrop().into(imageView)
     }
-    if (path.endsWith(".gif"))
-        loadGifImage(File(path),imageView)
-    else loadImage(File(path),imageView)
-}
-
-fun loadGifImage(file: File, imageView: ImageView) {
-    Glide.with(imageView.context).load(file).asBitmap().listener(object :  RequestListener<File, Bitmap> {
-        override fun onException(e: Exception?, model: File?, target: Target<Bitmap>?, isFirstResource: Boolean): Boolean {
-            Logger.e(model?.absolutePath)
-            Logger.e(e?.message)
-            SelectImageProvider.instance.damageImgs.add(file.absolutePath)
-            return false
-        }
-
-        override fun onResourceReady(resource: Bitmap?, model: File?, target: Target<Bitmap>?, isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
-            return false
-        }
-
-    }).error(R.drawable.default_image).centerCrop().into(imageView)
 }
 
 fun Context.getView(layoutId: Int, parent: ViewGroup? = null): View {
     return LayoutInflater.from(this).inflate(layoutId, parent, false)
 }
 
-fun Context.toastStrId(resId: Int) {
-    Toast.makeText(this, getString(resId), Toast.LENGTH_SHORT).show()
+fun isGif(path: String): Boolean {
+    return TextUtils.equals(getType(path), "gif")
 }
 
-fun Context.toastStr(str: String) {
-    Toast.makeText(this, str, Toast.LENGTH_SHORT).show()
+fun getType(path: String): String {
+    val options = BitmapFactory.Options()
+    //        让图片不加载到内存中
+    options.inJustDecodeBounds = true
+    BitmapFactory.decodeFile(path, options)
+    val type = options.outMimeType
+    //        ”image/png”、”image/jpeg”、”image/gif”
+    if (TextUtils.isEmpty(type))
+        return "未能识别的图片"
+    else
+        return type.substring(6, type.length)
 }
 
-interface OnClickListener {
-    fun onClick(v: View)
+fun mills2Duration(mills: Long): String {
+    var sec = mills.toLong() / 1000
+    if (sec < 0) return "00:00"
+    var min = sec / 60
+    if (min < 60) {
+        sec = sec % 60
+        return unitFormat(min) + ":" + unitFormat(sec)
+    } else {
+        val hour = min / 60
+        min = min % 60
+        return unitFormat(hour) + ":" + unitFormat(min) + ":" + unitFormat(sec)
+    }
 }
+
+fun unitFormat(i: Long): String {
+    return if (i >= 0 && i < 10) "0" + i else i.toString() + ""
+}
+
+
+

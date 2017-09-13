@@ -7,17 +7,16 @@ import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.view.View
 import android.view.ViewGroup
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.example.apple.glidetest.bean.FolderProvider
-import com.example.apple.glidetest.bean.SelectImageProvider
+import com.example.apple.glidetest.provider.FolderProvider
+import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
-import com.example.apple.glidetest.utils.toastStr
+import com.example.apple.glidetest.utils.loadImage
+import com.example.apple.glidetest.view.VideoView
+import com.txy.androidutils.ToastUtils
 import kotlinx.android.synthetic.main.activity_big_image.*
 import kotlinx.android.synthetic.main.title_bar.*
-import uk.co.senab.photoview.PhotoView
-import java.io.File
+import kotlinx.android.synthetic.main.video_pager.view.*
 
 class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
@@ -30,14 +29,16 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         }
     }
 
-    private var images = FolderProvider.instance.selectedFolder!!.imgs
-    private var imageProvider = SelectImageProvider.instance
+    private var medias = FolderProvider.instance.selectedFolder!!.medias
+    private var imageProvider = SelectMediaProvider.instance
+    private var toastUtils: ToastUtils? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StatusBarUtil.setStatusBarColor(this, R.color.color1a1a1a)
         setContentView(R.layout.activity_big_image)
-        btnOK.isEnabled = imageProvider.selectedImgs.size > 0
+        toastUtils = ToastUtils(this)
+        btnOK.isEnabled = imageProvider.selectedMedias.size > 0
         viewPager.addOnPageChangeListener(this)
         viewPager.adapter = MyPagerAdapter()
         val pos = intent.getIntExtra(POSITION, 0)
@@ -47,6 +48,15 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     }
 
     private fun initListener() {
+        videoView.setOnPlayListener(object : VideoView.OnPlayListener {
+            override fun onPause() {
+                videoView.visibility = View.GONE
+            }
+
+            override fun onFinish() {
+                videoView.visibility = View.GONE
+            }
+        })
         ivLeft.setOnClickListener {
             finish()
         }
@@ -55,23 +65,22 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
             finish()
         }
         ivRight.setOnClickListener {
-            val path = images.get(viewPager.currentItem)
+            val media = medias.get(viewPager.currentItem)
             if (imageProvider.maxSelectToast(this@BigImageActivity, ivRight.isSelected))
-            else if (!File(path).exists() && !ivRight.isSelected)
-                toastStr("此图片已被删除")
-            else if (imageProvider.damageImgs.contains(path) &&  !ivRight.isSelected){
-               toastStr("此图片文件已损坏！")
-            }
-            else {
+            else if (media.dir.isNullOrEmpty() && !ivRight.isSelected)
+                toastUtils?.toast("此图片已被删除")
+            else if (imageProvider.damageMedias.contains(media) && !ivRight.isSelected) {
+                toastUtils?.toast("此图片文件已损坏！")
+            } else {
                 ivRight.isSelected = !ivRight.isSelected
                 if (ivRight.isSelected) {
-                    imageProvider.add(path)
-                    ivRight.text = (imageProvider.selectedImgs.indexOf(path) + 1).toString()
+                    imageProvider.add(media)
+                    ivRight.text = (imageProvider.selectedMedias.indexOf(media) + 1).toString()
                 } else {
-                    imageProvider.remove(path)
+                    imageProvider.remove(media)
                     ivRight.text = ""
                 }
-                btnOK.isEnabled = imageProvider.selectedImgs.size > 0
+                btnOK.isEnabled = imageProvider.selectedMedias.size > 0
             }
         }
     }
@@ -79,14 +88,15 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     inner class MyPagerAdapter : PagerAdapter() {
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val imageView = PhotoView(this@BigImageActivity)
-            val path = File(images.get(position))
-            val request = Glide.with(this@BigImageActivity)
-            if (path.endsWith(".gif"))
-                request.load(path).asGif().diskCacheStrategy(DiskCacheStrategy.SOURCE).into(imageView)
-            else request.load(path).into(imageView)
-            container.addView(imageView)
-            return imageView
+            val view = View.inflate(this@BigImageActivity, R.layout.video_pager, null)
+            loadImage(medias.get(position), view.photoView)
+            view.ivPlay.visibility = if (medias.get(position).isVideo) View.VISIBLE else View.GONE
+            container.addView(view)
+            view.ivPlay.setOnClickListener {
+                videoView.visibility = View.VISIBLE
+                videoView.play(medias.get(viewPager.currentItem).path)
+            }
+            return view
         }
 
         override fun isViewFromObject(view: View?, `object`: Any?): Boolean {
@@ -94,7 +104,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         }
 
         override fun getCount(): Int {
-            return images.size
+            return medias.size
         }
 
         override fun destroyItem(container: ViewGroup, position: Int, `object`: Any?) {
@@ -107,13 +117,23 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     }
 
     override fun onPageSelected(position: Int) {
-        val selectedImgs = imageProvider.selectedImgs
-        ivRight.isSelected = selectedImgs.contains(images.get(position))
-        if (ivRight.isSelected) ivRight.text = (selectedImgs.indexOf(images.get(position)) + 1).toString()
-        else ivRight.text = ""
+        val media = medias.get(position)
+        ivRight.isSelected = imageProvider.isMediaExist(media)
+        ivRight.text = imageProvider.orderOfMedia(media)
     }
 
     override fun onPageScrollStateChanged(state: Int) {
 
+    }
+
+    override fun onPause() {
+        super.onPause()
+        videoView.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        toastUtils?.destroy()
+        videoView.destroy()
     }
 }

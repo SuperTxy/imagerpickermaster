@@ -9,13 +9,12 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
-import com.example.apple.glidetest.bean.FolderProvider
+import com.example.apple.glidetest.provider.FolderProvider
 import com.example.apple.glidetest.utils.getView
-import com.example.apple.glidetest.utils.loadImage
+import com.example.apple.glidetest.utils.loadBitmap
 import kotlinx.android.synthetic.main.item_folder.view.*
 import kotlinx.android.synthetic.main.popup_folder_popup.view.*
 import kotlinx.android.synthetic.main.title_bar.view.*
-import java.io.File
 
 /**
  * Created by Apple on 17/8/23.
@@ -51,8 +50,8 @@ class FolderPopup(private val context: Context) {
     inner class FolderAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
             if (holder is FolderHolder) {
-                if (folders.get(position).firstImagePath != null)
-                    loadImage(File(folders.get(position).firstImagePath), holder.itemView.ivFolder)
+                if (folders.get(position).firstMedia != null)
+                    loadBitmap(folders.get(position).firstMedia!!, holder.itemView.ivFolder)
                 holder.itemView.tvFolder.text = folders.get(position).name
                 holder.itemView.tvCount.text = "(" + folders.get(position).count.toString() + ")"
                 holder.itemView.setOnClickListener {

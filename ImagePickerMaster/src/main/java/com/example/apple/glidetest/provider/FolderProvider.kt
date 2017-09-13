@@ -1,7 +1,8 @@
-package com.example.apple.glidetest.bean
+package com.example.apple.glidetest.provider
 
 import android.text.TextUtils
-import java.io.File
+import com.example.apple.glidetest.bean.Folder
+import com.example.apple.glidetest.bean.Media
 
 /**
  * Created by Apple on 17/7/31.
@@ -9,6 +10,8 @@ import java.io.File
 class FolderProvider private constructor() {
 
     private var foldersMap = HashMap<String, Folder>()
+    var folders = ArrayList<Folder>()
+    var allFolder: Folder? = null
     var selectedFolder: Folder? = null
         set(value) {
             field = if (value != null) value else throw IllegalStateException("不能设置selectedFolder为null")
@@ -17,12 +20,10 @@ class FolderProvider private constructor() {
             return field ?: throw IllegalStateException("selectedFolder为null")
         }
 
-    var folders = ArrayList<Folder>()
-        get() = field
-
     init {
-        selectedFolder = Folder("", "所有图片")
-        addFolder(selectedFolder!!)
+        allFolder = Folder("", "所有图片")
+        addFolder(allFolder!!)
+        selectedFolder = allFolder
     }
 
     companion object {
@@ -47,22 +48,22 @@ class FolderProvider private constructor() {
     fun clear() {
         folders.clear()
         foldersMap = HashMap<String, Folder>()
-        selectedFolder = Folder("", "所有图片")
+        allFolder = Folder("", "所有图片")
+        selectedFolder = allFolder
         addFolder(selectedFolder!!)
     }
 
-    fun addCameraImage(path: String) {
-        val dir = File(path).parentFile.absolutePath
-        if (!hasFolder(dir)) {
-            val name = dir.substring(dir.lastIndexOf('/') + 1)
-            addFolder(Folder(dir, name, path))
+    fun addCameraImage(media: Media) {
+        if (!hasFolder(media.dir)) {
+            val name = media.dir.substring(media.dir.lastIndexOf('/') + 1)
+            addFolder(Folder(media.dir, name, media))
         }
-        getFolderByDir(dir)!!.addImage(path, 0)
-        if (!TextUtils.equals(getFolderByDir(dir)!!.name, folders.get(0).name)) {
-            folders.get(0).addImage(path, 0)
-            folders.get(0).firstImagePath = path
+        getFolderByDir(media.dir)!!.addMedia(media, 0)
+        if (!TextUtils.equals(getFolderByDir(media.dir)!!.name, allFolder!!.name)) {
+            allFolder!!.addMedia(media, 0)
+            allFolder!!.firstMedia = media
         }
-        getFolderByDir(dir)!!.firstImagePath = path
+        getFolderByDir(media.dir)!!.firstMedia = media
     }
 
     val count: Int

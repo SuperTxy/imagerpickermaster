@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="images" path="DCIM/" />
+    <external-path name="medias" path="DCIM/" />
     <external-path name="camera_images" path="DCIM/Camera/" />
     <!--<files-path name="name" path="path" /> //相当 Context.getFilesDir() + path, name是分享url的一部分-->
     <!--<cache-path name="name" path="path" /> //getCacheDir()-->

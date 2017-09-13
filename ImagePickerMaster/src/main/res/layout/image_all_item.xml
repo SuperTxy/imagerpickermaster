@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.apple.glidetest.view.SameHWLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.apple.glidetest.view.SameHWLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -38,4 +39,16 @@
             android:textSize="11sp"
             tools:text="12" />
     </FrameLayout>
+    <TextView
+        android:paddingBottom="5dp"
+        android:paddingRight="5dp"
+        android:layout_gravity="bottom|end"
+        android:visibility="invisible"
+        android:id="@+id/tvDuration"
+        android:textSize="14sp"
+        android:textColor="#fff"
+        tools:textColor="#000"
+        tools:text="0:04"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 </com.example.apple.glidetest.view.SameHWLayout>

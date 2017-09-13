@@ -6,10 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.apple.glidetest.R
 import com.example.apple.glidetest.bean.Change
-import com.example.apple.glidetest.bean.SelectImageProvider
-import com.example.apple.glidetest.utils.OsUtils
+import com.example.apple.glidetest.bean.Media
+import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.getView
-import com.example.apple.glidetest.utils.loadImage
+import com.example.apple.glidetest.utils.loadBitmap
+import com.txy.androidutils.ListUtils
 import kotlinx.android.synthetic.main.image_seleted_item.view.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -18,14 +19,14 @@ import kotlin.collections.ArrayList
  * Created by Apple on 17/5/27.
  */
 
-class ImageSelectedAdapter(private val context: Context, list: List<String>)
+class ImageSelectedAdapter(private val context: Context, list: List<Media>)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Observer {
 
-    private val imgs = ArrayList<String>()
+    private val medias = ArrayList<Media>()
 
     init {
-        imgs.addAll(list)
-        SelectImageProvider.instance.addObserver(this)
+        medias.addAll(list)
+        SelectMediaProvider.instance.addObserver(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -33,38 +34,38 @@ class ImageSelectedAdapter(private val context: Context, list: List<String>)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (position == imgs.size) {
+        if (position == medias.size) {
             holder.itemView.tv_blank.visibility = View.VISIBLE
             holder.itemView.tv_blank.text = (position + 1).toString()
         } else {
-            loadImage(imgs.get(position), holder.itemView.ivImage)
+            loadBitmap(medias.get(position), holder.itemView.ivImage)
             holder.itemView.tv_blank.visibility = View.GONE
         }
     }
 
     override fun getItemCount(): Int {
-        return if (imgs.size < SelectImageProvider.instance.maxSelect && imgs.size != 0)
-            imgs.size + 1 else imgs.size
+        return if (medias.size < SelectMediaProvider.instance.maxSelect && medias.size != 0)
+            medias.size + 1 else medias.size
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     override fun update(o: Observable?, arg: Any?) {
-        if (o is SelectImageProvider && arg is Change) {
+        if (o is SelectMediaProvider && arg is Change) {
             if (arg.isAdd) {
-                imgs.add(arg.path)
-                if (imgs.size == itemCount)
+                medias.add(arg.media)
+                if (medias.size == itemCount)
                     notifyItemRemoved(itemCount - 1)
-                notifyItemInserted(imgs.size - 1)
-                if (imgs.size == itemCount - 1)
+                notifyItemInserted(medias.size - 1)
+                if (medias.size == itemCount - 1)
                     notifyItemChanged(itemCount - 1)
             } else {
-                val index = OsUtils.getIndexInList(imgs, arg.path)
-                imgs.remove(arg.path)
+                val index = ListUtils.indexOfObj(medias, arg.media)
+                medias.remove(arg.media)
                 notifyItemRemoved(index)
-                if (imgs.size == SelectImageProvider.instance.maxSelect - 1)
+                if (medias.size == SelectMediaProvider.instance.maxSelect - 1)
                     notifyItemInserted(itemCount - 1)
-                if(imgs.size == 0) notifyItemRemoved(0)
+                if(medias.size == 0) notifyItemRemoved(0)
                 else notifyItemChanged(itemCount - 1)
             }
             listener?.onUpdateMove()

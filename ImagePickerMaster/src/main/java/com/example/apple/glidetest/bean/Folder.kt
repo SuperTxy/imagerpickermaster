@@ -4,36 +4,29 @@ package com.example.apple.glidetest.bean
  * Created by Apple on 17/5/26.
  */
 
-class Folder(dir: String, name: String) {
+class Folder(var dir: String, var name: String) {
 
-    var dir: String
-    var name: String
-    var firstImagePath: String? = null
-    var imgs = ArrayList<String>()
+    var firstMedia: Media? = null
+    var medias = ArrayList<Media>()
 
-    init {
-        this.dir = dir
-        this.name = name
+    constructor(dir: String, name: String, firstMedia: Media) : this(dir, name) {
+        this.firstMedia = firstMedia
     }
 
-    constructor(dir: String, name: String, firstImagePath: String) : this(dir, name) {
-        this.firstImagePath = firstImagePath
-    }
-
-    fun addImage(path: String,index:Int?=null) {
-        if (path.isNotEmpty() && !imgs.contains(path)) {
-            if (index!=null && index >= 0) imgs.add(index,path)
-            else imgs.add(path)
+    fun addMedia(media: Media, index:Int?=null) {
+        if (!medias.contains(media)) {
+            if (index!=null && index >= 0) medias.add(index,media)
+            else medias.add(media)
         }
     }
 
     var count: Int = 0
-        get() {return imgs.size}
+        get() {return medias.size}
 
     fun clear(){
         dir = ""
         name =""
-        firstImagePath = null
-        imgs.clear()
+        firstMedia = null
+        medias.clear()
     }
 }

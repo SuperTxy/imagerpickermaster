@@ -5,7 +5,6 @@
     <application
         android:allowBackup="true"
         android:supportsRtl="true">
-
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="@string/provider_name"
@@ -20,11 +19,13 @@
             android:name=".CommonPickerActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:configChanges="keyboardHidden|screenSize|orientation"
             android:name=".BigImageActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".PickerActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".RecordMediaActivity"/>
     </application>
 
 </manifest>

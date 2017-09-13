@@ -6,15 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import com.example.apple.glidetest.R
 import com.example.apple.glidetest.bean.Change
-import com.example.apple.glidetest.bean.SelectImageProvider
+import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.listener.OnCameraClickListener
 import com.example.apple.glidetest.listener.OnItemClickListener
-import com.example.apple.glidetest.utils.OsUtils
+import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.getView
-import com.example.apple.glidetest.utils.loadImage
-import com.example.apple.glidetest.utils.toastStr
+import com.example.apple.glidetest.utils.loadBitmap
+import com.txy.androidutils.ListUtils
+import com.txy.androidutils.ToastUtils
 import kotlinx.android.synthetic.main.image_all_item.view.*
-import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -23,11 +23,12 @@ import kotlin.collections.ArrayList
  * @param needSuffix 选择图片为最大数的提示是否需要suffix
  * @link SelectImageProvider.maxSelectToast
  */
-class CommonImageAdapter(private val context: Context, images: ArrayList<String>,
+class CommonImageAdapter(private val context: Context, images: ArrayList<Media>,
                          private var showCamera: Boolean = false)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Observer {
 
-    private var images: ArrayList<String> = ArrayList()
+    private var medias: ArrayList<Media> = ArrayList()
+    private var toastUtils: ToastUtils? = null
     var cameraClickListener: OnCameraClickListener? = null
         set(value) {
             field = value
@@ -38,9 +39,10 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
         }
 
     init {
-        this.images.clear()
-        this.images.addAll(images)
-        SelectImageProvider.instance.addObserver(this)
+        toastUtils = ToastUtils(context)
+        this.medias.clear()
+        this.medias.addAll(images)
+        SelectMediaProvider.instance.addObserver(this)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -56,28 +58,35 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
-        val selectImageProvider = SelectImageProvider.instance
+        val selectImageProvider = SelectMediaProvider.instance
         if (holder is ImageHolder) {
             val pos: Int = if (showCamera) position - 1 else position
-            val path = images.get(pos)
+            val media = medias.get(pos)
+            val tvDuration = holder.itemView.tvDuration
             val cbSelected = holder.itemView.cbSelected
-            loadImage(path, holder.itemView.ivImage)
-            handleSelected(selectImageProvider.isPathExist(path), holder, path)
+            loadBitmap(media, holder.itemView.ivImage)
+            if(media.isVideo){
+                tvDuration.visibility = View.VISIBLE
+                tvDuration.text = media.duration
+            }else tvDuration.visibility = View.INVISIBLE
+            tvDuration.visibility = if (media.isVideo) View.VISIBLE else View.INVISIBLE
+            tvDuration.text
+            handleSelected(selectImageProvider.isMediaExist(media), holder, media)
             holder.itemView.flSelected.setOnClickListener {
                 if (selectImageProvider.maxSelectToast(context, cbSelected.isSelected)) return@setOnClickListener
-                if (!File(path).exists() && !cbSelected.isSelected) {
-                    context.toastStr("此图片已被删除！")
+                if (media.dir.isNullOrEmpty() && !cbSelected.isSelected) {
+                    toastUtils?.toast("此图片已被删除！")
                     return@setOnClickListener
                 }
-                if (selectImageProvider.damageImgs.contains(path) && !cbSelected.isSelected) {
-                    context.toastStr("此图片文件已损坏！")
+                if (selectImageProvider.damageMedias.contains(media) && !cbSelected.isSelected) {
+                    toastUtils?.toast("此图片文件已损坏！")
                     return@setOnClickListener
                 }
-                handleSelected(!cbSelected.isSelected, holder, path)
+                handleSelected(!cbSelected.isSelected, holder, media)
                 if (cbSelected.isSelected) {
-                    selectImageProvider.add(path)
+                    selectImageProvider.add(media)
                 } else {
-                    selectImageProvider.remove(path)
+                    selectImageProvider.remove(media)
                 }
             }
             holder.itemView.setOnClickListener {
@@ -92,17 +101,17 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
         }
     }
 
-    fun handleSelected(isSelected: Boolean, holder: ImageHolder, path: String) {
+    fun handleSelected(isSelected: Boolean, holder: ImageHolder, media: Media) {
         val cbSelected = holder.itemView.cbSelected
         cbSelected.isSelected = isSelected
-        cbSelected.text = if (isSelected) SelectImageProvider.instance.getPathIndex(path) else ""
+        cbSelected.text = if (isSelected) SelectMediaProvider.instance.orderOfMedia(media) else ""
         holder.itemView.viewMask.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
     }
 
     override fun update(o: Observable?, arg: Any?) {
-        if (o is SelectImageProvider && arg is Change) {
+        if (o is SelectMediaProvider && arg is Change) {
             if (arg.isAdd) {
-                var index = OsUtils.getIndexInList(images, arg.path)
+                var index = ListUtils.indexOfObj(medias, arg.media)
                 if (index != -1) {
                     index = if (showCamera) index + 1 else index
                     notifyItemChanged(index)
@@ -113,9 +122,9 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
         }
     }
 
-    fun refresh(images: ArrayList<String>) {
-        this.images.clear()
-        this.images.addAll(images)
+    fun refresh(medias: ArrayList<Media>) {
+        this.medias.clear()
+        this.medias.addAll(medias)
         notifyDataSetChanged()
     }
 
@@ -125,7 +134,11 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<String>
     inner class ImageHolder(view: View) : RecyclerView.ViewHolder(view)
 
     override fun getItemCount(): Int {
-        return if (showCamera) images.size + 1 else images.size
+        return if (showCamera) medias.size + 1 else medias.size
+    }
+
+    fun destroy() {
+        toastUtils?.destroy()
     }
 
 }

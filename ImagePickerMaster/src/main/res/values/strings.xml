@@ -1,13 +1,10 @@
 <resources>
     <string name="app_name">图片选择</string>
-    <string name="pemission_error">权限错误，无法正常工作！</string>
     <string name="all_images">所有图片</string>
-    <string name="can_not_launch_camera">无法启动相机！</string>
-    <string name="image_error">图片错误！</string>
     <string name="max_toast_suffix">, 可后续补充说明继续添加</string>
     <string name="big_max_toast">您选择的图片数量已达到上限！</string>
-    <string name="confirm_to_exit">确认退出此次编辑?</string>
-    <string name="not_open_read_permission">不开启存储权限，无法访问相册哦~</string>
+    <string name="no_read_permission">不开启存储权限，无法访问相册哦~</string>
     <string name="image_is_reading">图片读取中，请耐心等待！</string>
     <string name="provider_name">com.txy.imagepicker.fileprovider</string>
+    <string name="no_record_permission">不开启录音拍照等权限，无法录制视频哦~</string>
 </resources>

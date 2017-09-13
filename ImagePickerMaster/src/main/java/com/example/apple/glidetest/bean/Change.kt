@@ -4,7 +4,7 @@ package com.example.apple.glidetest.bean
  * Created by Apple on 17/7/17.
  */
 
-class Change(private val type: Int, var path: String) {
+class Change(private val type: Int, var media: Media) {
 
     val isAdd: Boolean
         get() = type == ADD
@@ -13,5 +13,4 @@ class Change(private val type: Int, var path: String) {
         val ADD = 0
         val REMOVE = 1
     }
-
 }

@@ -1,0 +1,173 @@
+package com.example.apple.glidetest.view
+
+import android.content.Context
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.support.annotation.AttrRes
+import android.text.TextUtils
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.view.SurfaceHolder
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.SeekBar
+import com.example.apple.glidetest.R
+import com.example.apple.glidetest.utils.mills2Duration
+import com.orhanobut.logger.Logger
+import kotlinx.android.synthetic.main.videoview.view.*
+
+/**
+ * Created by Apple on 17/9/12.
+ */
+
+class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionListener,
+        MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, SeekBar.OnSeekBarChangeListener {
+
+    private var dataResource: String? = null
+    private var player: MediaPlayer? = null
+    private var view: View? = null
+    private var position: Int = 0
+    private var isPlaying = false
+    private var thread = Thread {
+        isPlaying = true
+        while (isPlaying) {
+            if (player != null && player!!.isPlaying) {
+                seekBar.progress = player!!.currentPosition
+                Thread.sleep(500)
+            }
+        }
+    }
+
+    constructor(context: Context) : this(context, null) {}
+
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0) {}
+
+    constructor(context: Context, attrs: AttributeSet?, @AttrRes defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        view = LayoutInflater.from(context).inflate(R.layout.videoview, this)
+        player = MediaPlayer()
+        view!!.surfaceView.holder.addCallback(this)
+        initPlayListener()
+    }
+
+    private fun initPlayListener() {
+        val ivPlay = view!!.ivPlay
+        ivPlay.setOnClickListener {
+            if (!player!!.isPlaying)
+                play(dataResource!!)
+            else {
+                ivPlay.isSelected = false
+                player!!.pause()
+                listener?.onPause()
+            }
+        }
+    }
+
+    fun play(dataResource: String) {
+        if (!TextUtils.equals(dataResource, this.dataResource)) {
+            this.dataResource = dataResource
+            player!!.reset()
+            player!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+            player!!.setDataSource(dataResource)
+            player!!.setScreenOnWhilePlaying(true)
+            player!!.setOnCompletionListener(this)
+            player!!.setOnPreparedListener(this)
+            player!!.setOnErrorListener(this)
+            view!!.seekBar.setOnSeekBarChangeListener(this)
+            player!!.prepare()
+        }
+        ivPlay.isSelected = true
+        player!!.start()
+    }
+
+    override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
+        Logger.d("mediaplayer   onError------------")
+        play(dataResource!!)
+        return false
+    }
+
+    override fun onPrepared(mp: MediaPlayer?) {
+        Logger.d("mediaplayer   onPrepared------------")
+        view!!.seekBar.progress = 0
+        view!!.tvCurrent.text = "00:00"
+        view!!.seekBar.max = player!!.duration
+        view!!.tvTotal.text = mills2Duration(player!!.duration.toLong())
+        thread.start()
+    }
+
+    override fun onCompletion(mp: MediaPlayer?) {
+        Logger.d("mediaplayer   onCompletion------------")
+        view!!.ivPlay.isSelected = false
+        isPlaying = false
+        listener?.onFinish()
+    }
+
+    override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+        Logger.d("surfaceChanged------------")
+
+    }
+
+    override fun surfaceDestroyed(holder: SurfaceHolder?) {
+        Logger.d("surfaceDestroyed------------")
+        player?.release()
+        player = null
+        isPlaying = false
+    }
+
+    override fun surfaceCreated(holder: SurfaceHolder?) {
+        Logger.d("surfaceCreated------------")
+        player!!.setDisplay(view!!.surfaceView.holder)
+        if (position > 0) {
+            play(dataResource!!)
+            player!!.seekTo(position)
+            view?.tvCurrent?.text = mills2Duration(position.toLong())
+            position = 0
+        }
+    }
+
+    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+        if (progress >= 0) {
+            if (fromUser)
+                player!!.seekTo(progress)
+            view?.tvCurrent?.text = mills2Duration(progress.toLong())
+        }
+    }
+
+    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+    }
+
+    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+    }
+
+    fun stop() {
+        if (player!!.isPlaying)
+            player!!.stop()
+    }
+
+    // 当其他Activity被打开，暂停播放
+    fun pause() {
+        if (player!!.isPlaying) {
+            position = player!!.currentPosition
+            player!!.stop()
+        }
+    }
+
+    fun destroy() {
+        if (player != null) {
+            if (player!!.isPlaying)
+                player!!.stop()
+            player!!.release()
+            player = null
+        }
+    }
+
+    private var listener: OnPlayListener? = null
+
+    fun setOnPlayListener(listener: OnPlayListener) {
+        this.listener = listener
+    }
+
+    interface OnPlayListener {
+        fun onFinish()
+        fun onPause()
+    }
+}

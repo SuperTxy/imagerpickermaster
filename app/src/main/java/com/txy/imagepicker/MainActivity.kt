@@ -9,15 +9,15 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import com.example.apple.glidetest.CommonPickerActivity
 import com.example.apple.glidetest.PickerActivity
+import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.loadImage
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
 import java.util.*
 
 class MainActivity : Activity() {
 
-    private val imags = ArrayList<String>()
+    private val medias = ArrayList<Media>()
     private var adapter: MyGridAdapter? = null
     private val maxSelect = 6
 
@@ -25,10 +25,10 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         tvPicker.setOnClickListener {
-           PickerActivity.startForResult(this,6,imags)
+           PickerActivity.startForResult(this,6, medias)
         }
         tvCommonPicker.setOnClickListener {
-            CommonPickerActivity.startForResult(this,12,imags)
+            CommonPickerActivity.startForResult(this,12, medias)
         }
         adapter = MyGridAdapter()
         gvMain.adapter = adapter
@@ -37,9 +37,9 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == PickerSettings.PICKER_REQUEST_CODE) {
-            imags.clear()
-            imags.addAll(data!!.getStringArrayListExtra(PickerSettings.RESULT))
-            tvPicker.isEnabled = imags.size != maxSelect
+            medias.clear()
+            medias.addAll(data!!.getSerializableExtra(PickerSettings.RESULT) as ArrayList<Media>)
+            tvPicker.isEnabled = medias.size != maxSelect
             adapter!!.notifyDataSetChanged()
         }
     }
@@ -47,11 +47,11 @@ class MainActivity : Activity() {
     internal inner class MyGridAdapter : BaseAdapter() {
 
         override fun getCount(): Int {
-            return imags.size
+            return medias.size
         }
 
-        override fun getItem(position: Int): String {
-            return imags[position]
+        override fun getItem(position: Int): Media {
+            return medias[position]
         }
 
         override fun getItemId(position: Int): Long {
@@ -68,7 +68,7 @@ class MainActivity : Activity() {
             } else {
                 holder = convertView.tag as ViewHolder
             }
-            loadImage(File(getItem(position)),holder.ivImage)
+            loadImage(getItem(position),holder.ivImage)
             return convertView
         }
 
