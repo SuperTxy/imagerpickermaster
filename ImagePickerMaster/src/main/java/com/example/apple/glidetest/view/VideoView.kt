@@ -57,6 +57,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
             else {
                 ivPlay.isSelected = false
                 player!!.pause()
+                isPlaying = false
                 listener?.onPause()
             }
         }
@@ -76,29 +77,35 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
             player!!.prepare()
         }
         ivPlay.isSelected = true
+        thread.start()
         player!!.start()
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
         Logger.d("mediaplayer   onError------------")
         play(dataResource!!)
+        isPlaying = false
         return false
     }
 
     override fun onPrepared(mp: MediaPlayer?) {
         Logger.d("mediaplayer   onPrepared------------")
-        view!!.seekBar.progress = 0
-        view!!.tvCurrent.text = "00:00"
+        resetView()
         view!!.seekBar.max = player!!.duration
         view!!.tvTotal.text = mills2Duration(player!!.duration.toLong())
-        thread.start()
+    }
+
+    private fun resetView() {
+        view!!.seekBar.progress = 0
+        view!!.tvCurrent.text = "00:00"
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
         Logger.d("mediaplayer   onCompletion------------")
         view!!.ivPlay.isSelected = false
-        isPlaying = false
         listener?.onFinish()
+        isPlaying = false
+        resetView()
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
@@ -110,7 +117,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         Logger.d("surfaceDestroyed------------")
         player?.release()
         player = null
-        isPlaying = false
+        resetView()
     }
 
     override fun surfaceCreated(holder: SurfaceHolder?) {
@@ -138,11 +145,6 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     override fun onStopTrackingTouch(seekBar: SeekBar?) {
     }
 
-    fun stop() {
-        if (player!!.isPlaying)
-            player!!.stop()
-    }
-
     // 当其他Activity被打开，暂停播放
     fun pause() {
         if (player!!.isPlaying) {
@@ -151,12 +153,20 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         }
     }
 
+    fun stop() {
+        if (player != null && dataResource != null) {
+            dataResource = null
+            resetView()
+            Logger.d("videoview stop------------")
+        }
+    }
+
     fun destroy() {
         if (player != null) {
             if (player!!.isPlaying)
                 player!!.stop()
             player!!.release()
-            player = null
+            Logger.d("videoview destroy------------")
         }
     }
 

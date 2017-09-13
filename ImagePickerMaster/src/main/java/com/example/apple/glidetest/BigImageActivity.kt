@@ -120,6 +120,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         val media = medias.get(position)
         ivRight.isSelected = imageProvider.isMediaExist(media)
         ivRight.text = imageProvider.orderOfMedia(media)
+        videoView.stop()
     }
 
     override fun onPageScrollStateChanged(state: Int) {
