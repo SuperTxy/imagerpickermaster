@@ -3,7 +3,6 @@ package com.example.apple.glidetest.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -23,7 +22,7 @@ import java.lang.Exception
 /**
  * Created by Apple on 17/7/31.
  */
-
+//TODO("Glide 4.1.1")
 fun loadImage(media: Media, imageView: ImageView) {
     if (media.dir.isNullOrEmpty()) {
         Logger.e("此文件不存在！")
@@ -93,6 +92,7 @@ fun mills2Duration(mills: Long): String {
 fun unitFormat(i: Long): String {
     return if (i >= 0 && i < 10) "0" + i else i.toString() + ""
 }
+
 
 
 

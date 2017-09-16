@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools">
-    <ImageView
-        android:id="@+id/ivImage"
-        android:layout_marginLeft="10dp"
-        android:layout_width="56dp"
-        android:layout_height="56dp" />
+    android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp">
+
+        <ImageView
+            android:id="@+id/ivImage"
+            android:layout_width="56dp"
+            android:layout_height="56dp" />
+
+        <ImageView
+            android:id="@+id/ivVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/play_pictures2"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </FrameLayout>
+
     <TextView
-        android:layout_marginLeft="10dp"
-        android:visibility="gone"
         android:id="@+id/tv_blank"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginLeft="10dp"
         android:background="#fff"
-        android:textSize="20sp"
         android:gravity="center"
         android:textColor="@color/color333333"
-        tools:text="1"
-        android:layout_width="56dp"
-        android:layout_height="56dp" />
+        android:textSize="20sp"
+        android:visibility="gone"
+        tools:text="1" />
 </FrameLayout>

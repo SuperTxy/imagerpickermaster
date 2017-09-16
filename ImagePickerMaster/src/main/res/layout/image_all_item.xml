@@ -11,11 +11,21 @@
         android:layout_height="match_parent"
         tools:src="@drawable/camera" />
 
+    <ImageView
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        android:id="@+id/ivVideo"
+        android:src="@drawable/play_pictures"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <View
+        android:alpha="0.7"
         android:id="@+id/viewMask"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#4fff"
+        android:background="@color/colord8d8d8"
         android:visibility="gone"
         tools:visibility="visible" />
 

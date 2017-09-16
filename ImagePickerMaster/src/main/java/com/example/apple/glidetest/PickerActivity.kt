@@ -62,7 +62,11 @@ class PickerActivity : PickerBaseActivity() {
         recyclerViewSelected.isFocusable = false
         ivCamera.setOnClickListener {
             if (imageSelector.maxSelectToast(this, false))
-            else launchCamera()
+            else launchMediaRecord(true)
+        }
+        ivVideo.setOnClickListener {
+            if (imageSelector.maxSelectToast(this, false))
+            else launchMediaRecord(false)
         }
         baseView()
         bundle = intent.getBundleExtra(PickerSettings.BUNDLE)

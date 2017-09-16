@@ -78,7 +78,7 @@ class CommonPickerActivity : PickerBaseActivity() {
         tvCenter.text = selectedFolder.name
         adapter!!.cameraClickListener = object : OnCameraClickListener {
             override fun onCameraClick() {
-                launchCamera()
+                launchMediaRecord(true)
             }
         }
         adapter!!.itemClickListener = object : OnItemClickListener {

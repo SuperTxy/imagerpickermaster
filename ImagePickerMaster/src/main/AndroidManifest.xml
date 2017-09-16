@@ -19,13 +19,13 @@
             android:name=".CommonPickerActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:configChanges="keyboardHidden|screenSize|orientation"
             android:name=".BigImageActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".PickerActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".RecordMediaActivity"/>
+        <activity android:name=".RecordMediaActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

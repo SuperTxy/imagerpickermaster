@@ -1,4 +1,4 @@
-package com.example.apple.glidetest.view
+package com.example.apple.glidetest.media
 
 import android.content.Context
 import android.media.AudioManager
@@ -77,7 +77,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
             player!!.prepare()
         }
         ivPlay.isSelected = true
-        thread.start()
+        if(!thread.isAlive) thread.start()
         player!!.start()
     }
 

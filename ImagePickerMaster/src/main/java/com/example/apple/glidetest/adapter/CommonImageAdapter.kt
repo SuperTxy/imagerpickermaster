@@ -65,10 +65,11 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<Media>,
             val tvDuration = holder.itemView.tvDuration
             val cbSelected = holder.itemView.cbSelected
             loadBitmap(media, holder.itemView.ivImage)
-            if(media.isVideo){
+            holder.itemView.ivVideo.visibility = if (media.isVideo) View.VISIBLE else View.GONE
+            if (media.isVideo) {
                 tvDuration.visibility = View.VISIBLE
                 tvDuration.text = media.duration
-            }else tvDuration.visibility = View.INVISIBLE
+            } else tvDuration.visibility = View.INVISIBLE
             tvDuration.visibility = if (media.isVideo) View.VISIBLE else View.INVISIBLE
             tvDuration.text
             handleSelected(selectImageProvider.isMediaExist(media), holder, media)

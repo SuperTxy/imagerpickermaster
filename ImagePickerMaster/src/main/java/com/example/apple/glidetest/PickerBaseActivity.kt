@@ -4,15 +4,11 @@ import android.Manifest
 import android.app.Activity
 import android.content.ComponentCallbacks2
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
-import android.support.v4.content.FileProvider
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.example.apple.glidetest.adapter.CommonImageAdapter
 import com.example.apple.glidetest.bean.Folder
@@ -22,8 +18,6 @@ import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.isGif
 import com.example.apple.glidetest.utils.mills2Duration
-import com.orhanobut.logger.Logger
-import com.txy.androidutils.FileUtils
 import com.txy.androidutils.PermissionUtils
 import java.io.File
 import java.util.*
@@ -48,7 +42,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var tvText: TextView? = null
     protected var folderPopup: FolderPopup? = null
     private var READ_PERMISSION = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-    private var CAMERA_PERMISSION = arrayOf(Manifest.permission.CAMERA)
 
     override fun onResume() {
         super.onResume()
@@ -69,9 +62,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         if (savedInstanceState == null) {
             imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 0)
             imageProvider!!.setSelect(initialSelect)
-            permissionUtils?.checkPermission(READ_PERMISSION, getString(R.string.no_read_permission), Runnable {
-                loadMedias()
-            })
+            loadMedias()
         } else {
             if (imageProvider!!.maxSelect == 0) {
                 imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 0)
@@ -83,9 +74,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         folderPopup = FolderPopup(this)
 
         btnReload!!.setOnClickListener {
-            permissionUtils?.checkPermission(READ_PERMISSION, getString(R.string.no_read_permission), Runnable {
-                loadMedias()
-            })
+            loadMedias()
         }
         btnCenter!!.setOnClickListener {
             if (!folderPopup!!.isShowing()) {
@@ -100,13 +89,15 @@ abstract class PickerBaseActivity : Activity(), Observer {
     }
 
     fun loadMedias() {
-        Thread(Runnable {
-            loadImages()
-            loadVideos()
-            Handler(mainLooper).post {
-                initData()
-            }
-        }).start()
+        permissionUtils!!.checkStoragePermission(Runnable {
+            Thread(Runnable {
+                loadImages()
+                loadVideos()
+                Handler(mainLooper).post {
+                    initData()
+                }
+            }).start()
+        })
     }
 
     private fun loadVideos() {
@@ -132,6 +123,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
             }
             folderProvider!!.getFolderByDir(media.dir)?.addMedia(media)
         }
+//        TODO("遍历Camera目录下的.mp4文件")
         cursor.close()
     }
 
@@ -161,28 +153,29 @@ abstract class PickerBaseActivity : Activity(), Observer {
         cursor.close()
     }
 
-    fun launchCamera() {
+    fun launchMediaRecord(isCamera: Boolean) {
         if (adapter == null) return
-        permissionUtils?.checkPermission(CAMERA_PERMISSION, "不开启相机权限，无法拍照哦~", Runnable {
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (intent.resolveActivity(packageManager) != null) {
-                tmpFile = FileUtils.createIMGFile(this)
-                if (tmpFile!!.exists()) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        Logger.e(FILE_PROVIDER)
-                        val photoUri = FileProvider.getUriForFile(this, FILE_PROVIDER, tmpFile)
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-                    } else {
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tmpFile))
-                    }
-                    startActivityForResult(intent, PickerSettings.CAREMA_REQUEST_CODE)
-                } else {
-                    Toast.makeText(this, "图片错误！", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "无法启动相机！", Toast.LENGTH_SHORT).show()
-            }
-        })
+        RecordMediaActivity.startForResult(this, isCamera)
+//        permissionUtils?.checkPermission(CAMERA_PERMISSION, "不开启相机权限，无法拍照哦~", Runnable {
+//            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//            if (intent.resolveActivity(packageManager) != null) {
+//                tmpFile = FileUtils.createIMGFile(this)
+//                if (tmpFile!!.exists()) {
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                        Logger.e(FILE_PROVIDER)
+//                        val photoUri = FileProvider.getUriForFile(this, FILE_PROVIDER, tmpFile)
+//                        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+//                    } else {
+//                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tmpFile))
+//                    }
+//                    startActivityForResult(intent, PickerSettings.CAREMA_REQUEST_CODE)
+//                } else {
+//                    Toast.makeText(this, "图片错误！", Toast.LENGTH_SHORT).show()
+//                }
+//            } else {
+//                Toast.makeText(this, "无法启动相机！", Toast.LENGTH_SHORT).show()
+//            }
+//        })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -191,6 +184,9 @@ abstract class PickerBaseActivity : Activity(), Observer {
         when (requestCode) {
             PickerSettings.BIG_REQUEST_CODE -> {
                 if (resultCode == RESULT_OK) onPickerOk()
+            }
+            PickerSettings.RECORD_REQUEST_CODE -> {
+
             }
             PickerSettings.CAREMA_REQUEST_CODE -> {
 //                if (resultCode == RESULT_OK) {

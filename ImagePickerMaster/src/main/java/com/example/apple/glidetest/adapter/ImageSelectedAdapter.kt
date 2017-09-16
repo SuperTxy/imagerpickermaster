@@ -37,9 +37,11 @@ class ImageSelectedAdapter(private val context: Context, list: List<Media>)
         if (position == medias.size) {
             holder.itemView.tv_blank.visibility = View.VISIBLE
             holder.itemView.tv_blank.text = (position + 1).toString()
+            holder.itemView.ivVideo.visibility = View.GONE
         } else {
             loadBitmap(medias.get(position), holder.itemView.ivImage)
             holder.itemView.tv_blank.visibility = View.GONE
+            holder.itemView.ivVideo.visibility = if (medias.get(position).isVideo) View.VISIBLE else View.GONE
         }
     }
 
@@ -65,7 +67,7 @@ class ImageSelectedAdapter(private val context: Context, list: List<Media>)
                 notifyItemRemoved(index)
                 if (medias.size == SelectMediaProvider.instance.maxSelect - 1)
                     notifyItemInserted(itemCount - 1)
-                if(medias.size == 0) notifyItemRemoved(0)
+                if (medias.size == 0) notifyItemRemoved(0)
                 else notifyItemChanged(itemCount - 1)
             }
             listener?.onUpdateMove()

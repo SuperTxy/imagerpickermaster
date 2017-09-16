@@ -7,4 +7,8 @@
     <string name="image_is_reading">图片读取中，请耐心等待！</string>
     <string name="provider_name">com.txy.imagepicker.fileprovider</string>
     <string name="no_record_permission">不开启录音拍照等权限，无法录制视频哦~</string>
+    <string name="no_camera_permission">不开启相机权限，无法拍照哦~</string>
+    <string name="record_time_is_too_short">录制时间过短，请重新录制!</string>
+    <string name="press_to_record">长按拍摄短视频</string>
+    <string name="press_to_record_again">长按重新录制</string>
 </resources>

@@ -12,7 +12,7 @@ import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.example.apple.glidetest.utils.loadImage
-import com.example.apple.glidetest.view.VideoView
+import com.example.apple.glidetest.media.VideoView
 import com.txy.androidutils.ToastUtils
 import kotlinx.android.synthetic.main.activity_big_image.*
 import kotlinx.android.synthetic.main.title_bar.*
