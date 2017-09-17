@@ -5,6 +5,8 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.view.View
+import com.example.apple.glidetest.bean.Media
+import com.example.apple.glidetest.media.SizeUtils
 import com.example.apple.glidetest.media.VideoRecordBtn
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
@@ -16,6 +18,7 @@ import kotlinx.android.synthetic.main.slide_view.*
 class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
     private var isCamera: Boolean = false
+    private var media: Media? = null
 
     companion object {
         fun startForResult(context: Activity, isCamera: Boolean) {
@@ -31,7 +34,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         StatusBarUtil.setStatusBarColorBlack(this)
         window.setFormat(PixelFormat.TRANSLUCENT)
         btnRecord.setOnRecordListener(this)
-        isCamera = intent.getBooleanExtra(PickerSettings.IS_CAMERA,true)
+        isCamera = intent.getBooleanExtra(PickerSettings.IS_CAMERA, true)
         changeMediaType(isCamera)
         initListener()
         initSurface()
@@ -39,18 +42,23 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
     private fun initSurface() {
+        surfaceView.ivPreview = ivPreview
         ivSwitch.visibility = if (surfaceView!!.camerasCount > 1) View.VISIBLE else View.GONE
-
+        Logger.e(surfaceView.width.toString() + "--->" + surfaceView.height)
         val screenWidth = ScreenUtils.getScreenWidth(this)
-//        surfaceView.layoutParams.height = screenWidth * cameraHelper!!.size!!.height / cameraHelper!!.size!!.width
-//        surfaceView.layoutParams.width = screenWidth
+        val size = SizeUtils(surfaceView.camera!!).getConsistentSize(this)
+        val params = surfaceView.layoutParams
+        params.height = screenWidth * size.height / size.width
+        params.width = screenWidth
+        surfaceView.layoutParams = params
         Logger.e(surfaceView.width.toString() + "--->" + surfaceView.height)
     }
 
     override fun onRecordStart(isCamera: Boolean) {
         if (!isCamera) {
-//            videoView.visibility = View.GONE
-//            surfaceView.visibility = View.VISIBLE
+            videoView.visibility = View.GONE
+            ivPreview.visibility = View.GONE
+            surfaceView.visibility = View.VISIBLE
             surfaceView.startRecord()
         }
     }
@@ -58,13 +66,17 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     override fun onRecordFinish(isCamera: Boolean) {
         if (isCamera) {
             surfaceView.takePicture(ivPreview)
+//            media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.IMG)
         } else {
-//            videoView.play(mediaRecorderHelper!!.videoFile!!.absolutePath)
+            media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.VID)
+            videoView.media = media
+            videoView.play(surfaceView!!.mediaFile!!.absolutePath)
             surfaceView.stopRecord()
         }
+        media!!.date = System.currentTimeMillis().toString()
+        media!!.size = surfaceView!!.mediaFile!!.length().toString()
         resetView(true)
     }
-
 
 
     fun initListener() {
@@ -74,12 +86,14 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 //            TODO()d
         }
         tvCancel.setOnClickListener {
+            val mediaFile = surfaceView.mediaFile
+            if (mediaFile !=null && mediaFile.exists()){
+                mediaFile.delete()
+            }
             finish()
         }
         tvOk.setOnClickListener {
-            val result = surfaceView.mediaFile!!.absolutePath
-            intent.putExtra(PickerSettings.RESULT, result)
-            intent.putExtra(PickerSettings.IS_CAMERA, isCamera)
+            intent.putExtra(PickerSettings.RESULT, media)
             setResult(RESULT_OK, intent)
             finish()
         }
@@ -107,7 +121,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         tvBack.visibility = if (!isFinish) View.GONE else View.VISIBLE
         tvOk.visibility = if (!isFinish) View.GONE else View.VISIBLE
         tvCamera.visibility = if (btnRecord.isCamera || (!btnRecord.isCamera && !isFinish)) View.VISIBLE else View.GONE
-//        videoView.visibility = if (isFinish && !isCamera) View.VISIBLE else View.GONE
+        videoView.visibility = if (isFinish && !isCamera) View.VISIBLE else View.GONE
         surfaceView.visibility = if (isFinish) View.INVISIBLE else View.VISIBLE
     }
 
@@ -120,5 +134,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     override fun onDestroy() {
         super.onDestroy()
         btnRecord.destroy()
+        videoView.destroy()
+        surfaceView.destroy()
     }
 }

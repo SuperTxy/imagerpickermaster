@@ -12,8 +12,10 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.SeekBar
 import com.example.apple.glidetest.R
+import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.utils.mills2Duration
 import com.orhanobut.logger.Logger
+import com.txy.androidutils.ToastUtils
 import kotlinx.android.synthetic.main.videoview.view.*
 
 /**
@@ -28,15 +30,8 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     private var view: View? = null
     private var position: Int = 0
     private var isPlaying = false
-    private var thread = Thread {
-        isPlaying = true
-        while (isPlaying) {
-            if (player != null && player!!.isPlaying) {
-                seekBar.progress = player!!.currentPosition
-                Thread.sleep(500)
-            }
-        }
-    }
+    private var toastUtils: ToastUtils? = null
+    var media:Media?=null
 
     constructor(context: Context) : this(context, null) {}
 
@@ -47,15 +42,15 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         player = MediaPlayer()
         view!!.surfaceView.holder.addCallback(this)
         initPlayListener()
+        toastUtils = ToastUtils(context)
     }
 
     private fun initPlayListener() {
-        val ivPlay = view!!.ivPlay
-        ivPlay.setOnClickListener {
+        ivPlaySmall.setOnClickListener {
             if (!player!!.isPlaying)
                 play(dataResource!!)
             else {
-                ivPlay.isSelected = false
+                ivPlaySmall.isSelected = false
                 player!!.pause()
                 isPlaying = false
                 listener?.onPause()
@@ -68,17 +63,30 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
             this.dataResource = dataResource
             player!!.reset()
             player!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
-            player!!.setDataSource(dataResource)
-            player!!.setScreenOnWhilePlaying(true)
-            player!!.setOnCompletionListener(this)
-            player!!.setOnPreparedListener(this)
-            player!!.setOnErrorListener(this)
-            view!!.seekBar.setOnSeekBarChangeListener(this)
-            player!!.prepare()
+            try {
+                player!!.setDataSource(dataResource)
+                player!!.setScreenOnWhilePlaying(true)
+                player!!.setOnCompletionListener(this)
+                player!!.setOnPreparedListener(this)
+                player!!.setOnErrorListener(this)
+                view!!.seekBar.setOnSeekBarChangeListener(this)
+                player!!.prepare()
+            } catch(e: Exception) {
+                toastUtils?.toast("无法播放此视频文件！")
+                return
+            }
         }
-        ivPlay.isSelected = true
-        if(!thread.isAlive) thread.start()
+        ivPlaySmall.isSelected = true
         player!!.start()
+        Thread {
+            isPlaying = true
+            while (isPlaying) {
+                if (player != null) {
+                    seekBar.progress = player!!.currentPosition
+                    Thread.sleep(500)
+                }
+            }
+        }.start()
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
@@ -93,6 +101,9 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         resetView()
         view!!.seekBar.max = player!!.duration
         view!!.tvTotal.text = mills2Duration(player!!.duration.toLong())
+        media!!.duration = player!!.duration.toString()
+        media!!.width = player!!.videoWidth.toString()
+        media!!.height = player!!.videoHeight.toString()
     }
 
     private fun resetView() {
@@ -102,10 +113,10 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
 
     override fun onCompletion(mp: MediaPlayer?) {
         Logger.d("mediaplayer   onCompletion------------")
-        view!!.ivPlay.isSelected = false
+        ivPlaySmall.isSelected = false
+        resetView()
         listener?.onFinish()
         isPlaying = false
-        resetView()
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
@@ -168,6 +179,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
             player!!.release()
             Logger.d("videoview destroy------------")
         }
+        toastUtils?.destroy()
     }
 
     private var listener: OnPlayListener? = null

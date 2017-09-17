@@ -14,7 +14,7 @@ class SizeUtils(private val camera: Camera) {
     private var videoSizes: List<Camera.Size>? = null
     var size: Camera.Size? = null
 
-     fun getConsistentSize(context: Context): Camera.Size {
+    fun getConsistentSize(context: Context): Camera.Size {
         previewSizes = camera.parameters.supportedPreviewSizes
         pictureSizes = camera.parameters.supportedPictureSizes
         videoSizes = camera.parameters.supportedVideoSizes
@@ -25,7 +25,8 @@ class SizeUtils(private val camera: Camera) {
 //                TODO("遍历")
             }
         }
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("width",size!!.width).putInt("height",size!!.height).apply()
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("width", size!!.width).putInt("height", size!!.height).apply()
+        Logger.e("size====" + size!!.width +"---->"+size!!.height)
         return size!!
     }
 

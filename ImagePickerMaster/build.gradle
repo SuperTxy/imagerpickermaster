@@ -12,7 +12,7 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
-//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -39,9 +39,9 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-//    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-//        exclude group: 'com.android.support', module: 'support-annotations'
-//    })
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     compile 'com.github.chrisbanes.photoview:library:1.2.4'
     compile 'com.android.support:recyclerview-v7:25.3.1'
@@ -50,11 +50,11 @@ dependencies {
     compile ('com.github.bumptech.glide:glide:3.7.0'){
         exclude group: 'com.android.support'
     }
-//    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.orhanobut:logger:1.15'
     compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
-    compile 'com.github.SuperTxy:AndroidUtils:v0.0.7'
-//    testCompile 'junit:junit:4.12'
+    compile 'com.github.SuperTxy:AndroidUtils:v0.0.8'
+    testCompile 'junit:junit:4.12'
 }
 
 def group = 'com.github.SuperTxy'

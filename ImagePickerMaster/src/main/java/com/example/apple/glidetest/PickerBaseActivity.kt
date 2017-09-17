@@ -4,9 +4,13 @@ import android.Manifest
 import android.app.Activity
 import android.content.ComponentCallbacks2
 import android.content.Intent
+import android.media.MediaMetadataRetriever
+import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
+import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
 import com.bumptech.glide.Glide
@@ -18,6 +22,8 @@ import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.isGif
 import com.example.apple.glidetest.utils.mills2Duration
+import com.orhanobut.logger.Logger
+import com.txy.androidutils.FileUtils
 import com.txy.androidutils.PermissionUtils
 import java.io.File
 import java.util.*
@@ -29,7 +35,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     protected var imageProvider: SelectMediaProvider? = null
     protected var folderProvider: FolderProvider? = null
-    private var tmpFile: File? = null
     private var FILE_PROVIDER: String? = null
     protected val HORIZONTAL_COUNT: Int = 4
     private var permissionUtils: PermissionUtils? = null
@@ -68,7 +73,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
                 imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 0)
                 imageProvider!!.setSelect(initialSelect)
             }
-            tmpFile = savedInstanceState.getSerializable("tmpFile") as File?
             initData()
         }
         folderPopup = FolderPopup(this)
@@ -91,8 +95,8 @@ abstract class PickerBaseActivity : Activity(), Observer {
     fun loadMedias() {
         permissionUtils!!.checkStoragePermission(Runnable {
             Thread(Runnable {
-                loadImages()
                 loadVideos()
+                loadImages()
                 Handler(mainLooper).post {
                     initData()
                 }
@@ -103,28 +107,61 @@ abstract class PickerBaseActivity : Activity(), Observer {
     private fun loadVideos() {
         val contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         val sortOrder = MediaStore.Video.Media.DATE_ADDED + " DESC"
-        val where = MediaStore.Video.Media.SIZE + " > " + 20
+        val where = MediaStore.Video.Media.SIZE + ">" + 2000
         val cursor = contentResolver.query(contentUri, null, where, null, sortOrder)
         val allFolder = folderProvider!!.selectedFolder
+        var videoFolder: Folder? = null
         while (cursor.moveToNext()) {
             val path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA))
             val date = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATE_ADDED))
             val size = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.SIZE))
             val duration = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DURATION))
+            val width = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.WIDTH))
+            val height = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.HEIGHT))
             if (!File(path).exists()) continue
             val media = Media(date, path, size, Media.MediaType.VID, mills2Duration(duration.toLong()))
+            media.width = width
+            media.height = height
             if (allFolder?.firstMedia == null) {
                 allFolder?.firstMedia = media
             }
             allFolder?.addMedia(media)
-            if (!folderProvider!!.hasFolder(media.dir)) {
-                val name = media.dir.substring(media.dir.lastIndexOf('/') + 1)
-                folderProvider!!.addFolder(Folder(media.dir, name, media))
+            if (videoFolder == null) {
+                videoFolder = Folder("video", "所有视频")
+                folderProvider!!.addFolder(videoFolder)
             }
-            folderProvider!!.getFolderByDir(media.dir)?.addMedia(media)
+            videoFolder.addMedia(media)
         }
-//        TODO("遍历Camera目录下的.mp4文件")
         cursor.close()
+//        scanCameraVideos()
+    }
+
+    private fun scanCameraVideos() {
+        val files = FileUtils.getFileDir(this).listFiles()
+        for (it in files) {
+            if (it.isFile && it.absolutePath.endsWith(".mp4")) {
+                MediaScannerConnection.scanFile(this,
+                        arrayOf(it.absolutePath),
+                        arrayOf(),
+                        object : MediaScannerConnection.OnScanCompletedListener {
+                            override fun onScanCompleted(path: String?, uri: Uri?) {
+                                Logger.e("扫描完成")
+                                val retriever = MediaMetadataRetriever()
+                                retriever.setDataSource(this@PickerBaseActivity, uri)
+                                val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                                val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
+                                val width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+                                val height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+                                val media = Media(date, it.absolutePath, it.length().toString(), Media.MediaType.VID, duration)
+                                media.width = width
+                                media.height = height
+//                val media = Media(null, it.absolutePath, null, Media.MediaType.VID)
+                                folderProvider!!.getFolderByDir("video")!!.addMedia(media)
+                                folderProvider!!.allFolder!!.addMedia(media)
+                            }
+                        })
+            }
+        }
     }
 
     private fun loadImages() {
@@ -155,27 +192,9 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     fun launchMediaRecord(isCamera: Boolean) {
         if (adapter == null) return
-        RecordMediaActivity.startForResult(this, isCamera)
-//        permissionUtils?.checkPermission(CAMERA_PERMISSION, "不开启相机权限，无法拍照哦~", Runnable {
-//            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//            if (intent.resolveActivity(packageManager) != null) {
-//                tmpFile = FileUtils.createIMGFile(this)
-//                if (tmpFile!!.exists()) {
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                        Logger.e(FILE_PROVIDER)
-//                        val photoUri = FileProvider.getUriForFile(this, FILE_PROVIDER, tmpFile)
-//                        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-//                    } else {
-//                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tmpFile))
-//                    }
-//                    startActivityForResult(intent, PickerSettings.CAREMA_REQUEST_CODE)
-//                } else {
-//                    Toast.makeText(this, "图片错误！", Toast.LENGTH_SHORT).show()
-//                }
-//            } else {
-//                Toast.makeText(this, "无法启动相机！", Toast.LENGTH_SHORT).show()
-//            }
-//        })
+        permissionUtils!!.checkRecordVideoPermission {
+            RecordMediaActivity.startForResult(this, isCamera)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -185,48 +204,22 @@ abstract class PickerBaseActivity : Activity(), Observer {
             PickerSettings.BIG_REQUEST_CODE -> {
                 if (resultCode == RESULT_OK) onPickerOk()
             }
-            PickerSettings.RECORD_REQUEST_CODE -> {
-
-            }
-            PickerSettings.CAREMA_REQUEST_CODE -> {
-//                if (resultCode == RESULT_OK) {
-//                    if (tmpFile != null) {
-//                        sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(tmpFile)))
-//                        val path = tmpFile!!.absolutePath
-//                        Media()
-//                        imageProvider!!.add(path)
-//                        val dir = tmpFile!!.parentFile.absolutePath
-//                        folderProvider!!.addCameraImage(path)
-//                        if (TextUtils.equals(selectedFolder!!.dir, dir) || selectedFolder.name.equals(folderProvider!!.folders.get(0).name)) {
-//                            adapter!!.refresh(selectedFolder.medias)
-//                        }
-//                    } else {
-//                        Logger.e("Activity重新创建，没保存tmpFile")
-//                    }
-//                } else {
-////               user click cancel
-//                    if (tmpFile != null && tmpFile!!.exists()) {
-//                        if (tmpFile!!.delete()) {
-//                            tmpFile = null
-//                        }
-//                    }
-//                }
+            PickerSettings.CAREMA_REQUEST_CODE, PickerSettings.RECORD_REQUEST_CODE -> {
+                if (resultCode == RESULT_OK && data?.getSerializableExtra(PickerSettings.RESULT) != null) {
+                    val media = data.getSerializableExtra(PickerSettings.RESULT) as Media
+                    imageProvider!!.add(media)
+                    folderProvider!!.addNewMedia(media)
+                    if (TextUtils.equals(selectedFolder!!.dir, media.dir) || selectedFolder.name == folderProvider!!.folders.get(0).name) {
+                        adapter!!.refresh(selectedFolder.medias)
+                    }
+                }
             }
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>
-                                            , grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionUtils?.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?
-    ) {
-        super.onSaveInstanceState(outState)
-        if (tmpFile != null)
-            outState!!.putSerializable("tmpFile", tmpFile)
     }
 
     override fun onDestroy() {

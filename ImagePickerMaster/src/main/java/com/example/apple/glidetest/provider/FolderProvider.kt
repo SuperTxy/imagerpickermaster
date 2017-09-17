@@ -21,7 +21,7 @@ class FolderProvider private constructor() {
         }
 
     init {
-        allFolder = Folder("", "所有图片")
+        allFolder = Folder("", "所有图片和视频")
         addFolder(allFolder!!)
         selectedFolder = allFolder
     }
@@ -48,14 +48,14 @@ class FolderProvider private constructor() {
     fun clear() {
         folders.clear()
         foldersMap = HashMap<String, Folder>()
-        allFolder = Folder("", "所有图片")
+        allFolder = Folder("", "所有图片和视频")
         selectedFolder = allFolder
         addFolder(selectedFolder!!)
     }
 
-    fun addCameraImage(media: Media) {
+    fun addNewMedia(media: Media) {
         if (!hasFolder(media.dir)) {
-            val name = media.dir.substring(media.dir.lastIndexOf('/') + 1)
+            val name = if (!media.isVideo) media.dir.substring(media.dir.lastIndexOf('/') + 1) else "所有视频"
             addFolder(Folder(media.dir, name, media))
         }
         getFolderByDir(media.dir)!!.addMedia(media, 0)

@@ -2,21 +2,27 @@ package com.example.apple.glidetest
 
 import android.app.Activity
 import android.content.Intent
+import android.hardware.Camera
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.view.View
 import android.view.ViewGroup
+import com.example.apple.glidetest.media.SizeUtils
+import com.example.apple.glidetest.media.VideoView
 import com.example.apple.glidetest.provider.FolderProvider
 import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.example.apple.glidetest.utils.loadImage
-import com.example.apple.glidetest.media.VideoView
+import com.orhanobut.logger.Logger
+import com.txy.androidutils.ScreenUtils
 import com.txy.androidutils.ToastUtils
 import kotlinx.android.synthetic.main.activity_big_image.*
 import kotlinx.android.synthetic.main.title_bar.*
 import kotlinx.android.synthetic.main.video_pager.view.*
+import kotlinx.android.synthetic.main.videoview.view.*
 
 class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
@@ -43,8 +49,26 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         viewPager.adapter = MyPagerAdapter()
         val pos = intent.getIntExtra(POSITION, 0)
         viewPager.currentItem = pos
+        initSurface()
         onPageSelected(pos)
         initListener()
+    }
+
+    private fun initSurface() {
+        val sp = PreferenceManager.getDefaultSharedPreferences(this)
+        val lp = videoView.surfaceView.layoutParams
+        var ratio: Float
+        if (sp.getInt("width", 0) != 0 && sp.getInt("height", 0) != 0) {
+            ratio = sp.getInt("height", 0) * 1.0f / sp.getInt("width", 0)
+        } else {
+            val size = SizeUtils(Camera.open()).getConsistentSize(this)
+            ratio = size.height * 1.0f / size.width
+            Logger.e("SizeUtils"+size.height+"-->"+size.width)
+        }
+        lp.width = ScreenUtils.getScreenWidth(this)
+        lp.height = (ScreenUtils.getScreenWidth(this) * ratio).toInt()
+        Logger.e(lp.width.toString() + "--->" + lp.height + "-->ratio-->" + ratio)
+        videoView.surfaceView.layoutParams = lp
     }
 
     private fun initListener() {

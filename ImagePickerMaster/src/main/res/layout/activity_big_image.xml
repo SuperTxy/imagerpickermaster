@@ -52,6 +52,7 @@
         android:layout_height="wrap_content" />
 
     <com.example.apple.glidetest.media.VideoView
+        android:layout_gravity="center"
         android:visibility="gone"
         android:id="@+id/videoView"
         android:layout_width="match_parent"

@@ -20,9 +20,11 @@ import android.widget.ImageView
 import com.example.apple.glidetest.R
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.FileUtils
+import com.txy.androidutils.ToastUtils
 import kotlinx.android.synthetic.main.activity_record_media.view.*
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
 /**
  * Created by Apple on 17/9/16.
@@ -38,28 +40,42 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var cameraFlashType = Camera.Parameters.FLASH_MODE_AUTO
     private var videoFlashType = Camera.Parameters.FLASH_MODE_OFF
     var isCamera: Boolean = false
+    set(value) {
+        if (!value){
+            initMediaRecorder()
+        }
+    }
+    var ivPreview: ImageView? = null
+    private var toastUtils: ToastUtils? = null
+    private var camera2Helper: Camera2Helper? = null
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
             Logger.d("surfaceChanged---->" + width + "--->" + height)
-            startPreview(holder!!)
+            val size = SizeUtils(camera!!).getConsistentSize(context)
+            setCameraParameters(size.width,size.height)
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
             Logger.d("surfaceDestroyed---->")
-            releaseCamera()
+//            releaseCamera()
             stopRecord()
         }
 
         override fun surfaceCreated(holder: SurfaceHolder?) {
             Logger.d("surfaceCreated---->")
+//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+//                camera2Helper = Camera2Helper(context, toastUtils!!, ivPreview!!, this@MediaSurfaceView)
+//            } else {
             startPreview(holder!!)
+//            }
         }
     }
 
     init {
+        toastUtils = ToastUtils(context)
         camerasCount = Camera.getNumberOfCameras()
-        Logger.d("camerasCount" + camerasCount.toString())
+        Logger.e("camerasCount   " + camerasCount.toString())
         getCamera()
         surfaceView.holder.setKeepScreenOn(true)
         surfaceView.holder.addCallback(surfaceCallBack)
@@ -68,7 +84,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     fun startPreview(holder: SurfaceHolder) {
         camera!!.setPreviewDisplay(holder)
         setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
-//        camera!!.parameters.focusMode = Camera.Parameters.FOCUS_MODE_AUTO
+        Logger.e(camera!!.parameters.previewSize.width.toString() + "--->" + camera!!.parameters.previewSize.height)
 //        camera!!.parameters.setPreviewSize(size!!.width, size!!.height)
         camera!!.startPreview()
         Logger.d("------>startPreview")
@@ -98,6 +114,9 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun takePicture(iv: ImageView) {
+//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+//            camera2Helper!!.takePicture()
+//        }
         Logger.e("onPictureTaken-->")
         camera!!.takePicture(null, null, object : Camera.PictureCallback {
             override fun onPictureTaken(data: ByteArray?, camera: Camera?) {
@@ -112,15 +131,13 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 } else {
                     matrix.setRotate(-90f)
                 }
-                var bitmap = BitmapFactory.decodeByteArray(data, 0, data!!.size);
-                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                fos.flush();
-                fos.close();
-//                mPictureSavePath = getPictureSaveDir() + File.separator + filename;
-
-//                iv.visibility = View.VISIBLE
-//                iv.setImageURI(Uri.fromFile(cameraFile))
+                var bitmap = BitmapFactory.decodeByteArray(data, 0, data!!.size)
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+                fos.flush()
+                fos.close()
+                iv.visibility = View.VISIBLE
+                iv.setImageURI(Uri.fromFile(mediaFile))
                 camera?.startPreview()
                 context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
             }
@@ -174,18 +191,18 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         Logger.e(camera!!.parameters.flashMode.toString())
     }
 
-    fun startRecord() {
-        Logger.d("MediaRecorderHelper------>startRecord")
-//        camera.unlock()
+    fun initMediaRecorder() {
+        Logger.d("initMediaRecorder")
+//        camera!!.unlock()
         mediaFile = FileUtils.createVIDFile(context)
         mediaRecorder = MediaRecorder()
         mediaRecorder?.reset()
         mediaRecorder?.setCamera(camera)
-        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
         mediaRecorder?.setVideoSource(MediaRecorder.VideoSource.CAMERA)
+//        设置视频输出格式和编码
         mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_480P))
         mediaRecorder?.setOrientationHint(90)
-
 
 //        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
 //        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
@@ -195,8 +212,19 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 //        mediaRecorder?.setVideoSize(size!!.width,size.height)
 //        mediaRecorder?.setMaxDuration(12000)
         mediaRecorder?.setOutputFile(mediaFile!!.getAbsolutePath())
-        mediaRecorder?.setPreviewDisplay(holder.surface)
-        mediaRecorder?.prepare()
+//        mediaRecorder?.setPreviewDisplay(holder.surface)
+        try {
+            mediaRecorder!!.prepare()
+        } catch (e: IllegalStateException) {
+            Logger.e("IllegalStateException preparing MediaRecorder: " + e.message)
+            stopRecord()
+        } catch (e: IOException) {
+            Logger.e("IOException preparing MediaRecorder: " + e.message)
+            stopRecord()
+        }
+    }
+
+    fun startRecord(){
         mediaRecorder?.start()
     }
 
@@ -207,18 +235,20 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder = null
     }
 
-    fun setCameraParameters(width: Int, height: Int, holder: SurfaceHolder) {
+    fun setCameraParameters(width: Int, height: Int) {
         holder.setFixedSize(width, height)//照片的大小
-        var parameters = camera?.getParameters() // 获取相机参数
+        val parameters = camera!!.getParameters() // 获取相机参数
         parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
         parameters?.setPreviewSize(width, height) // 设置预览大小
         parameters?.setPictureSize(width, height) // 设置保存的图片尺寸
-        parameters?.setPreviewFpsRange(4, 10)//fps
+//        parameters?.setPreviewFpsRange(4, 10)//fps
         parameters?.setJpegQuality(100) // 设置照片质量
         parameters?.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
 //        parameters?.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
 //        camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
         camera?.setParameters(parameters)
+        Logger.e(camera!!.parameters.previewSize.width.toString() + "--->" + camera!!.parameters.previewSize.height)
+        Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->" + camera!!.parameters.pictureSize.height)
     }
 
 
@@ -228,8 +258,13 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         camera = null
     }
 
+
     fun getCamera() {
         if (camera == null)
             camera = Camera.open(currentCameraFacing)
+    }
+
+    fun destroy() {
+        toastUtils?.destroy()
     }
 }
