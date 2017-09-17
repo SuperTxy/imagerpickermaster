@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat
 import android.view.MotionEvent
 import android.view.View
 import com.example.apple.glidetest.R
+import com.example.apple.glidetest.RecordMediaActivity
 import com.orhanobut.logger.Logger
 import kotlinx.android.synthetic.main.slide_view.view.*
 
@@ -40,6 +41,9 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
                 startAnim(rightPos, leftPos)
                 isRedLeft = true
                 switchStatus()
+                if (view.context is RecordMediaActivity){
+                    (view.context  as RecordMediaActivity).changeMediaType(isRedLeft)
+                }
             }
         }
         view.tvVideo.setOnClickListener {
@@ -47,6 +51,9 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
                 startAnim(leftPos, rightPos)
                 isRedLeft = false
                 switchStatus()
+                if (view.context is RecordMediaActivity){
+                    (view.context  as RecordMediaActivity).changeMediaType(isRedLeft)
+                }
             }
         }
         view.llSlide.setOnTouchListener(this)
@@ -117,7 +124,6 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
     }
 
     fun switchStatus() {
-        view.viewRed.visibility = View.VISIBLE
         view.tvCamera.visibility = View.VISIBLE
         view.tvVideo.visibility = View.VISIBLE
         view.tvCamera.paint.textSize = selectedDimen(isRedLeft)
@@ -128,6 +134,7 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
         view.tvVideo.invalidate()
         val pos = if (isRedLeft) leftPos else rightPos
         view.viewRed.layout(pos - halfRedWidth, view.viewRed.top, pos + halfRedWidth, view.viewRed.bottom)
+        view.viewRed.visibility = View.VISIBLE
     }
 
     override fun onAnimationStart(animation: Animator?) {
@@ -153,9 +160,8 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
         else Color.WHITE
     }
 
-
     fun finish() {
-        view.viewRed.visibility = View.GONE
+        view.viewRed.visibility = View.INVISIBLE
         view.tvCamera.visibility = if (isRedLeft) View.VISIBLE else View.GONE
         view.tvVideo.visibility = if (!isRedLeft) View.VISIBLE else View.GONE
         val tv = if (isRedLeft) view.tvCamera else view.tvVideo

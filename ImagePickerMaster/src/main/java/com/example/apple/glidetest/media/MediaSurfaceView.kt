@@ -224,15 +224,17 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 //        mediaRecorder?.start()
 //    }
 
-    fun stopRecord() {
+    fun stopRecord(fail: Boolean) {
         Logger.d("------>stopRecord")
         mediaRecorder?.stop()
         mediaRecorder?.release()
         mediaRecorder = null
-        context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
-        media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.VID)
-        media!!.date = System.currentTimeMillis().toString()
-        media!!.size = surfaceView!!.mediaFile!!.length().toString()
+        if (!fail) {
+            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
+            media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.VID)
+            media!!.date = System.currentTimeMillis().toString()
+            media!!.size = surfaceView!!.mediaFile!!.length().toString()
+        }
 
     }
 
@@ -248,8 +250,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 ////        parameters?.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
 ////        camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
         camera?.setParameters(parameters)
-//        Logger.e(camera!!.parameters.previewSize.width.toString() + "--->" + camera!!.parameters.previewSize.height)
-//        Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->" + camera!!.parameters.pictureSize.height)
     }
 
 

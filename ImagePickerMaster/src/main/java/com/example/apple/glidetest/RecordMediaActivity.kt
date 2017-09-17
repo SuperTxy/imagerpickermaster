@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.slide_view.*
 
 class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
-    private var isCamera: Boolean = false
+    var isCamera: Boolean = false
     private var slideHolder: SlideHolder? = null
 
     companion object {
@@ -65,11 +65,11 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         }
     }
 
-    override fun onRecordFinish(isCamera: Boolean) {
+    override fun onRecordFinish(isFail: Boolean) {
         if (isCamera) {
             surfaceView.takePicture(ivPreview)
         } else {
-            surfaceView.stopRecord()
+            surfaceView.stopRecord(isFail)
             videoView.media = surfaceView.media
             videoView.play(surfaceView!!.mediaFile!!.absolutePath,true)
         }
@@ -80,8 +80,8 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
     fun initListener() {
         tvBack.setOnClickListener {
-            resetView(false)
             slideHolder?.switchStatus()
+            resetView(false)
         }
         tvCancel.setOnClickListener {
             val mediaFile = surfaceView.mediaFile
@@ -104,7 +104,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
 
-    private fun changeMediaType(isCamera: Boolean) {
+     fun changeMediaType(isCamera: Boolean) {
         this.isCamera = isCamera
         btnRecord.isCamera = isCamera
         slideHolder!!.isRedLeft = isCamera

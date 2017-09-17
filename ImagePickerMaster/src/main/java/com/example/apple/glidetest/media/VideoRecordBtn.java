@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -31,8 +32,8 @@ public class VideoRecordBtn extends View {
     /**
      * 最长录制时间10s
      */
-    private long MAX_RECORD_TIME = 12050;
-    private long MIN_RECORD_TIME = 1000;
+    private long MAX_RECORD_TIME = 14050;
+    private long MIN_RECORD_TIME = 3000;
     private boolean isPressed = false;
     /**
      * true代表拍照，false代表录制
@@ -105,8 +106,9 @@ public class VideoRecordBtn extends View {
             case MotionEvent.ACTION_CANCEL:
                 if (!isCamera)
                     release(System.currentTimeMillis() - downTime < MIN_RECORD_TIME);
-                else if (listener != null)
-                    listener.onRecordFinish(true);
+                else if (listener != null) {
+                    listener.onRecordFinish(false);
+                }
                 break;
         }
         return true;
@@ -127,6 +129,12 @@ public class VideoRecordBtn extends View {
         invalidate();
         if (recordFail) {
             toastUtils.toast(getContext().getString(R.string.record_time_is_too_short));
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onRecordFinish(true);
+                }
+            },1000);
         } else if (listener != null)
             listener.onRecordFinish(false);
     }
@@ -182,7 +190,7 @@ public class VideoRecordBtn extends View {
     }
 
     public interface OnRecordListener {
-        void onRecordFinish(boolean isCamera);
+        void onRecordFinish(boolean isFail);
 
         void onRecordStart(boolean isCamera);
     }

@@ -31,8 +31,8 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     private var position: Int = 0
     private var isPlaying = false
     private var toastUtils: ToastUtils? = null
-    var media:Media?=null
-    private var isRepeat:Boolean = false
+    var media: Media? = null
+    private var isRepeat: Boolean = false
 
     constructor(context: Context) : this(context, null) {}
 
@@ -59,7 +59,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         }
     }
 
-    fun play(dataResource: String,isRepeat:Boolean = false) {
+    fun play(dataResource: String, isRepeat: Boolean = false) {
         this.isRepeat = isRepeat
         if (!TextUtils.equals(dataResource, this.dataResource)) {
             this.dataResource = dataResource
@@ -80,15 +80,17 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         }
         ivPlaySmall.isSelected = true
         player!!.start()
-        Thread {
-            isPlaying = true
-            while (isPlaying) {
-                if (player != null) {
-                    seekBar.progress = player!!.currentPosition
-                    Thread.sleep(500)
+        if (!isRepeat) {
+            Thread {
+                isPlaying = true
+                while (isPlaying) {
+                    if (player != null) {
+                        seekBar.progress = player!!.currentPosition
+                        Thread.sleep(500)
+                    }
                 }
-            }
-        }.start()
+            }.start()
+        }
     }
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
@@ -99,7 +101,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     }
 
     override fun onPrepared(mp: MediaPlayer?) {
-        Logger.d("mediaplayer   onPrepared------------"+player!!.duration)
+        Logger.d("mediaplayer   onPrepared------------" + player!!.duration)
         resetView()
         view!!.seekBar.max = player!!.duration
         view!!.tvTotal.text = mills2Duration(player!!.duration.toLong())
@@ -121,7 +123,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
             resetView()
             listener?.onFinish()
             isPlaying = false
-        }else {
+        } else {
             player?.start()
         }
     }

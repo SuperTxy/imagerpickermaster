@@ -4,9 +4,6 @@ import android.Manifest
 import android.app.Activity
 import android.content.ComponentCallbacks2
 import android.content.Intent
-import android.media.MediaMetadataRetriever
-import android.media.MediaScannerConnection
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
@@ -23,7 +20,6 @@ import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.isGif
 import com.example.apple.glidetest.utils.mills2Duration
 import com.orhanobut.logger.Logger
-import com.txy.androidutils.FileUtils
 import com.txy.androidutils.PermissionUtils
 import java.io.File
 import java.util.*
@@ -127,41 +123,12 @@ abstract class PickerBaseActivity : Activity(), Observer {
             }
             allFolder?.addMedia(media)
             if (videoFolder == null) {
-                videoFolder = Folder("video", "所有视频")
+                videoFolder = Folder("video", "所有视频",media)
                 folderProvider!!.addFolder(videoFolder)
             }
             videoFolder.addMedia(media)
         }
         cursor.close()
-//        scanCameraVideos()
-    }
-
-    private fun scanCameraVideos() {
-        val files = FileUtils.getFileDir(this).listFiles()
-        for (it in files) {
-            if (it.isFile && it.absolutePath.endsWith(".mp4")) {
-                MediaScannerConnection.scanFile(this,
-                        arrayOf(it.absolutePath),
-                        arrayOf(),
-                        object : MediaScannerConnection.OnScanCompletedListener {
-                            override fun onScanCompleted(path: String?, uri: Uri?) {
-                                Logger.e("扫描完成")
-                                val retriever = MediaMetadataRetriever()
-                                retriever.setDataSource(this@PickerBaseActivity, uri)
-                                val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                                val date = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DATE)
-                                val width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
-                                val height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
-                                val media = Media(date, it.absolutePath, it.length().toString(), Media.MediaType.VID, duration)
-                                media.width = width
-                                media.height = height
-//                val media = Media(null, it.absolutePath, null, Media.MediaType.VID)
-                                folderProvider!!.getFolderByDir("video")!!.addMedia(media)
-                                folderProvider!!.allFolder!!.addMedia(media)
-                            }
-                        })
-            }
-        }
     }
 
     private fun loadImages() {
