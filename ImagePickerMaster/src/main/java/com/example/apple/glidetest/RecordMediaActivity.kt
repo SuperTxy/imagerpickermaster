@@ -5,8 +5,8 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Bundle
 import android.view.View
-import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.media.SizeUtils
+import com.example.apple.glidetest.media.SlideHolder
 import com.example.apple.glidetest.media.VideoRecordBtn
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.slide_view.*
 class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
     private var isCamera: Boolean = false
-    private var media: Media? = null
+    private var slideHolder: SlideHolder? = null
 
     companion object {
         fun startForResult(context: Activity, isCamera: Boolean) {
@@ -30,11 +30,13 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_record_media)
+        val view = View.inflate(this, R.layout.activity_record_media, null)
+        setContentView(view)
         StatusBarUtil.setStatusBarColorBlack(this)
         window.setFormat(PixelFormat.TRANSLUCENT)
         btnRecord.setOnRecordListener(this)
         isCamera = intent.getBooleanExtra(PickerSettings.IS_CAMERA, true)
+        slideHolder = SlideHolder(view)
         changeMediaType(isCamera)
         initListener()
         initSurface()
@@ -66,34 +68,29 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     override fun onRecordFinish(isCamera: Boolean) {
         if (isCamera) {
             surfaceView.takePicture(ivPreview)
-//            media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.IMG)
         } else {
-            media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.VID)
-            videoView.media = media
-            videoView.play(surfaceView!!.mediaFile!!.absolutePath)
             surfaceView.stopRecord()
+            videoView.media = surfaceView.media
+            videoView.play(surfaceView!!.mediaFile!!.absolutePath)
         }
-        media!!.date = System.currentTimeMillis().toString()
-        media!!.size = surfaceView!!.mediaFile!!.length().toString()
         resetView(true)
     }
 
 
     fun initListener() {
-
         tvBack.setOnClickListener {
             resetView(false)
 //            TODO()d
         }
         tvCancel.setOnClickListener {
             val mediaFile = surfaceView.mediaFile
-            if (mediaFile !=null && mediaFile.exists()){
+            if (mediaFile != null && mediaFile.exists()) {
                 mediaFile.delete()
             }
             finish()
         }
         tvOk.setOnClickListener {
-            intent.putExtra(PickerSettings.RESULT, media)
+            intent.putExtra(PickerSettings.RESULT, surfaceView.media!!)
             setResult(RESULT_OK, intent)
             finish()
         }
@@ -109,7 +106,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     private fun changeMediaType(isCamera: Boolean) {
         this.isCamera = isCamera
         btnRecord.isCamera = isCamera
-        slideView.isRedLeft = isCamera
+        slideHolder!!.isRedLeft = isCamera
         surfaceView.isCamera = isCamera
         surfaceView.setFlashMode(ivFlash)
     }

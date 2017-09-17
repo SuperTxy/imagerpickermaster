@@ -18,6 +18,7 @@ import android.view.SurfaceView
 import android.view.View
 import android.widget.ImageView
 import com.example.apple.glidetest.R
+import com.example.apple.glidetest.bean.Media
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.FileUtils
 import com.txy.androidutils.ToastUtils
@@ -39,27 +40,24 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var currentCameraFacing = Camera.CameraInfo.CAMERA_FACING_BACK
     private var cameraFlashType = Camera.Parameters.FLASH_MODE_AUTO
     private var videoFlashType = Camera.Parameters.FLASH_MODE_OFF
+     var media: Media? = null
+
     var isCamera: Boolean = false
-    set(value) {
-        if (!value){
-            initMediaRecorder()
-        }
-    }
     var ivPreview: ImageView? = null
     private var toastUtils: ToastUtils? = null
     private var camera2Helper: Camera2Helper? = null
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-            Logger.d("surfaceChanged---->" + width + "--->" + height)
             val size = SizeUtils(camera!!).getConsistentSize(context)
-            setCameraParameters(size.width,size.height)
+            setCameraParameters(size.width, size.height)
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
             Logger.d("surfaceDestroyed---->")
 //            releaseCamera()
-            stopRecord()
+            mediaRecorder?.release()
+            mediaRecorder = null
         }
 
         override fun surfaceCreated(holder: SurfaceHolder?) {
@@ -114,17 +112,11 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun takePicture(iv: ImageView) {
-//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-//            camera2Helper!!.takePicture()
-//        }
-        Logger.e("onPictureTaken-->")
         camera!!.takePicture(null, null, object : Camera.PictureCallback {
             override fun onPictureTaken(data: ByteArray?, camera: Camera?) {
                 Logger.e("onPictureTaken-->" + data + camera)
                 mediaFile = FileUtils.createIMGFile(context)
                 val fos = FileOutputStream(mediaFile)
-//                fos.write(data)
-//                fos.close()
                 val matrix = Matrix()
                 if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK) {
                     matrix.setRotate(90f)
@@ -140,6 +132,9 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 iv.setImageURI(Uri.fromFile(mediaFile))
                 camera?.startPreview()
                 context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
+                media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.IMG)
+                media!!.date = System.currentTimeMillis().toString()
+                media!!.size = surfaceView!!.mediaFile!!.length().toString()
             }
         })
     }
@@ -191,7 +186,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         Logger.e(camera!!.parameters.flashMode.toString())
     }
 
-    fun initMediaRecorder() {
+    fun startRecord() {
         Logger.d("initMediaRecorder")
 //        camera!!.unlock()
         mediaFile = FileUtils.createVIDFile(context)
@@ -201,7 +196,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
         mediaRecorder?.setVideoSource(MediaRecorder.VideoSource.CAMERA)
 //        设置视频输出格式和编码
-        mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_480P))
+        mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_720P))
         mediaRecorder?.setOrientationHint(90)
 
 //        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -209,46 +204,48 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 //        mediaRecorder?.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
 //        mediaRecorder?.setVideoFrameRate(4)
 //        val size = cameraHelper.size
-//        mediaRecorder?.setVideoSize(size!!.width,size.height)
-//        mediaRecorder?.setMaxDuration(12000)
+//        mediaRecorder?.setVideoSize(camera!!.parameters.previewSize.width,camera!!.parameters.previewSize.height)
+        mediaRecorder?.setMaxDuration(12000)
         mediaRecorder?.setOutputFile(mediaFile!!.getAbsolutePath())
-//        mediaRecorder?.setPreviewDisplay(holder.surface)
+        mediaRecorder?.setPreviewDisplay(holder.surface)
         try {
             mediaRecorder!!.prepare()
         } catch (e: IllegalStateException) {
             Logger.e("IllegalStateException preparing MediaRecorder: " + e.message)
-            stopRecord()
+            mediaRecorder?.release()
         } catch (e: IOException) {
             Logger.e("IOException preparing MediaRecorder: " + e.message)
-            stopRecord()
+            mediaRecorder?.release()
         }
-    }
-
-    fun startRecord(){
         mediaRecorder?.start()
     }
 
+//    fun startRecord() {
+//        mediaRecorder?.start()
+//    }
+
     fun stopRecord() {
-        Logger.d("MediaRecorderHelper------>stopRecord")
+        Logger.d("------>stopRecord")
         mediaRecorder?.stop()
         mediaRecorder?.release()
         mediaRecorder = null
+        media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.VID)
     }
 
     fun setCameraParameters(width: Int, height: Int) {
-        holder.setFixedSize(width, height)//照片的大小
+//        holder.setFixedSize(width, height)//照片的大小
         val parameters = camera!!.getParameters() // 获取相机参数
         parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
-        parameters?.setPreviewSize(width, height) // 设置预览大小
-        parameters?.setPictureSize(width, height) // 设置保存的图片尺寸
-//        parameters?.setPreviewFpsRange(4, 10)//fps
-        parameters?.setJpegQuality(100) // 设置照片质量
+//        parameters?.setPreviewSize(width, height) // 设置预览大小
+//        parameters?.setPictureSize(width, height) // 设置保存的图片尺寸
+////        parameters?.setPreviewFpsRange(4, 10)//fps
+//        parameters?.setJpegQuality(100) // 设置照片质量
         parameters?.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
-//        parameters?.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
-//        camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
+////        parameters?.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
+////        camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
         camera?.setParameters(parameters)
-        Logger.e(camera!!.parameters.previewSize.width.toString() + "--->" + camera!!.parameters.previewSize.height)
-        Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->" + camera!!.parameters.pictureSize.height)
+//        Logger.e(camera!!.parameters.previewSize.width.toString() + "--->" + camera!!.parameters.previewSize.height)
+//        Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->" + camera!!.parameters.pictureSize.height)
     }
 
 

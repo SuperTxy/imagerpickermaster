@@ -97,13 +97,13 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     }
 
     override fun onPrepared(mp: MediaPlayer?) {
-        Logger.d("mediaplayer   onPrepared------------")
+        Logger.d("mediaplayer   onPrepared------------"+player!!.duration)
         resetView()
         view!!.seekBar.max = player!!.duration
         view!!.tvTotal.text = mills2Duration(player!!.duration.toLong())
-        media!!.duration = player!!.duration.toString()
-        media!!.width = player!!.videoWidth.toString()
-        media!!.height = player!!.videoHeight.toString()
+        media?.duration = player!!.duration.toString()
+        media?.width = player!!.videoWidth.toString()
+        media?.height = player!!.videoHeight.toString()
     }
 
     private fun resetView() {

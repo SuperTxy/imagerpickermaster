@@ -26,7 +26,6 @@ class SizeUtils(private val camera: Camera) {
             }
         }
         PreferenceManager.getDefaultSharedPreferences(context).edit().putInt("width", size!!.width).putInt("height", size!!.height).apply()
-        Logger.e("size====" + size!!.width +"---->"+size!!.height)
         return size!!
     }
 

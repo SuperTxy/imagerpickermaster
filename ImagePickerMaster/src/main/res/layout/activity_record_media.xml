@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="#000"
     android:orientation="vertical"
     tools:context="com.example.apple.glidetest.RecordMediaActivity">
 
@@ -13,6 +14,7 @@
         android:layout_height="match_parent" />
 
     <ImageView
+        android:background="#000"
         android:id="@+id/ivPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -53,16 +55,17 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="130dp"
+        android:layout_height="150dp"
         android:layout_gravity="bottom"
         android:background="#000">
 
-        <com.example.apple.glidetest.media.SlideView
-            android:id="@+id/slideView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="10dp"
-            android:paddingTop="10dp" />
+        <!--<com.example.apple.glidetest.media.SlideView-->
+            <!--android:id="@+id/slideView"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:paddingBottom="10dp"-->
+            <!--android:paddingTop="10dp" />-->
+        <include layout="@layout/slide_view" />
 
         <com.example.apple.glidetest.media.VideoRecordBtn
             android:id="@+id/btnRecord"
