@@ -229,9 +229,11 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.stop()
         mediaRecorder?.release()
         mediaRecorder = null
+        context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
         media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.VID)
         media!!.date = System.currentTimeMillis().toString()
         media!!.size = surfaceView!!.mediaFile!!.length().toString()
+
     }
 
     fun setCameraParameters(width: Int, height: Int) {

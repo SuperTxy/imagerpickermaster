@@ -60,7 +60,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         if (!isCamera) {
             videoView.visibility = View.GONE
             ivPreview.visibility = View.GONE
-            surfaceView.visibility = View.VISIBLE
+//            surfaceView.visibility = View.VISIBLE
             surfaceView.startRecord()
         }
     }
@@ -81,7 +81,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     fun initListener() {
         tvBack.setOnClickListener {
             resetView(false)
-//            TODO()d
+            slideHolder?.switchStatus()
         }
         tvCancel.setOnClickListener {
             val mediaFile = surfaceView.mediaFile
@@ -120,7 +120,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         tvOk.visibility = if (!isFinish) View.GONE else View.VISIBLE
         tvCamera.visibility = if (btnRecord.isCamera || (!btnRecord.isCamera && !isFinish)) View.VISIBLE else View.GONE
         videoView.visibility = if (isFinish && !isCamera) View.VISIBLE else View.GONE
-        surfaceView.visibility = if (isFinish) View.INVISIBLE else View.VISIBLE
+//        surfaceView.visibility = if (isFinish) View.INVISIBLE else View.VISIBLE
     }
 
 

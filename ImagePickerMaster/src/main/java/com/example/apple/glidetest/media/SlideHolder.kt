@@ -33,8 +33,6 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
                 halfRedWidth = view.viewRed.width / 2
                 Logger.e(leftPos.toString() + "------->" + rightPos.toString() + "---->" + halfRedWidth)
                 switchStatus()
-                val pos = if (isRedLeft) leftPos else rightPos
-                view.viewRed.layout(pos - halfRedWidth, view.viewRed.top, pos + halfRedWidth, view.viewRed.bottom)
             }
         }
         view.tvCamera.setOnClickListener {
@@ -62,7 +60,7 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
                 Logger.d("ACTION_DOWN" + downX)
             }
             MotionEvent.ACTION_MOVE -> {
-                val offsetX =   lastX - event.rawX
+                val offsetX = lastX - event.rawX
                 if ((offsetX < 0 && !isRedLeft) || (offsetX > 0 && isRedLeft)) {
                     move(offsetX.toInt())
                     lastX = event.rawX
@@ -118,13 +116,18 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
         switchStatus()
     }
 
-    private fun switchStatus() {
+    fun switchStatus() {
+        view.viewRed.visibility = View.VISIBLE
+        view.tvCamera.visibility = View.VISIBLE
+        view.tvVideo.visibility = View.VISIBLE
         view.tvCamera.paint.textSize = selectedDimen(isRedLeft)
         view.tvVideo.paint.textSize = selectedDimen(!isRedLeft)
         view.tvCamera.setTextColor(selectedColor(isRedLeft))
         view.tvVideo.setTextColor(selectedColor(!isRedLeft))
         view.tvCamera.invalidate()
         view.tvVideo.invalidate()
+        val pos = if (isRedLeft) leftPos else rightPos
+        view.viewRed.layout(pos - halfRedWidth, view.viewRed.top, pos + halfRedWidth, view.viewRed.bottom)
     }
 
     override fun onAnimationStart(animation: Animator?) {
@@ -151,7 +154,7 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
     }
 
 
-    fun finish(){
+    fun finish() {
         view.viewRed.visibility = View.GONE
         view.tvCamera.visibility = if (isRedLeft) View.VISIBLE else View.GONE
         view.tvVideo.visibility = if (!isRedLeft) View.VISIBLE else View.GONE
