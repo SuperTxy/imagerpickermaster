@@ -71,9 +71,10 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         } else {
             surfaceView.stopRecord()
             videoView.media = surfaceView.media
-            videoView.play(surfaceView!!.mediaFile!!.absolutePath)
+            videoView.play(surfaceView!!.mediaFile!!.absolutePath,true)
         }
         resetView(true)
+        slideHolder?.finish()
     }
 
 

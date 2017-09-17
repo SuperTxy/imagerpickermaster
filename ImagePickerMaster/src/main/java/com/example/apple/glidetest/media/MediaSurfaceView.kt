@@ -188,7 +188,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun startRecord() {
         Logger.d("initMediaRecorder")
-//        camera!!.unlock()
+        camera!!.unlock()
         mediaFile = FileUtils.createVIDFile(context)
         mediaRecorder = MediaRecorder()
         mediaRecorder?.reset()
@@ -230,6 +230,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.release()
         mediaRecorder = null
         media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.VID)
+        media!!.date = System.currentTimeMillis().toString()
+        media!!.size = surfaceView!!.mediaFile!!.length().toString()
     }
 
     fun setCameraParameters(width: Int, height: Int) {

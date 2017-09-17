@@ -2,6 +2,7 @@ package com.example.apple.glidetest.media
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.view.MotionEvent
@@ -35,7 +36,6 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
                 val pos = if (isRedLeft) leftPos else rightPos
                 view.viewRed.layout(pos - halfRedWidth, view.viewRed.top, pos + halfRedWidth, view.viewRed.bottom)
             }
-            Logger.e(left.toString() + "-->" + top + "--->" + bottom + "-->")
         }
         view.tvCamera.setOnClickListener {
             if (!isRedLeft) {
@@ -62,8 +62,8 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
                 Logger.d("ACTION_DOWN" + downX)
             }
             MotionEvent.ACTION_MOVE -> {
-                val offsetX = event.rawX - lastX
-                if ((offsetX < 0 && isRedLeft) || (offsetX > 0 && !isRedLeft)) {
+                val offsetX =   lastX - event.rawX
+                if ((offsetX < 0 && !isRedLeft) || (offsetX > 0 && isRedLeft)) {
                     move(offsetX.toInt())
                     lastX = event.rawX
                     Logger.d("ACTION_MOVE" + offsetX)
@@ -90,14 +90,21 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
         val animator = ObjectAnimator.ofInt(view.viewRed, "translationX", startX, endX)
         val duration = Math.abs(endX - startX) / (rightPos - leftPos) * 200L
         animator.duration = duration
+        Logger.e(duration.toString())
+        animator.addUpdateListener(object : ValueAnimator.AnimatorUpdateListener {
+            override fun onAnimationUpdate(animation: ValueAnimator?) {
+                Logger.e(animation!!.animatedValue.toString())
+            }
+
+        })
         animator.start()
-        animator.addListener(this)
     }
 
     private fun move(offsetX: Int) {
         var offset = offsetX
         val redCenterPos = view.viewRed.left + halfRedWidth
         if (redCenterPos >= leftPos && redCenterPos <= rightPos) {
+            Logger.e("开始move了")
             if (redCenterPos + offsetX < leftPos)
                 offset = leftPos - redCenterPos
             if (redCenterPos + offsetX > rightPos)
@@ -143,4 +150,12 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
         else Color.WHITE
     }
 
+
+    fun finish(){
+        view.viewRed.visibility = View.GONE
+        view.tvCamera.visibility = if (isRedLeft) View.VISIBLE else View.GONE
+        view.tvVideo.visibility = if (!isRedLeft) View.VISIBLE else View.GONE
+        val tv = if (isRedLeft) view.tvCamera else view.tvVideo
+        tv.setTextColor(Color.WHITE)
+    }
 }

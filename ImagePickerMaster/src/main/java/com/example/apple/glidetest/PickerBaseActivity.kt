@@ -212,6 +212,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
                     if (TextUtils.equals(selectedFolder!!.dir, media.dir) || selectedFolder.name == folderProvider!!.folders.get(0).name) {
                         adapter!!.refresh(selectedFolder.medias)
                     }
+                    Logger.e(media.toString())
                 }
             }
         }

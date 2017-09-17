@@ -32,6 +32,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     private var isPlaying = false
     private var toastUtils: ToastUtils? = null
     var media:Media?=null
+    private var isRepeat:Boolean = false
 
     constructor(context: Context) : this(context, null) {}
 
@@ -58,7 +59,8 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         }
     }
 
-    fun play(dataResource: String) {
+    fun play(dataResource: String,isRepeat:Boolean = false) {
+        this.isRepeat = isRepeat
         if (!TextUtils.equals(dataResource, this.dataResource)) {
             this.dataResource = dataResource
             player!!.reset()
@@ -101,9 +103,10 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         resetView()
         view!!.seekBar.max = player!!.duration
         view!!.tvTotal.text = mills2Duration(player!!.duration.toLong())
-        media?.duration = player!!.duration.toString()
+        media?.duration = mills2Duration(player!!.duration.toLong())
         media?.width = player!!.videoWidth.toString()
         media?.height = player!!.videoHeight.toString()
+        Logger.e(media?.toString())
     }
 
     private fun resetView() {
@@ -113,10 +116,14 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
 
     override fun onCompletion(mp: MediaPlayer?) {
         Logger.d("mediaplayer   onCompletion------------")
-        ivPlaySmall.isSelected = false
-        resetView()
-        listener?.onFinish()
-        isPlaying = false
+        if (!isRepeat) {
+            ivPlaySmall.isSelected = false
+            resetView()
+            listener?.onFinish()
+            isPlaying = false
+        }else {
+            player?.start()
+        }
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {

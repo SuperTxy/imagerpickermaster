@@ -40,6 +40,7 @@ class Media(var date: String?=null, var path: String, var size: String?=null, va
         }
 
     override fun toString(): String {
-        return "date: " + date + "\nsize: " + size + "\npath:" + path + "\nmediaType:" + type
+        return "date: " + date + "\nsize: " + size + "\npath:" + path + "\nmediaType:"+
+                type+"\nduration: "+duration+"\nwidth: "+width+"\nheight: "+height
     }
 }
