@@ -90,7 +90,9 @@ abstract class PickerBaseActivity : Activity(), Observer {
     fun loadMedias() {
         permissionUtils!!.checkStoragePermission(Runnable {
             Thread(Runnable {
-                loadVideos()
+                if (this@PickerBaseActivity is PickerActivity) {
+                    loadVideos()
+                }
                 loadImages()
                 Handler(mainLooper).post {
                     initData()

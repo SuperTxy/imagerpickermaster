@@ -48,7 +48,7 @@ class FolderProvider private constructor() {
     fun clear() {
         folders.clear()
         foldersMap = HashMap<String, Folder>()
-        allFolder = Folder("", "所有图片和视频")
+        allFolder = Folder("", "所有图片")
         selectedFolder = allFolder
         addFolder(selectedFolder!!)
     }
