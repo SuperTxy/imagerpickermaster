@@ -69,7 +69,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         ivPreview.visibility = View.GONE
         Handler().postDelayed(Runnable {
             if (!isCamera)
-                surfaceView.startRecord()
+                surfaceView.startRecord(btnRecord)
         }, 500)
     }
 
@@ -80,7 +80,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
             surfaceView.stopRecord(isFail)
         }
     }
-
 
     private val finishListener = object : MediaSurfaceView.OnMediaFinishListener {
         override fun afterStopRecord(mediaFile: File) {
@@ -136,7 +135,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         }
     }
 
-
     fun changeMediaType(isCamera: Boolean) {
         this.isCamera = isCamera
         btnRecord.isCamera = isCamera
@@ -144,7 +142,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         surfaceView.isCamera = isCamera
         surfaceView.setFlashMode(ivFlash)
     }
-
 
     fun resetView(isFinish: Boolean) {
         tvCancel.visibility = if (isFinish) View.GONE else View.VISIBLE

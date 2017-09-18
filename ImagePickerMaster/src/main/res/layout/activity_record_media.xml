@@ -45,7 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="26dp"
         android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="150dp"
+        android:layout_marginBottom="170dp"
         android:background="@drawable/show_record_toast"
         android:gravity="center"
         android:paddingLeft="15dp"
@@ -95,8 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|right"
-            android:paddingBottom="15dp"
-            android:paddingRight="15dp"
+            android:padding="15dp"
             android:src="@drawable/overturn"
             tools:visibility="visible" />
 

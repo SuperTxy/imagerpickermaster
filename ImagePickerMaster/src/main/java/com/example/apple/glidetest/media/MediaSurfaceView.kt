@@ -96,7 +96,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         })
     }
 
-    fun startRecord() {
+    fun startRecord(btnRecord: VideoRecordBtn) {
         Logger.d("initMediaRecorder")
         camera!!.unlock()
         mediaFile = FileUtils.createVIDFile(context)
@@ -112,7 +112,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 //        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
 //        mediaRecorder?.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
 //        mediaRecorder?.setVideoFrameRate(4)
-//        val size = cameraHelper.size
 //        mediaRecorder?.setVideoSize(camera!!.parameters.previewSize.width,camera!!.parameters.previewSize.height)
 //        mediaRecorder?.setMaxDuration(12000)
         mediaRecorder?.setOutputFile(mediaFile!!.getAbsolutePath())
@@ -127,6 +126,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             mediaRecorder?.release()
         }
         mediaRecorder?.start()
+
     }
 
     fun stopRecord(fail: Boolean) {
