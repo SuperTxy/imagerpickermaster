@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:background="#000"
+    android:fitsSystemWindows="true"
     android:orientation="vertical"
     tools:context="com.example.apple.glidetest.RecordMediaActivity">
 
@@ -14,17 +14,17 @@
         android:layout_height="match_parent" />
 
     <ImageView
-        android:background="#000"
         android:id="@+id/ivPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#000"
         android:visibility="gone" />
 
     <com.example.apple.glidetest.media.VideoView
-        android:visibility="gone"
         android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -59,20 +59,14 @@
         android:layout_gravity="bottom"
         android:background="#000">
 
-        <!--<com.example.apple.glidetest.media.SlideView-->
-            <!--android:id="@+id/slideView"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:paddingBottom="10dp"-->
-            <!--android:paddingTop="10dp" />-->
         <include layout="@layout/slide_view" />
 
         <com.example.apple.glidetest.media.VideoRecordBtn
-            android:layout_marginBottom="10dp"
             android:id="@+id/btnRecord"
             android:layout_width="90dp"
             android:layout_height="90dp"
-            android:layout_gravity="center_horizontal|bottom" />
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="10dp" />
 
         <TextView
             android:id="@+id/tvCancel"
