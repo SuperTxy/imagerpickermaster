@@ -32,7 +32,7 @@ public class VideoRecordBtn extends View {
     /**
      * 最长录制时间10s
      */
-    private long MAX_RECORD_TIME = 14050;
+    private long MAX_RECORD_TIME = 14000;
     private long MIN_RECORD_TIME = 3000;
     private boolean isPressed = false;
     /**

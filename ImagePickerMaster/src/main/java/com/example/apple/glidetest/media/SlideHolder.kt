@@ -106,7 +106,6 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
         var offset = offsetX
         val redCenterPos = view.viewRed.left + halfRedWidth
         if (redCenterPos >= leftPos && redCenterPos <= rightPos) {
-            Logger.e("开始move了")
             if (redCenterPos + offsetX < leftPos)
                 offset = leftPos - redCenterPos
             if (redCenterPos + offsetX > rightPos)

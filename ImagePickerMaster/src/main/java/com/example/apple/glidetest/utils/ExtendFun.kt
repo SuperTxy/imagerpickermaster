@@ -26,6 +26,7 @@ import java.io.File
 //TODO("Glide 4.1.1")
 fun loadImage(media: Media, imageView: ImageView) {
     val options = RequestOptions()
+            .centerCrop()
             .error(R.drawable.default_image)
     if (media.dir.isNullOrEmpty()) {
         Logger.e("此文件不存在！")

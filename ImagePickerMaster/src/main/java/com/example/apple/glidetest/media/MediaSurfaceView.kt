@@ -18,7 +18,6 @@ import android.view.SurfaceView
 import android.view.View
 import android.widget.ImageView
 import com.example.apple.glidetest.R
-import com.example.apple.glidetest.bean.Media
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.FileUtils
 import com.txy.androidutils.ToastUtils
@@ -40,23 +39,20 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var currentCameraFacing = Camera.CameraInfo.CAMERA_FACING_BACK
     private var cameraFlashType = Camera.Parameters.FLASH_MODE_AUTO
     private var videoFlashType = Camera.Parameters.FLASH_MODE_OFF
-    var media: Media? = null
-
     var isCamera: Boolean = false
     var ivPreview: ImageView? = null
     private var toastUtils: ToastUtils? = null
-    private var camera2Helper: Camera2Helper? = null
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-            val size = SizeUtils(camera!!).getConsistentSize(context)
-            setCameraParameters(size.width, size.height)
+            setCameraParameters()
+            Logger.e(camera!!.parameters.previewSize.width.toString() + "--->" + camera!!.parameters.previewSize.height)
+            Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->" + camera!!.parameters.pictureSize.height)
+            Logger.e(camera!!.parameters.focusMode)
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
             Logger.d("surfaceDestroyed---->")
-//            mediaRecorder?.release()
-//            mediaRecorder = null
         }
 
         override fun surfaceCreated(holder: SurfaceHolder?) {
@@ -80,30 +76,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         Logger.d("------>startPreview")
     }
 
-    fun setCameraDisplayOrientation(activity: Activity,
-                                    cameraId: Int, camera: android.hardware.Camera) {
-        val info = android.hardware.Camera.CameraInfo()
-        android.hardware.Camera.getCameraInfo(cameraId, info)
-        val rotation = activity.windowManager.defaultDisplay.rotation
-        var degrees = 0
-        when (rotation) {
-            Surface.ROTATION_0 -> degrees = 0
-            Surface.ROTATION_90 -> degrees = 90
-            Surface.ROTATION_180 -> degrees = 180
-            Surface.ROTATION_270 -> degrees = 270
-        }
-
-        var result: Int
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (info.orientation + degrees) % 360
-            result = (360 - result) % 360  //  compensate the mirror
-        } else {  // back-facing
-            result = (info.orientation - degrees + 360) % 360
-        }
-        camera.setDisplayOrientation(result)
-    }
-
-    fun takePicture(iv: ImageView) {
+    fun takePicture() {
         camera!!.takePicture(null, null, object : Camera.PictureCallback {
             override fun onPictureTaken(data: ByteArray?, camera: Camera?) {
                 Logger.e("onPictureTaken-->" + data + camera)
@@ -120,15 +93,74 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
                 fos.flush()
                 fos.close()
-                iv.visibility = View.VISIBLE
-                iv.setImageURI(Uri.fromFile(mediaFile))
+                listener?.afterTakePicture(mediaFile!!)
                 camera?.stopPreview()
                 context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
-                media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.IMG)
-                media!!.date = System.currentTimeMillis().toString()
-                media!!.size = surfaceView!!.mediaFile!!.length().toString()
             }
         })
+    }
+
+    fun startRecord() {
+        Logger.d("initMediaRecorder")
+        camera!!.unlock()
+        mediaFile = FileUtils.createVIDFile(context)
+        mediaRecorder = MediaRecorder()
+        mediaRecorder?.reset()
+        mediaRecorder?.setCamera(camera)
+        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
+        mediaRecorder?.setVideoSource(MediaRecorder.VideoSource.CAMERA)
+//        设置视频输出格式和编码
+        mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_480P))
+        mediaRecorder?.setOrientationHint(90)
+//        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+//        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
+//        mediaRecorder?.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
+//        mediaRecorder?.setVideoFrameRate(4)
+//        val size = cameraHelper.size
+//        mediaRecorder?.setVideoSize(camera!!.parameters.previewSize.width,camera!!.parameters.previewSize.height)
+//        mediaRecorder?.setMaxDuration(12000)
+        mediaRecorder?.setOutputFile(mediaFile!!.getAbsolutePath())
+        mediaRecorder?.setPreviewDisplay(holder.surface)
+        try {
+            mediaRecorder!!.prepare()
+        } catch (e: IllegalStateException) {
+            Logger.e("IllegalStateException preparing MediaRecorder: " + e.message)
+            mediaRecorder?.release()
+        } catch (e: IOException) {
+            Logger.e("IOException preparing MediaRecorder: " + e.message)
+            mediaRecorder?.release()
+        }
+        mediaRecorder?.start()
+    }
+
+    fun stopRecord(fail: Boolean) {
+        Logger.d("------>stopRecord")
+        camera?.stopPreview()
+        mediaRecorder?.stop()
+        mediaRecorder?.release()
+        mediaRecorder = null
+        if (!fail) {
+            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
+            listener?.afterStopRecord(mediaFile!!)
+        }
+    }
+
+    fun setCameraParameters() {
+//        holder.setFixedSize(width, height)//照片的大小
+        val sizeUtils = SizeUtils(camera!!)
+        val parameters = camera!!.getParameters() // 获取相机参数
+        parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
+        parameters?.setPreviewSize(sizeUtils.previewSize!!.width, sizeUtils.previewSize!!.height) // 设置预览大小
+        parameters?.setPictureSize(sizeUtils.pictureSize!!.width, sizeUtils.pictureSize!!.height) // 设置保存的图片尺寸
+        parameters?.setJpegQuality(100) // 设置照片质量
+        val supportedFocusModes = parameters?.getSupportedFocusModes()
+        if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
+            camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
+        } else {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
+        }
+        camera?.setParameters(parameters)
     }
 
     fun changeCameraFacing(ivFlash: ImageView): Int {
@@ -177,75 +209,39 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         camera!!.parameters = parameters
     }
 
-    fun startRecord() {
-        Logger.d("initMediaRecorder")
-        camera!!.unlock()
-        mediaFile = FileUtils.createVIDFile(context)
-        mediaRecorder = MediaRecorder()
-        mediaRecorder?.reset()
-        mediaRecorder?.setCamera(camera)
-        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
-        mediaRecorder?.setVideoSource(MediaRecorder.VideoSource.CAMERA)
-//        设置视频输出格式和编码
-        mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_720P))
-        mediaRecorder?.setOrientationHint(90)
-
-//        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-//        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
-//        mediaRecorder?.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
-//        mediaRecorder?.setVideoFrameRate(4)
-//        val size = cameraHelper.size
-//        mediaRecorder?.setVideoSize(camera!!.parameters.previewSize.width,camera!!.parameters.previewSize.height)
-        mediaRecorder?.setMaxDuration(12000)
-        mediaRecorder?.setOutputFile(mediaFile!!.getAbsolutePath())
-        mediaRecorder?.setPreviewDisplay(holder.surface)
-        try {
-            mediaRecorder!!.prepare()
-        } catch (e: IllegalStateException) {
-            Logger.e("IllegalStateException preparing MediaRecorder: " + e.message)
-            mediaRecorder?.release()
-        } catch (e: IOException) {
-            Logger.e("IOException preparing MediaRecorder: " + e.message)
-            mediaRecorder?.release()
+    fun setCameraDisplayOrientation(activity: Activity,
+                                    cameraId: Int, camera: android.hardware.Camera) {
+        val info = android.hardware.Camera.CameraInfo()
+        android.hardware.Camera.getCameraInfo(cameraId, info)
+        val rotation = activity.windowManager.defaultDisplay.rotation
+        var degrees = 0
+        when (rotation) {
+            Surface.ROTATION_0 -> degrees = 0
+            Surface.ROTATION_90 -> degrees = 90
+            Surface.ROTATION_180 -> degrees = 180
+            Surface.ROTATION_270 -> degrees = 270
         }
-        mediaRecorder?.start()
-    }
 
-//    fun startRecord() {
-//        mediaRecorder?.start()
-//    }
-
-    fun stopRecord(fail: Boolean, videoView: VideoView) {
-        Logger.d("------>stopRecord")
-        mediaRecorder?.stop()
-        mediaRecorder?.release()
-        camera?.stopPreview()
-        mediaRecorder = null
-        if (!fail) {
-            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
-            media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.VID)
-            media!!.date = System.currentTimeMillis().toString()
-            media!!.size = surfaceView!!.mediaFile!!.length().toString()
-            videoView.media = media
-            videoView.play(surfaceView!!.mediaFile!!.absolutePath, true)
-            Logger.e(media.toString())
+        var result: Int
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360
+            result = (360 - result) % 360  //  compensate the mirror
+        } else {  // back-facing
+            result = (info.orientation - degrees + 360) % 360
         }
+        camera.setDisplayOrientation(result)
     }
 
-    fun setCameraParameters(width: Int, height: Int) {
-//        holder.setFixedSize(width, height)//照片的大小
-        val parameters = camera!!.getParameters() // 获取相机参数
-        parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
-//        parameters?.setPreviewSize(width, height) // 设置预览大小
-//        parameters?.setPictureSize(width, height) // 设置保存的图片尺寸
-////        parameters?.setPreviewFpsRange(4, 10)//fps
-//        parameters?.setJpegQuality(100) // 设置照片质量
-        parameters?.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
-////        parameters?.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
-////        camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
-        camera?.setParameters(parameters)
+    interface OnMediaFinishListener {
+        fun afterTakePicture(mediaFile: File)
+        fun afterStopRecord(mediaFile: File)
     }
 
+    private var listener: OnMediaFinishListener? = null
+
+    fun setOnMediaFinishListener(listener: OnMediaFinishListener) {
+        this.listener = listener
+    }
 
     fun releaseCamera() {
         camera?.stopPreview()
@@ -261,5 +257,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun destroy() {
         toastUtils?.destroy()
+        releaseCamera()
+        mediaRecorder?.release()
+        mediaRecorder = null
     }
 }
