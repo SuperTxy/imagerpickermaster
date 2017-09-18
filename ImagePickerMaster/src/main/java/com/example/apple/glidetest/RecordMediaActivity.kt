@@ -109,6 +109,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         surfaceView.setOnMediaFinishListener(finishListener)
         tvBack.setOnClickListener {
             slideHolder?.switchStatus()
+            slideHolder?.isFinish = false
             resetView(false)
         }
         tvCancel.setOnClickListener {

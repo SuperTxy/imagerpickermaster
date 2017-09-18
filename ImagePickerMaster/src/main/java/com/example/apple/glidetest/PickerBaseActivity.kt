@@ -115,7 +115,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
             val width = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.WIDTH))
             val height = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.HEIGHT))
             if (!File(path).exists()) continue
-            val media = Media(date, path, size, Media.MediaType.VID, mills2Duration(duration.toLong()))
+            val media = Media(date, path, size, Media.MediaType.VID, duration.toLong())
             media.width = width
             media.height = height
             if (allFolder?.firstMedia == null) {
@@ -123,7 +123,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
             }
             allFolder?.addMedia(media)
             if (videoFolder == null) {
-                videoFolder = Folder("video", "所有视频",media)
+                videoFolder = Folder("video", "所有视频", media)
                 folderProvider!!.addFolder(videoFolder)
             }
             videoFolder.addMedia(media)

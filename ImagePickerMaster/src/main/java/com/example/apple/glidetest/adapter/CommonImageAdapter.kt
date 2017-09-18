@@ -68,7 +68,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<Media>,
             holder.itemView.ivVideo.visibility = if (media.isVideo) View.VISIBLE else View.GONE
             if (media.isVideo) {
                 tvDuration.visibility = View.VISIBLE
-                tvDuration.text = media.duration
+                tvDuration.text = media.durationStr
             } else tvDuration.visibility = View.INVISIBLE
             tvDuration.visibility = if (media.isVideo) View.VISIBLE else View.INVISIBLE
             tvDuration.text
@@ -81,6 +81,14 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<Media>,
                 }
                 if (selectImageProvider.damageMedias.contains(media) && !cbSelected.isSelected) {
                     toastUtils?.toast("此图片文件已损坏！")
+                    return@setOnClickListener
+                }
+                if (media.isVideo && media.isDurationlarge12 ){
+                    toastUtils?.toast("视频限定时长12秒！")
+                    return@setOnClickListener
+                }
+                if (media.isVideo && media.isSizeLarge3M){
+                    toastUtils?.toast("视频大小超过限制！")
                     return@setOnClickListener
                 }
                 handleSelected(!cbSelected.isSelected, holder, media)

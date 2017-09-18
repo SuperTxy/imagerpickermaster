@@ -105,7 +105,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         resetView()
         view!!.seekBar.max = player!!.duration
         view!!.tvTotal.text = mills2Duration(player!!.duration.toLong())
-        media?.duration = mills2Duration(player!!.duration.toLong())
+        media?.duration = player!!.duration.toLong()
         media?.width = player!!.videoWidth.toString()
         media?.height = player!!.videoHeight.toString()
         Logger.e(media?.toString())

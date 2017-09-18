@@ -1,5 +1,6 @@
 package com.example.apple.glidetest.bean
 
+import com.example.apple.glidetest.utils.mills2Duration
 import java.io.File
 import java.io.Serializable
 
@@ -7,7 +8,9 @@ import java.io.Serializable
  * Created by Apple on 17/9/11.
  */
 
-class Media(var date: String?=null, var path: String, var size: String?=null, var type: MediaType, var duration: String = "0:00") : Serializable {
+class Media(var date: String? = null, var path: String, var size: String? = null, var type: MediaType, var duration: Long = 0L)
+    : Serializable {
+
     var dir: String = ""
         get() {
             if (File(path).exists())
@@ -38,9 +41,27 @@ class Media(var date: String?=null, var path: String, var size: String?=null, va
         get() {
             return type == MediaType.GIF
         }
+    var durationStr: String = "00:00"
+        get() {
+            if (duration == 0L) return "00:00"
+            else return mills2Duration(duration)
+        }
+    var isDurationlarge12: Boolean = false
+        get() {
+            if (isVideo) {
+                return duration >= 13 * 1000
+            } else return false
+        }
+    var isSizeLarge3M: Boolean = false
+        get() {
+            if (size!= null) {
+                return size!!.toLong() >= 4 * 1024 * 1024
+            }
+            return false
+        }
 
     override fun toString(): String {
-        return "date: " + date + "\nsize: " + size + "\npath:" + path + "\nmediaType:"+
-                type+"\nduration: "+duration+"\nwidth: "+width+"\nheight: "+height
+        return "date: " + date + "\nsize: " + size + "\npath:" + path + "\nmediaType:" +
+                type + "\nduration: " + duration + "\nwidth: " + width + "\nheight: " + height
     }
 }
