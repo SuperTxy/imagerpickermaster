@@ -18,7 +18,6 @@ import com.example.apple.glidetest.provider.FolderProvider
 import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.isGif
-import com.example.apple.glidetest.utils.mills2Duration
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.PermissionUtils
 import java.io.File
@@ -59,7 +58,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         permissionUtils = PermissionUtils(this)
         imageProvider!!.addObserver(this)
         folderProvider!!.clear()
-        initialSelect = intent.getSerializableExtra(PickerSettings.INITIAL_SELECT) as ArrayList<Media>
+        initialSelect = intent.getSerializableExtra(PickerSettings.INITIAL_SELECT) as ArrayList<Media>?
         if (savedInstanceState == null) {
             imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 0)
             imageProvider!!.setSelect(initialSelect)
