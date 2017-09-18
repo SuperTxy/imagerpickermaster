@@ -3,7 +3,6 @@ package com.example.apple.glidetest.media
 import android.content.Context
 import android.hardware.Camera
 import android.preference.PreferenceManager
-import com.orhanobut.logger.Logger
 
 /**
  * Created by Apple on 17/9/16.
@@ -30,7 +29,7 @@ class SizeUtils(private val camera: Camera) {
     }
 
     private fun isSizeSuit(): Boolean {
-        Logger.d(size!!.width.toString() + "-->" + size!!.height)
+//        Logger.d(size!!.width.toString() + "-->" + size!!.height)
         return containsSize(previewSizes!!) && containsSize(pictureSizes!!) && containsSize(videoSizes!!)
     }
 

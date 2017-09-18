@@ -10,7 +10,6 @@ import com.example.apple.glidetest.media.SlideHolder
 import com.example.apple.glidetest.media.VideoRecordBtn
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
-import com.orhanobut.logger.Logger
 import com.txy.androidutils.ScreenUtils
 import kotlinx.android.synthetic.main.activity_record_media.*
 import kotlinx.android.synthetic.main.slide_view.*
@@ -46,35 +45,33 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     private fun initSurface() {
         surfaceView.ivPreview = ivPreview
         ivSwitch.visibility = if (surfaceView!!.camerasCount > 1) View.VISIBLE else View.GONE
-        Logger.e(surfaceView.width.toString() + "--->" + surfaceView.height)
         val screenWidth = ScreenUtils.getScreenWidth(this)
         val size = SizeUtils(surfaceView.camera!!).getConsistentSize(this)
         val params = surfaceView.layoutParams
         params.height = screenWidth * size.height / size.width
         params.width = screenWidth
         surfaceView.layoutParams = params
-        Logger.e(surfaceView.width.toString() + "--->" + surfaceView.height)
     }
 
     override fun onRecordStart(isCamera: Boolean) {
         if (!isCamera) {
             videoView.visibility = View.GONE
-            ivPreview.visibility = View.GONE
-//            surfaceView.visibility = View.VISIBLE
             surfaceView.startRecord()
-        }
+        } else
+            ivPreview.visibility = View.GONE
+        surfaceView.visibility = View.VISIBLE
     }
 
     override fun onRecordFinish(isFail: Boolean) {
         if (isCamera) {
             surfaceView.takePicture(ivPreview)
         } else {
-            surfaceView.stopRecord(isFail)
-            videoView.media = surfaceView.media
-            videoView.play(surfaceView!!.mediaFile!!.absolutePath,true)
+            surfaceView.stopRecord(isFail,videoView)
         }
-        resetView(true)
-        slideHolder?.finish()
+        if (!isFail) {
+            resetView(true)
+            slideHolder?.finish()
+        }
     }
 
 
@@ -104,7 +101,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
 
-     fun changeMediaType(isCamera: Boolean) {
+    fun changeMediaType(isCamera: Boolean) {
         this.isCamera = isCamera
         btnRecord.isCamera = isCamera
         slideHolder!!.isRedLeft = isCamera
@@ -120,9 +117,10 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         tvOk.visibility = if (!isFinish) View.GONE else View.VISIBLE
         tvCamera.visibility = if (btnRecord.isCamera || (!btnRecord.isCamera && !isFinish)) View.VISIBLE else View.GONE
         videoView.visibility = if (isFinish && !isCamera) View.VISIBLE else View.GONE
-//        surfaceView.visibility = if (isFinish) View.INVISIBLE else View.VISIBLE
+        surfaceView.visibility = if (isFinish) View.GONE else View.VISIBLE
+        ivPreview.visibility = if (isFinish && isCamera) View.VISIBLE else View.GONE
+        ivPreview.setImageURI(null)
     }
-
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

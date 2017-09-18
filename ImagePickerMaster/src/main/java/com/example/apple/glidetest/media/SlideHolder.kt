@@ -32,7 +32,7 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
                 leftPos = view.tvCamera.left + widthTv / 2
                 rightPos = view.tvVideo.left + widthTv / 2
                 halfRedWidth = view.viewRed.width / 2
-                Logger.e(leftPos.toString() + "------->" + rightPos.toString() + "---->" + halfRedWidth)
+//                Logger.e(leftPos.toString() + "------->" + rightPos.toString() + "---->" + halfRedWidth)
                 switchStatus()
             }
         }
@@ -91,14 +91,11 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
     }
 
     private fun startAnim(startX: Int, endX: Int) {
-        Logger.e(startX.toString() + "------->" + endX)
         val animator = ObjectAnimator.ofInt(view.viewRed, "translationX", startX, endX)
         val duration = Math.abs(endX - startX) / (rightPos - leftPos) * 200L
         animator.duration = duration
-        Logger.e(duration.toString())
         animator.addUpdateListener(object : ValueAnimator.AnimatorUpdateListener {
             override fun onAnimationUpdate(animation: ValueAnimator?) {
-                Logger.e(animation!!.animatedValue.toString())
             }
 
         })
@@ -133,8 +130,8 @@ class SlideHolder(private var view: View) : Animator.AnimatorListener, View.OnTo
         view.tvCamera.invalidate()
         view.tvVideo.invalidate()
         val pos = if (isRedLeft) leftPos else rightPos
-        view.viewRed.layout(pos - halfRedWidth, view.viewRed.top, pos + halfRedWidth, view.viewRed.bottom)
         view.viewRed.visibility = View.VISIBLE
+        view.viewRed.layout(pos - halfRedWidth, view.viewRed.top, pos + halfRedWidth, view.viewRed.bottom)
     }
 
     override fun onAnimationStart(animation: Animator?) {

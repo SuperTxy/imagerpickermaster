@@ -40,7 +40,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var currentCameraFacing = Camera.CameraInfo.CAMERA_FACING_BACK
     private var cameraFlashType = Camera.Parameters.FLASH_MODE_AUTO
     private var videoFlashType = Camera.Parameters.FLASH_MODE_OFF
-     var media: Media? = null
+    var media: Media? = null
 
     var isCamera: Boolean = false
     var ivPreview: ImageView? = null
@@ -55,26 +55,20 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
             Logger.d("surfaceDestroyed---->")
-//            releaseCamera()
-            mediaRecorder?.release()
-            mediaRecorder = null
+//            mediaRecorder?.release()
+//            mediaRecorder = null
         }
 
         override fun surfaceCreated(holder: SurfaceHolder?) {
             Logger.d("surfaceCreated---->")
-//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-//                camera2Helper = Camera2Helper(context, toastUtils!!, ivPreview!!, this@MediaSurfaceView)
-//            } else {
             startPreview(holder!!)
-//            }
         }
     }
 
     init {
+        getCamera()
         toastUtils = ToastUtils(context)
         camerasCount = Camera.getNumberOfCameras()
-        Logger.e("camerasCount   " + camerasCount.toString())
-        getCamera()
         surfaceView.holder.setKeepScreenOn(true)
         surfaceView.holder.addCallback(surfaceCallBack)
     }
@@ -82,8 +76,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     fun startPreview(holder: SurfaceHolder) {
         camera!!.setPreviewDisplay(holder)
         setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
-        Logger.e(camera!!.parameters.previewSize.width.toString() + "--->" + camera!!.parameters.previewSize.height)
-//        camera!!.parameters.setPreviewSize(size!!.width, size!!.height)
         camera!!.startPreview()
         Logger.d("------>startPreview")
     }
@@ -130,7 +122,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 fos.close()
                 iv.visibility = View.VISIBLE
                 iv.setImageURI(Uri.fromFile(mediaFile))
-                camera?.startPreview()
+                camera?.stopPreview()
                 context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
                 media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.IMG)
                 media!!.date = System.currentTimeMillis().toString()
@@ -183,7 +175,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         val parameters = camera!!.parameters
         parameters.flashMode = flashType
         camera!!.parameters = parameters
-        Logger.e(camera!!.parameters.flashMode.toString())
     }
 
     fun startRecord() {
@@ -224,18 +215,21 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 //        mediaRecorder?.start()
 //    }
 
-    fun stopRecord(fail: Boolean) {
+    fun stopRecord(fail: Boolean, videoView: VideoView) {
         Logger.d("------>stopRecord")
         mediaRecorder?.stop()
         mediaRecorder?.release()
+        camera?.stopPreview()
         mediaRecorder = null
         if (!fail) {
             context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
             media = Media(null, surfaceView!!.mediaFile!!.absolutePath, null, Media.MediaType.VID)
             media!!.date = System.currentTimeMillis().toString()
             media!!.size = surfaceView!!.mediaFile!!.length().toString()
+            videoView.media = media
+            videoView.play(surfaceView!!.mediaFile!!.absolutePath, true)
+            Logger.e(media.toString())
         }
-
     }
 
     fun setCameraParameters(width: Int, height: Int) {

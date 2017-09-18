@@ -47,7 +47,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:appcompat-v7:25.3.1'
-    compile ('com.github.bumptech.glide:glide:3.7.0'){
+    compile ('com.github.bumptech.glide:glide:4.1.1'){
         exclude group: 'com.android.support'
     }
     compile 'com.android.support.constraint:constraint-layout:1.0.2'

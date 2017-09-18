@@ -129,19 +129,19 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-        Logger.d("surfaceChanged------------")
+        Logger.d("VideoView surfaceChanged------------")
 
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder?) {
-        Logger.d("surfaceDestroyed------------")
+        Logger.d("VideoView surfaceDestroyed------------")
         player?.release()
         player = null
         resetView()
     }
 
     override fun surfaceCreated(holder: SurfaceHolder?) {
-        Logger.d("surfaceCreated------------")
+        Logger.d("VideoView surfaceCreated------------")
         player!!.setDisplay(view!!.surfaceView.holder)
         if (position > 0) {
             play(dataResource!!)
