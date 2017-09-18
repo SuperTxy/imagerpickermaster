@@ -2,7 +2,6 @@ package com.example.apple.glidetest.media
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
@@ -10,7 +9,6 @@ import android.graphics.Matrix
 import android.hardware.Camera
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
-import android.net.Uri
 import android.util.AttributeSet
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -40,7 +38,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var cameraFlashType = Camera.Parameters.FLASH_MODE_AUTO
     private var videoFlashType = Camera.Parameters.FLASH_MODE_OFF
     var isCamera: Boolean = false
-    var ivPreview: ImageView? = null
     private var toastUtils: ToastUtils? = null
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
@@ -95,7 +92,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 fos.close()
                 listener?.afterTakePicture(mediaFile!!)
                 camera?.stopPreview()
-                context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
             }
         })
     }
@@ -139,10 +135,9 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.stop()
         mediaRecorder?.release()
         mediaRecorder = null
-        if (!fail) {
-            context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mediaFile)))
+        if (!fail)
             listener?.afterStopRecord(mediaFile!!)
-        }
+        else camera?.startPreview()
     }
 
     fun setCameraParameters() {

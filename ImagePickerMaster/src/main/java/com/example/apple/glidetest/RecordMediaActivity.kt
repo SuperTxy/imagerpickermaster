@@ -50,7 +50,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
     private fun initSurface() {
-        surfaceView.ivPreview = ivPreview
         ivSwitch.visibility = if (surfaceView!!.camerasCount > 1) View.VISIBLE else View.GONE
         val screenWidth = ScreenUtils.getScreenWidth(this)
         val size = SizeUtils(surfaceView.camera!!).previewSize
@@ -108,6 +107,10 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     fun initListener() {
         surfaceView.setOnMediaFinishListener(finishListener)
         tvBack.setOnClickListener {
+            if (surfaceView.mediaFile != null && surfaceView.mediaFile!!.exists()) {
+                surfaceView.mediaFile?.delete()
+                surfaceView.mediaFile = null
+            }
             slideHolder?.switchStatus()
             slideHolder?.isFinish = false
             resetView(false)
@@ -120,6 +123,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
             finish()
         }
         tvOk.setOnClickListener {
+            sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(surfaceView.mediaFile)))
             intent.putExtra(PickerSettings.RESULT, media!!)
             setResult(RESULT_OK, intent)
             finish()
