@@ -21,7 +21,7 @@ class FolderProvider private constructor() {
         }
 
     init {
-        allFolder = Folder("", "所有图片和视频")
+        allFolder = Folder("", "所有图片")
         addFolder(allFolder!!)
         selectedFolder = allFolder
     }
