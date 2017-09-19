@@ -16,5 +16,6 @@ object PickerSettings {
     val PICKER_REQUEST_CODE = 102
     val CAREMA_REQUEST_CODE = 103
     val RECORD_REQUEST_CODE = 104
+    val SYSTEM_CAREMA_REQUEST_CODE = 105
 
 }

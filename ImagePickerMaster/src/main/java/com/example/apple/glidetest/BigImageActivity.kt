@@ -90,6 +90,10 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
                 toastUtils?.toast("此图片已被删除")
             else if (imageProvider.damageMedias.contains(media) && !ivRight.isSelected) {
                 toastUtils?.toast("此图片文件已损坏！")
+            } else if (media.isVideo && media.isDurationlarge12) {
+                toastUtils?.toast("视频限定时长12秒！")
+            } else if (media.isVideo && media.isSizeLarge3M) {
+                toastUtils?.toast("视频大小超过限制！")
             } else {
                 ivRight.isSelected = !ivRight.isSelected
                 if (ivRight.isSelected) {

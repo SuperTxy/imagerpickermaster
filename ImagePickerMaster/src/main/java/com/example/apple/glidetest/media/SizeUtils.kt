@@ -18,4 +18,10 @@ class SizeUtils( camera: Camera) {
         pictureSize = pictureSizes!!.get(7)
         previewSize = previewSizes!!.get(0)
     }
+
+    fun getLargestPreviewSize(){
+        for (it in previewSizes!!){
+
+        }
+    }
 }

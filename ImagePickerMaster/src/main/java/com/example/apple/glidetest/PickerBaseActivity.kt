@@ -28,11 +28,11 @@ import java.util.*
  */
 abstract class PickerBaseActivity : Activity(), Observer {
 
+    protected var tmpFile: File? = null
     protected var imageProvider: SelectMediaProvider? = null
     protected var folderProvider: FolderProvider? = null
-    private var FILE_PROVIDER: String? = null
     protected val HORIZONTAL_COUNT: Int = 4
-    private var permissionUtils: PermissionUtils? = null
+    protected var permissionUtils: PermissionUtils? = null
     protected var adapter: CommonImageAdapter? = null
     protected var view: View? = null
     protected var btnCenter: TextView? = null
@@ -52,7 +52,6 @@ abstract class PickerBaseActivity : Activity(), Observer {
     }
 
     fun initView(savedInstanceState: Bundle?) {
-        FILE_PROVIDER = getString(R.string.provider_name)
         imageProvider = SelectMediaProvider.instance
         folderProvider = FolderProvider.instance
         permissionUtils = PermissionUtils(this)
@@ -69,6 +68,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
                 imageProvider!!.setSelect(initialSelect)
             }
             initData()
+            tmpFile = savedInstanceState.getSerializable("tmpFile") as File?
         }
         folderPopup = FolderPopup(this)
 

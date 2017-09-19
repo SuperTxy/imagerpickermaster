@@ -252,8 +252,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun destroy() {
         toastUtils?.destroy()
-        releaseCamera()
         mediaRecorder?.release()
         mediaRecorder = null
+        releaseCamera()
     }
 }
