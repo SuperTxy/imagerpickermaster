@@ -53,7 +53,7 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.orhanobut:logger:1.15'
     compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
-    compile 'com.github.SuperTxy:AndroidUtils:v0.0.9'
+    compile 'com.github.SuperTxy:AndroidUtils:v0.1.0'
     testCompile 'junit:junit:4.12'
 }
 

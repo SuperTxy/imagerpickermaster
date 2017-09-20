@@ -1,5 +1,7 @@
 package com.example.apple.glidetest.bean
 
+import java.util.*
+
 /**
  * Created by Apple on 17/5/26.
  */
@@ -19,6 +21,10 @@ class Folder(var dir: String, var name: String) {
             if (index!=null && index >= 0) medias.add(index,media)
             else medias.add(media)
         }
+    }
+
+    fun sort(){
+        Collections.sort(medias)
     }
 
     var count: Int = 0

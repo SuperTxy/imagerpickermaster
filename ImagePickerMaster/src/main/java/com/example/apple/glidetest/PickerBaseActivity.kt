@@ -94,9 +94,11 @@ abstract class PickerBaseActivity : Activity(), Observer {
                     loadVideos()
                 }
                 loadImages()
+                folderProvider!!.allFolder?.sort()
                 Handler(mainLooper).post {
                     initData()
                 }
+
             }).start()
         })
     }

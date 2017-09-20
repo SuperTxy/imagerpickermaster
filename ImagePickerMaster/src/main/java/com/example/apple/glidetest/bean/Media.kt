@@ -9,7 +9,13 @@ import java.io.Serializable
  */
 
 class Media(var date: String? = null, var path: String, var size: String? = null, var type: MediaType, var duration: Long = 0L)
-    : Serializable {
+    : Serializable, Comparable<Media> {
+
+    override fun compareTo(other: Media): Int {
+        if (this.date == null) return -1
+        else if (other.date == null) return 1
+        else return (other.date!!.toLong() - this.date!!.toLong()).toInt()
+    }
 
     var dir: String = ""
         get() {
@@ -54,7 +60,7 @@ class Media(var date: String? = null, var path: String, var size: String? = null
         }
     var isSizeLarge3M: Boolean = false
         get() {
-            if (size!= null) {
+            if (size != null) {
                 return size!!.toLong() >= 4 * 1024 * 1024
             }
             return false
