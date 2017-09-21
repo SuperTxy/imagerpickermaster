@@ -58,10 +58,10 @@ class Media(var date: String? = null, var path: String, var size: String? = null
                 return duration >= 13 * 1000
             } else return false
         }
-    var isSizeLarge3M: Boolean = false
+    var isSizeLarge10M: Boolean = false
         get() {
             if (size != null) {
-                return size!!.toLong() >= 4 * 1024 * 1024
+                return size!!.toLong() >= 10 * 1024 * 1024
             }
             return false
         }

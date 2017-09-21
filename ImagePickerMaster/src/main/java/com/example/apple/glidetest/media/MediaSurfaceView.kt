@@ -17,8 +17,8 @@ import android.view.View
 import android.widget.ImageView
 import com.example.apple.glidetest.R
 import com.orhanobut.logger.Logger
-import com.txy.androidutils.FileUtils
-import com.txy.androidutils.ToastUtils
+import com.txy.androidutils.TxyFileUtils
+import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.activity_record_media.view.*
 import java.io.File
 import java.io.FileOutputStream
@@ -38,7 +38,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var cameraFlashType = Camera.Parameters.FLASH_MODE_AUTO
     private var videoFlashType = Camera.Parameters.FLASH_MODE_OFF
     var isCamera: Boolean = false
-    private var toastUtils: ToastUtils? = null
+    private var toastUtils: TxyToastUtils? = null
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
@@ -60,7 +60,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     init {
         getCamera()
-        toastUtils = ToastUtils(context)
+        toastUtils = TxyToastUtils(context)
         camerasCount = Camera.getNumberOfCameras()
         surfaceView.holder.setKeepScreenOn(true)
         surfaceView.holder.addCallback(surfaceCallBack)
@@ -77,7 +77,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         camera!!.takePicture(null, null, object : Camera.PictureCallback {
             override fun onPictureTaken(data: ByteArray?, camera: Camera?) {
                 Logger.e("onPictureTaken-->" + data + camera)
-                mediaFile = FileUtils.createIMGFile(context)
+                mediaFile = TxyFileUtils.createIMGFile(context)
                 val fos = FileOutputStream(mediaFile)
                 val matrix = Matrix()
                 if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK) {
@@ -99,7 +99,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     fun startRecord(btnRecord: VideoRecordBtn) {
         Logger.d("initMediaRecorder")
         camera!!.unlock()
-        mediaFile = FileUtils.createVIDFile(context)
+        mediaFile = TxyFileUtils.createVIDFile(context)
         mediaRecorder = MediaRecorder()
         mediaRecorder?.reset()
         mediaRecorder?.setCamera(camera)

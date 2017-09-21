@@ -15,7 +15,7 @@ import com.example.apple.glidetest.R
 import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.utils.mills2Duration
 import com.orhanobut.logger.Logger
-import com.txy.androidutils.ToastUtils
+import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.videoview.view.*
 
 /**
@@ -30,7 +30,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     private var view: View? = null
     private var position: Int = 0
     private var isPlaying = false
-    private var toastUtils: ToastUtils? = null
+    private var toastUtils: TxyToastUtils? = null
     var media: Media? = null
     private var isRepeat: Boolean = false
 
@@ -43,7 +43,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         player = MediaPlayer()
         view!!.surfaceView.holder.addCallback(this)
         initPlayListener()
-        toastUtils = ToastUtils(context)
+        toastUtils = TxyToastUtils(context)
     }
 
     private fun initPlayListener() {

@@ -21,8 +21,8 @@ import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.example.apple.glidetest.view.GridItemDecoration
 import com.orhanobut.logger.Logger
-import com.txy.androidutils.FileUtils
-import com.txy.androidutils.ScreenUtils
+import com.txy.androidutils.TxyFileUtils
+import com.txy.androidutils.TxyScreenUtils
 import kotlinx.android.synthetic.main.activity_common_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -51,7 +51,7 @@ class CommonPickerActivity : PickerBaseActivity() {
         setContentView(R.layout.activity_common_picker)
         recyclerView.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT)
         recyclerView.addItemDecoration(GridItemDecoration.Builder(this)
-                .size(ScreenUtils.dp2px(this, 5)).color(R.color.white)
+                .size(TxyScreenUtils.dp2px(this, 5)).color(R.color.white)
                 .margin(0, 0).isExistHead(false).build())
         baseView()
         tvLeft.setOnClickListener {
@@ -107,7 +107,7 @@ class CommonPickerActivity : PickerBaseActivity() {
         permissionUtils!!.checkCameraPermission(Runnable {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (intent.resolveActivity(packageManager) != null) {
-                tmpFile = FileUtils.createIMGFile(this@CommonPickerActivity)
+                tmpFile = TxyFileUtils.createIMGFile(this@CommonPickerActivity)
                 if (tmpFile!!.exists()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         val photoUri = FileProvider.getUriForFile(this, FILE_PROVIDER, tmpFile)

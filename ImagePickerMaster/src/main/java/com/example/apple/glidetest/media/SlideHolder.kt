@@ -8,7 +8,7 @@ import android.widget.LinearLayout
 import com.example.apple.glidetest.R
 import com.example.apple.glidetest.RecordMediaActivity
 import com.orhanobut.logger.Logger
-import com.txy.androidutils.ScreenUtils
+import com.txy.androidutils.TxyScreenUtils
 import kotlinx.android.synthetic.main.activity_record_media.view.*
 import kotlinx.android.synthetic.main.slide_view.view.*
 
@@ -87,8 +87,8 @@ class SlideHolder(private var view: View) : View.OnTouchListener {
         view.tvVideo.invalidate()
         view.viewRed.visibility = View.VISIBLE
         val params = view.viewRed.layoutParams as LinearLayout.LayoutParams
-        params.rightMargin = if (isRedLeft) ScreenUtils.dp2px(view.context, 20) else 0
-        params.leftMargin = if (isRedLeft) 0 else ScreenUtils.dp2px(view.context, 20)
+        params.rightMargin = if (isRedLeft) TxyScreenUtils.dp2px(view.context, 20) else 0
+        params.leftMargin = if (isRedLeft) 0 else TxyScreenUtils.dp2px(view.context, 20)
         view.viewRed.layoutParams = params
 
     }

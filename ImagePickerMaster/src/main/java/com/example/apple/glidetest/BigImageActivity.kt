@@ -13,7 +13,7 @@ import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.example.apple.glidetest.utils.loadImage
-import com.txy.androidutils.ToastUtils
+import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.activity_big_image.*
 import kotlinx.android.synthetic.main.title_bar.*
 import kotlinx.android.synthetic.main.video_pager.view.*
@@ -31,13 +31,13 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
     private var medias = FolderProvider.instance.selectedFolder!!.medias
     private var imageProvider = SelectMediaProvider.instance
-    private var toastUtils: ToastUtils? = null
+    private var toastUtils: TxyToastUtils? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StatusBarUtil.setStatusBarColor(this, R.color.color1a1a1a)
         setContentView(R.layout.activity_big_image)
-        toastUtils = ToastUtils(this)
+        toastUtils = TxyToastUtils(this)
         btnOK.isEnabled = imageProvider.selectedMedias.size > 0
         viewPager.addOnPageChangeListener(this)
         viewPager.adapter = MyPagerAdapter()
@@ -92,7 +92,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
                 toastUtils?.toast("此图片文件已损坏！")
             } else if (media.isVideo && media.isDurationlarge12) {
                 toastUtils?.toast("视频限定时长12秒！")
-            } else if (media.isVideo && media.isSizeLarge3M) {
+            } else if (media.isVideo && media.isSizeLarge10M) {
                 toastUtils?.toast("视频大小超过限制！")
             } else {
                 ivRight.isSelected = !ivRight.isSelected

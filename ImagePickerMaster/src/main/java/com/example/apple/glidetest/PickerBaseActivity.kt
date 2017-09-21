@@ -19,7 +19,7 @@ import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.isGif
 import com.orhanobut.logger.Logger
-import com.txy.androidutils.PermissionUtils
+import com.txy.androidutils.TxyPermissionUtils
 import java.io.File
 import java.util.*
 
@@ -32,7 +32,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var imageProvider: SelectMediaProvider? = null
     protected var folderProvider: FolderProvider? = null
     protected val HORIZONTAL_COUNT: Int = 4
-    protected var permissionUtils: PermissionUtils? = null
+    protected var permissionUtils: TxyPermissionUtils? = null
     protected var adapter: CommonImageAdapter? = null
     protected var view: View? = null
     protected var btnCenter: TextView? = null
@@ -54,7 +54,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
     fun initView(savedInstanceState: Bundle?) {
         imageProvider = SelectMediaProvider.instance
         folderProvider = FolderProvider.instance
-        permissionUtils = PermissionUtils(this)
+        permissionUtils = TxyPermissionUtils(this)
         imageProvider!!.addObserver(this)
         folderProvider!!.clear()
         initialSelect = intent.getSerializableExtra(PickerSettings.INITIAL_SELECT) as ArrayList<Media>?

@@ -10,7 +10,7 @@ import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadBitmap
-import com.txy.androidutils.ListUtils
+import com.txy.androidutils.TxyListUtils
 import kotlinx.android.synthetic.main.image_seleted_item.view.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -62,7 +62,7 @@ class ImageSelectedAdapter(private val context: Context, list: List<Media>)
                 if (medias.size == itemCount - 1)
                     notifyItemChanged(itemCount - 1)
             } else {
-                val index = ListUtils.indexOfObj(medias, arg.media)
+                val index = TxyListUtils.indexOfObj(medias, arg.media)
                 medias.remove(arg.media)
                 notifyItemRemoved(index)
                 if (medias.size == SelectMediaProvider.instance.maxSelect - 1)

@@ -14,13 +14,13 @@ import android.support.annotation.RequiresApi
 import android.view.Surface
 import android.view.View
 import android.widget.ImageView
-import com.txy.androidutils.ToastUtils
+import com.txy.androidutils.TxyToastUtils
 import java.util.*
 /**
  * Created by Apple on 17/9/17.
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-class Camera2Helper(private var context: Context, private var toastUtils: ToastUtils,
+class Camera2Helper(private var context: Context, private var toastUtils: TxyToastUtils,
                     private var ivPreview: ImageView, private var surfaceView: MediaSurfaceView) {
 
     var cameraManager: CameraManager? = null

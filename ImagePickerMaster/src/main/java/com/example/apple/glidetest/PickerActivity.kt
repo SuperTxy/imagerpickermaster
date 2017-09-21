@@ -17,7 +17,7 @@ import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.example.apple.glidetest.view.GridItemDecoration
 import com.orhanobut.logger.Logger
-import com.txy.androidutils.ScreenUtils
+import com.txy.androidutils.TxyScreenUtils
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
 import java.util.*
@@ -56,7 +56,7 @@ class PickerActivity : PickerBaseActivity() {
         }
         recyclerViewAll.layoutManager = GridLayoutManager(this, HORIZONTAL_COUNT) as RecyclerView.LayoutManager?
         recyclerViewAll.addItemDecoration(GridItemDecoration.Builder(this)
-                .size(ScreenUtils.dp2px(this,5)).color(R.color.white)
+                .size(TxyScreenUtils.dp2px(this,5)).color(R.color.white)
                 .margin(0, 0).isExistHead(false).build())
         recyclerViewSelected.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         recyclerViewSelected.isFocusable = false

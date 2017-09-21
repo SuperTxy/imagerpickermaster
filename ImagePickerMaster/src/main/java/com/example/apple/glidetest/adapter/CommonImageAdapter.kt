@@ -12,8 +12,8 @@ import com.example.apple.glidetest.listener.OnItemClickListener
 import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.getView
 import com.example.apple.glidetest.utils.loadBitmap
-import com.txy.androidutils.ListUtils
-import com.txy.androidutils.ToastUtils
+import com.txy.androidutils.TxyListUtils
+import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.image_all_item.view.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -28,7 +28,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<Media>,
     : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Observer {
 
     private var medias: ArrayList<Media> = ArrayList()
-    private var toastUtils: ToastUtils? = null
+    private var toastUtils: TxyToastUtils? = null
     var cameraClickListener: OnCameraClickListener? = null
         set(value) {
             field = value
@@ -39,7 +39,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<Media>,
         }
 
     init {
-        toastUtils = ToastUtils(context)
+        toastUtils = TxyToastUtils(context)
         this.medias.clear()
         this.medias.addAll(images)
         SelectMediaProvider.instance.addObserver(this)
@@ -87,7 +87,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<Media>,
                     toastUtils?.toast("视频限定时长12秒！")
                     return@setOnClickListener
                 }
-                if (media.isVideo && media.isSizeLarge3M){
+                if (media.isVideo && media.isSizeLarge10M){
                     toastUtils?.toast("视频大小超过限制！")
                     return@setOnClickListener
                 }
@@ -120,7 +120,7 @@ class CommonImageAdapter(private val context: Context, images: ArrayList<Media>,
     override fun update(o: Observable?, arg: Any?) {
         if (o is SelectMediaProvider && arg is Change) {
             if (arg.isAdd) {
-                var index = ListUtils.indexOfObj(medias, arg.media)
+                var index = TxyListUtils.indexOfObj(medias, arg.media)
                 if (index != -1) {
                     index = if (showCamera) index + 1 else index
                     notifyItemChanged(index)

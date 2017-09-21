@@ -16,9 +16,9 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.apple.glidetest.R;
-import com.txy.androidutils.PermissionUtils;
-import com.txy.androidutils.ScreenUtils;
-import com.txy.androidutils.ToastUtils;
+import com.txy.androidutils.TxyPermissionUtils;
+import com.txy.androidutils.TxyScreenUtils;
+import com.txy.androidutils.TxyToastUtils;
 
 /**
  * Created by Apple on 17/9/8.
@@ -39,14 +39,14 @@ public class VideoRecordBtn extends View {
      * true代表拍照，false代表录制
      */
     public boolean isCamera = true;
-    private ToastUtils toastUtils;
+    private TxyToastUtils toastUtils;
     private float progress = 0;
     private int startAngle = 270;
     private Context context;
     private long downTime;
     private CountDownTimer countDownTimer;
     private OnRecordListener listener;
-    private PermissionUtils permissionUtils;
+    private TxyPermissionUtils permissionUtils;
 
 
     public VideoRecordBtn(Context context) {
@@ -61,9 +61,9 @@ public class VideoRecordBtn extends View {
         super(context, attrs, defStyleAttr);
         this.context = context;
         if (context instanceof Activity) {
-            permissionUtils = new PermissionUtils((Activity) context);
+            permissionUtils = new TxyPermissionUtils((Activity) context);
         }
-        toastUtils = new ToastUtils(context);
+        toastUtils = new TxyToastUtils(context);
         countDownTimer = new CountDownTimer(MAX_RECORD_TIME, interval) {
             @Override
             public void onTick(long l) {
@@ -152,7 +152,7 @@ public class VideoRecordBtn extends View {
 
     private void drawPressed(Paint paint, Canvas canvas, float centerX) {
         float pressInnerRadius = centerX / 2;
-        float pressBorderWidth = ScreenUtils.dp2px(context, 5);
+        float pressBorderWidth = TxyScreenUtils.dp2px(context, 5);
         paint.setColor(ContextCompat.getColor(context, R.color.colorf4f5f7));
         canvas.drawCircle(centerX, centerX, centerX, paint);
         paint.setColor(Color.WHITE);

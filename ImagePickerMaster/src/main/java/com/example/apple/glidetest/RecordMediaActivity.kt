@@ -15,7 +15,7 @@ import com.example.apple.glidetest.media.VideoRecordBtn
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.orhanobut.logger.Logger
-import com.txy.androidutils.ScreenUtils
+import com.txy.androidutils.TxyScreenUtils
 import kotlinx.android.synthetic.main.activity_record_media.*
 import kotlinx.android.synthetic.main.slide_view.*
 import java.io.File
@@ -51,7 +51,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
     private fun initSurface() {
         ivSwitch.visibility = if (surfaceView!!.camerasCount > 1) View.VISIBLE else View.GONE
-        val screenWidth = ScreenUtils.getScreenWidth(this)
+        val screenWidth = TxyScreenUtils.getScreenWidth(this)
         val size = SizeUtils(surfaceView.camera!!).previewSize
         val params = surfaceView.layoutParams
         var rate = size!!.height.toFloat() / size.width.toFloat()
