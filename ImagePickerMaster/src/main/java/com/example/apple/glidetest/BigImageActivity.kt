@@ -7,7 +7,6 @@ import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
 import android.view.View
 import android.view.ViewGroup
-import com.example.apple.glidetest.media.VideoView
 import com.example.apple.glidetest.provider.FolderProvider
 import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
@@ -43,39 +42,11 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         viewPager.adapter = MyPagerAdapter()
         val pos = intent.getIntExtra(POSITION, 0)
         viewPager.currentItem = pos
-        initSurface()
         onPageSelected(pos)
         initListener()
     }
 
-    private fun initSurface() {
-
-//        val sp = PreferenceManager.getDefaultSharedPreferences(this)
-//        val lp = videoView.surfaceView.layoutParams
-//        var ratio: Float
-//        if (sp.getInt("width", 0) != 0 && sp.getInt("height", 0) != 0) {
-//            ratio = sp.getInt("height", 0) * 1.0f / sp.getInt("width", 0)
-//        } else {
-//            val size = SizeUtils(Camera.open()).getConsistentSize(this)
-//            ratio = size.height * 1.0f / size.width
-//            Logger.e("SizeUtils"+size.height+"-->"+size.width)
-//        }
-//        lp.width = ScreenUtils.getScreenWidth(this)
-//        lp.height = (ScreenUtils.getScreenWidth(this) * ratio).toInt()
-//        Logger.e(lp.width.toString() + "--->" + lp.height + "-->ratio-->" + ratio)
-//        videoView.surfaceView.layoutParams = lp
-    }
-
     private fun initListener() {
-        videoView.setOnPlayListener(object : VideoView.OnPlayListener {
-            override fun onPause() {
-                videoView.visibility = View.GONE
-            }
-
-            override fun onFinish() {
-                videoView.visibility = View.GONE
-            }
-        })
         ivLeft.setOnClickListener {
             finish()
         }
@@ -112,8 +83,9 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val view = View.inflate(this@BigImageActivity, R.layout.video_pager, null)
-            loadImage(medias.get(position), view.photoView)
-            view.ivPlay.visibility = if (medias.get(position).isVideo) View.VISIBLE else View.GONE
+            val media = medias.get(position)
+            loadImage(media, view.photoView)
+            view.ivPlay.visibility = if (media.isVideo) View.VISIBLE else View.GONE
             container.addView(view)
             view.ivPlay.setOnClickListener {
                 videoView.visibility = View.VISIBLE

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.view.View
 import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.media.MediaSurfaceView
@@ -17,7 +16,6 @@ import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.dialog.TxyDialogUtils
 import kotlinx.android.synthetic.main.activity_record_media.*
-import kotlinx.android.synthetic.main.slide_view.*
 import java.io.File
 
 class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
@@ -25,7 +23,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     var isCamera: Boolean = false
     private var slideHolder: SlideHolder? = null
     var media: Media? = null
-    private var dialogUtisl:TxyDialogUtils?=null
+    private var dialogUtisl: TxyDialogUtils? = null
 
 
     companion object {
@@ -55,7 +53,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     private fun initSurface() {
         ivSwitch.visibility = if (surfaceView!!.camerasCount > 1) View.VISIBLE else View.GONE
         val size = surfaceView.previewSize
-        if(size != null){
+        if (size != null) {
             val screenWidth = TxyScreenUtils.getScreenWidth(this)
             val params = surfaceView.layoutParams
             var rate = size.height.toFloat() / size.width.toFloat()
@@ -68,21 +66,21 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         }
     }
 
-    override fun onRecordStart(isCamera: Boolean) {
+    override fun onRecordStart() {
         surfaceView.visibility = View.VISIBLE
         videoView.visibility = View.GONE
         ivPreview.visibility = View.GONE
-        Handler().postDelayed(Runnable {
+//        Handler().postDelayed(Runnable {
             if (!isCamera)
-                surfaceView.startRecord(btnRecord)
-        }, 500)
+                surfaceView.startRecord()
+//        }, 500)
     }
 
-    override fun onRecordFinish(isFail: Boolean) {
+    override fun onRecordFinish() {
         if (isCamera) {
             surfaceView.takePicture()
         } else {
-            surfaceView.stopRecord(isFail)
+            surfaceView.stopRecord()
         }
     }
 

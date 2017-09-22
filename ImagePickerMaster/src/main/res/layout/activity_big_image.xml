@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
@@ -43,18 +43,18 @@
     </FrameLayout>
 
     <ImageView
-        tools:visibility="visible"
-        android:visibility="gone"
         android:id="@+id/ivPlay"
-        android:src="@drawable/shipin_but_bofang"
-        android:layout_gravity="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/shipin_but_bofang"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <com.example.apple.glidetest.media.VideoView
-        android:layout_gravity="center"
-        android:visibility="gone"
+        android:background="#0f0"
         android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 </FrameLayout>

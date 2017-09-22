@@ -97,7 +97,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         })
     }
 
-    fun startRecord(btnRecord: VideoRecordBtn) {
+    fun startRecord() {
         Logger.d("initMediaRecorder")
         camera!!.unlock()
         mediaFile = TxyFileUtils.createVIDFile(context)
@@ -130,15 +130,21 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     }
 
-    fun stopRecord(fail: Boolean) {
+    fun stopRecord() {
         Logger.d("------>stopRecord")
-        camera?.stopPreview()
-        mediaRecorder?.stop()
-        mediaRecorder?.release()
-        mediaRecorder = null
-        if (!fail)
+        try {
+            camera?.stopPreview()
+            mediaRecorder?.stop()
+            mediaRecorder?.release()
+            mediaRecorder = null
             listener?.afterStopRecord(mediaFile!!)
-        else camera?.startPreview()
+        } catch(e: Exception) {
+            Logger.e(e.message)
+            mediaRecorder?.stop()
+            mediaRecorder?.release()
+            mediaRecorder = null
+            toastUtils!!.toast(context.getString(R.string.record_time_is_too_short))
+        }
     }
 
     fun setCameraParameters() {
@@ -161,7 +167,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             camera?.setParameters(parameters)
         } catch(e: Exception) {
             Logger.e(e.message)
-        } finally {
             dialogUtisl!!.showPermissionDialog(context.getString(R.string.no_camera_permission))
         }
     }
@@ -213,7 +218,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             camera!!.parameters = parameters
         } catch(e: Exception) {
             Logger.e(e.message)
-        } finally {
             dialogUtisl!!.showPermissionDialog(context.getString(R.string.no_record_permission))
         }
     }

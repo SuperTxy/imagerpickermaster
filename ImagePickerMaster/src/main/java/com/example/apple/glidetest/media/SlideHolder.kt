@@ -10,7 +10,6 @@ import com.example.apple.glidetest.RecordMediaActivity
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyScreenUtils
 import kotlinx.android.synthetic.main.activity_record_media.view.*
-import kotlinx.android.synthetic.main.slide_view.view.*
 
 /**
  * Created by Apple on 17/9/14.

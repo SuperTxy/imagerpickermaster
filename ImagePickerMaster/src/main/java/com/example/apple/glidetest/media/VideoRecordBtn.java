@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -16,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.apple.glidetest.R;
-import com.orhanobut.logger.Logger;
 import com.txy.androidutils.TxyPermissionUtils;
 import com.txy.androidutils.TxyScreenUtils;
 import com.txy.androidutils.TxyToastUtils;
@@ -34,7 +32,6 @@ public class VideoRecordBtn extends View {
      * 最长录制时间10s
      */
     private long MAX_RECORD_TIME = 13500;
-    private long MIN_RECORD_TIME = 2500;
     private boolean isPressed = false;
     /**
      * true代表拍照，false代表录制
@@ -44,7 +41,6 @@ public class VideoRecordBtn extends View {
     private float progress = 0;
     private int startAngle = 270;
     private Context context;
-    private long downTime;
     private CountDownTimer countDownTimer;
     private OnRecordListener listener;
     private TxyPermissionUtils permissionUtils;
@@ -76,7 +72,7 @@ public class VideoRecordBtn extends View {
 
             @Override
             public void onFinish() {
-                release(false);
+                release();
             }
         };
     }
@@ -90,11 +86,10 @@ public class VideoRecordBtn extends View {
                         @Override
                         public void run() {
                             if (listener != null)
-                                listener.onRecordStart(true);
+                                listener.onRecordStart();
                         }
                     });
                 } else {
-                    downTime = System.currentTimeMillis();
                     permissionUtils.checkRecordVideoPermission(new Runnable() {
                         @Override
                         public void run() {
@@ -106,12 +101,9 @@ public class VideoRecordBtn extends View {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 if (!isCamera) {
-                    Logger.e(System.currentTimeMillis()+"");
-                    Logger.e(downTime+"");
-                    release(System.currentTimeMillis() - downTime < MIN_RECORD_TIME);
-                }
-                else if (listener != null) {
-                    listener.onRecordFinish(false);
+                    release();
+                } else if (listener != null) {
+                    listener.onRecordFinish();
                 }
                 break;
         }
@@ -123,25 +115,16 @@ public class VideoRecordBtn extends View {
         invalidate();
         countDownTimer.start();
         if (listener != null)
-            listener.onRecordStart(false);
+            listener.onRecordStart();
     }
 
-    private void release(boolean recordFail) {
+    private void release() {
         isPressed = false;
         progress = 0;
         countDownTimer.cancel();
         invalidate();
-        if (recordFail) {
-            Logger.e("recordFail"+recordFail);
-            toastUtils.toast(getContext().getString(R.string.record_time_is_too_short));
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onRecordFinish(true);
-                }
-            },1000);
-        } else if (listener != null)
-            listener.onRecordFinish(false);
+        if (listener != null)
+            listener.onRecordFinish();
     }
 
     @Override
@@ -156,9 +139,9 @@ public class VideoRecordBtn extends View {
     }
 
     private void drawPressed(Paint paint, Canvas canvas, float centerX) {
-        float pressInnerRadius = centerX / 2;
-        float pressBorderWidth = TxyScreenUtils.dp2px(context, 5);
-        paint.setColor(ContextCompat.getColor(context, R.color.colorf4f5f7));
+        float pressInnerRadius = TxyScreenUtils.dp2px(context, 18);
+        float pressBorderWidth = TxyScreenUtils.dp2px(context, 2);
+        paint.setColor(ContextCompat.getColor(context, R.color.color40white));
         canvas.drawCircle(centerX, centerX, centerX, paint);
         paint.setColor(Color.WHITE);
         canvas.drawCircle(centerX, centerX, pressInnerRadius, paint);
@@ -176,9 +159,9 @@ public class VideoRecordBtn extends View {
 
 
     private void drawReleased(Paint paint, Canvas canvas, float centerX) {
-        float releaseInnerRadius = centerX * 2 / 4;
-        float releaseOuterRadius = centerX * 3 / 4;
-        paint.setColor(ContextCompat.getColor(context, R.color.colorf4f5f7));
+        float releaseInnerRadius = TxyScreenUtils.dp2px(context, 25);
+        float releaseOuterRadius = TxyScreenUtils.dp2px(context, 34);
+        paint.setColor(ContextCompat.getColor(context, R.color.color40white));
         canvas.drawCircle(centerX, centerX, releaseOuterRadius, paint);
         paint.setColor(Color.WHITE);
         canvas.drawCircle(centerX, centerX, releaseInnerRadius, paint);
@@ -195,9 +178,9 @@ public class VideoRecordBtn extends View {
     }
 
     public interface OnRecordListener {
-        void onRecordFinish(boolean isFail);
+        void onRecordFinish();
 
-        void onRecordStart(boolean isCamera);
+        void onRecordStart();
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
