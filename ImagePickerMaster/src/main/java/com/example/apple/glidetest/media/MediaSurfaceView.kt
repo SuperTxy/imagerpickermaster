@@ -19,6 +19,7 @@ import com.example.apple.glidetest.R
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyFileUtils
 import com.txy.androidutils.TxyToastUtils
+import com.txy.androidutils.dialog.TxyDialogUtils
 import kotlinx.android.synthetic.main.activity_record_media.view.*
 import java.io.File
 import java.io.FileOutputStream
@@ -39,13 +40,12 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var videoFlashType = Camera.Parameters.FLASH_MODE_OFF
     var isCamera: Boolean = false
     private var toastUtils: TxyToastUtils? = null
+    private var dialogUtisl: TxyDialogUtils? = null
+    var previewSize: Camera.Size? = null
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
             setCameraParameters()
-            Logger.e(camera!!.parameters.previewSize.width.toString() + "--->" + camera!!.parameters.previewSize.height)
-            Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->" + camera!!.parameters.pictureSize.height)
-            Logger.e(camera!!.parameters.focusMode)
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
@@ -59,6 +59,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     init {
+        dialogUtisl = TxyDialogUtils(context)
         getCamera()
         toastUtils = TxyToastUtils(context)
         camerasCount = Camera.getNumberOfCameras()
@@ -141,21 +142,28 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setCameraParameters() {
+        try {
+            previewSize = camera!!.parameters.supportedPreviewSizes.get(0)
+            val pictureSize = camera!!.parameters.supportedPictureSizes.get(8)
+            val parameters = camera!!.getParameters() // 获取相机参数
 //        holder.setFixedSize(width, height)//照片的大小
-        val sizeUtils = SizeUtils(camera!!)
-        val parameters = camera!!.getParameters() // 获取相机参数
-        parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
-        parameters?.setPreviewSize(sizeUtils.previewSize!!.width, sizeUtils.previewSize!!.height) // 设置预览大小
-        parameters?.setPictureSize(sizeUtils.pictureSize!!.width, sizeUtils.pictureSize!!.height) // 设置保存的图片尺寸
-        parameters?.setJpegQuality(100) // 设置照片质量
-        val supportedFocusModes = parameters?.getSupportedFocusModes()
-        if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
-            camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
-        } else {
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
+            parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
+            parameters?.setPreviewSize(previewSize!!.width, previewSize!!.height) // 设置预览大小
+            parameters?.setPictureSize(pictureSize.width, pictureSize.height) // 设置保存的图片尺寸
+            parameters?.setJpegQuality(100) // 设置照片质量
+            val supportedFocusModes = parameters?.getSupportedFocusModes()
+            if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
+                camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
+            } else {
+                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
+            }
+            camera?.setParameters(parameters)
+        } catch(e: Exception) {
+            Logger.e(e.message)
+        } finally {
+            dialogUtisl!!.showPermissionDialog(context.getString(R.string.no_camera_permission))
         }
-        camera?.setParameters(parameters)
     }
 
     fun changeCameraFacing(ivFlash: ImageView): Int {
@@ -199,9 +207,15 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             Camera.Parameters.FLASH_MODE_ON -> ivFlash.setImageResource(R.drawable.flash_on)
             Camera.Parameters.FLASH_MODE_TORCH -> ivFlash.setImageResource(R.drawable.flash_on)
         }
-        val parameters = camera!!.parameters
-        parameters.flashMode = flashType
-        camera!!.parameters = parameters
+        try {
+            val parameters = camera!!.parameters
+            parameters.flashMode = flashType
+            camera!!.parameters = parameters
+        } catch(e: Exception) {
+            Logger.e(e.message)
+        } finally {
+            dialogUtisl!!.showPermissionDialog(context.getString(R.string.no_record_permission))
+        }
     }
 
     fun setCameraDisplayOrientation(activity: Activity,
@@ -252,6 +266,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun destroy() {
         toastUtils?.destroy()
+        dialogUtisl?.destroy()
         mediaRecorder?.release()
         mediaRecorder = null
         releaseCamera()

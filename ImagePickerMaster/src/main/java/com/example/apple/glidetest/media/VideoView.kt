@@ -84,7 +84,9 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
             Thread {
                 isPlaying = true
                 while (isPlaying) {
-                    if (player != null) {
+                    if (player != null && player!!.isPlaying) {
+//                        java.lang.IllegalStateException
+//                        at android.media.MediaPlayer.getCurrentPosition(Native Method)
                         seekBar.progress = player!!.currentPosition
                         Thread.sleep(500)
                     }

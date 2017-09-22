@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.apple.glidetest.R;
+import com.orhanobut.logger.Logger;
 import com.txy.androidutils.TxyPermissionUtils;
 import com.txy.androidutils.TxyScreenUtils;
 import com.txy.androidutils.TxyToastUtils;
@@ -104,8 +105,11 @@ public class VideoRecordBtn extends View {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if (!isCamera)
+                if (!isCamera) {
+                    Logger.e(System.currentTimeMillis()+"");
+                    Logger.e(downTime+"");
                     release(System.currentTimeMillis() - downTime < MIN_RECORD_TIME);
+                }
                 else if (listener != null) {
                     listener.onRecordFinish(false);
                 }
@@ -128,6 +132,7 @@ public class VideoRecordBtn extends View {
         countDownTimer.cancel();
         invalidate();
         if (recordFail) {
+            Logger.e("recordFail"+recordFail);
             toastUtils.toast(getContext().getString(R.string.record_time_is_too_short));
             new Handler().postDelayed(new Runnable() {
                 @Override

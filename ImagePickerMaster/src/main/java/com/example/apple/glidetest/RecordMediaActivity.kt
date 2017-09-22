@@ -9,13 +9,13 @@ import android.os.Handler
 import android.view.View
 import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.media.MediaSurfaceView
-import com.example.apple.glidetest.media.SizeUtils
 import com.example.apple.glidetest.media.SlideHolder
 import com.example.apple.glidetest.media.VideoRecordBtn
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyScreenUtils
+import com.txy.androidutils.dialog.TxyDialogUtils
 import kotlinx.android.synthetic.main.activity_record_media.*
 import kotlinx.android.synthetic.main.slide_view.*
 import java.io.File
@@ -25,6 +25,8 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     var isCamera: Boolean = false
     private var slideHolder: SlideHolder? = null
     var media: Media? = null
+    private var dialogUtisl:TxyDialogUtils?=null
+
 
     companion object {
         fun startForResult(context: Activity, isCamera: Boolean) {
@@ -41,6 +43,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         StatusBarUtil.setStatusBarColorBlack(this)
         window.setFormat(PixelFormat.TRANSLUCENT)
         btnRecord.setOnRecordListener(this)
+        dialogUtisl = TxyDialogUtils(this)
         isCamera = intent.getBooleanExtra(PickerSettings.IS_CAMERA, true)
         slideHolder = SlideHolder(view)
         changeMediaType(isCamera)
@@ -51,16 +54,18 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
     private fun initSurface() {
         ivSwitch.visibility = if (surfaceView!!.camerasCount > 1) View.VISIBLE else View.GONE
-        val screenWidth = TxyScreenUtils.getScreenWidth(this)
-        val size = SizeUtils(surfaceView.camera!!).previewSize
-        val params = surfaceView.layoutParams
-        var rate = size!!.height.toFloat() / size.width.toFloat()
-        if (rate < 1)
-            rate = size.width.toFloat() / size.height.toFloat()
-        params.height = (screenWidth * rate).toInt()
-        params.width = screenWidth
-        surfaceView.layoutParams = params
-        Logger.e(params.height.toString() + "----->" + params.width.toString())
+        val size = surfaceView.previewSize
+        if(size != null){
+            val screenWidth = TxyScreenUtils.getScreenWidth(this)
+            val params = surfaceView.layoutParams
+            var rate = size.height.toFloat() / size.width.toFloat()
+            if (rate < 1)
+                rate = size.width.toFloat() / size.height.toFloat()
+            params.height = (screenWidth * rate).toInt()
+            params.width = screenWidth
+            surfaceView.layoutParams = params
+            Logger.e(params.height.toString() + "----->" + params.width.toString())
+        }
     }
 
     override fun onRecordStart(isCamera: Boolean) {
@@ -164,5 +169,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         btnRecord.destroy()
         videoView.destroy()
         surfaceView.destroy()
+        dialogUtisl?.destroy()
     }
 }
