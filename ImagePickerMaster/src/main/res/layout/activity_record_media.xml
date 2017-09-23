@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@android:color/transparent"
     android:orientation="vertical"
     tools:context="com.example.apple.glidetest.RecordMediaActivity">
 
@@ -13,7 +14,6 @@
         android:layout_height="match_parent" />
 
     <ImageView
-        android:background="@android:color/transparent"
         android:id="@+id/ivPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

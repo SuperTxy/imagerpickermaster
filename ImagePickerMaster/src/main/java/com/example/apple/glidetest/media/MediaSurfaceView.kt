@@ -9,6 +9,7 @@ import android.graphics.Matrix
 import android.hardware.Camera
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
+import android.os.Handler
 import android.util.AttributeSet
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -140,9 +141,11 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             listener?.afterStopRecord(mediaFile!!)
         } catch(e: Exception) {
             Logger.e(e.message)
-            mediaRecorder?.stop()
-            mediaRecorder?.release()
-            mediaRecorder = null
+            Handler().postDelayed(Runnable {
+                mediaRecorder?.stop()
+                mediaRecorder?.release()
+                mediaRecorder = null
+            }, 1500)
             toastUtils!!.toast(context.getString(R.string.record_time_is_too_short))
         }
     }
@@ -184,7 +187,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             releaseCamera()
             camera = Camera.open(currentCameraFacing)
             startPreview(holder)
-        } else Logger.e("手机不支持前置摄像头！")
+        } else toastUtils!!.toast("手机不支持前置摄像头！")
         return currentCameraFacing
     }
 

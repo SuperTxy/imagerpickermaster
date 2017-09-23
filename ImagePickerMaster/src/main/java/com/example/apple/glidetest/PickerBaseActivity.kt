@@ -162,7 +162,11 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     fun launchMediaRecord(isCamera: Boolean) {
         if (adapter == null) return
-        permissionUtils!!.checkRecordVideoPermission {
+        if (!isCamera) {
+            permissionUtils!!.checkRecordVideoPermission {
+                RecordMediaActivity.startForResult(this, isCamera)
+            }
+        }else  permissionUtils!!.checkCameraPermission {
             RecordMediaActivity.startForResult(this, isCamera)
         }
     }

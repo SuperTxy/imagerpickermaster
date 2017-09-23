@@ -82,20 +82,20 @@ public class VideoRecordBtn extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if (isCamera) {
-                    permissionUtils.checkCameraPermission(new Runnable() {
-                        @Override
-                        public void run() {
+//                    permissionUtils.checkCameraPermission(new Runnable() {
+//                        @Override
+//                        public void run() {
                             if (listener != null)
                                 listener.onRecordStart();
-                        }
-                    });
+//                        }
+//                    });
                 } else {
-                    permissionUtils.checkRecordVideoPermission(new Runnable() {
-                        @Override
-                        public void run() {
+//                    permissionUtils.checkRecordVideoPermission(new Runnable() {
+//                        @Override
+//                        public void run() {
                             press();
-                        }
-                    });
+//                        }
+//                    });
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -181,6 +181,7 @@ public class VideoRecordBtn extends View {
         void onRecordFinish();
 
         void onRecordStart();
+
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
