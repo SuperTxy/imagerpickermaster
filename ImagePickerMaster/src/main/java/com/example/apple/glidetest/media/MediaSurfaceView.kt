@@ -9,7 +9,6 @@ import android.graphics.Matrix
 import android.hardware.Camera
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
-import android.os.Handler
 import android.util.AttributeSet
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -30,7 +29,7 @@ import java.io.IOException
  * Created by Apple on 17/9/16.
  */
 class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
-    : SurfaceView(context, attrs, defStyleAttr) {
+    : SurfaceView(context, attrs, defStyleAttr), Camera.PreviewCallback {
 
     var camera: Camera? = null
     var camerasCount = 1
@@ -69,6 +68,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun startPreview(holder: SurfaceHolder) {
+        camera!!.setPreviewCallback(this)
         camera!!.setPreviewDisplay(holder)
         setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
         camera!!.startPreview()
@@ -130,48 +130,61 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.start()
 
     }
-
+//  meizu  stop called in an invalid state: 0  stop failed: -1007
     fun stopRecord() {
         Logger.d("------>stopRecord")
+        mediaRecorder?.setOnErrorListener(null)
+        mediaRecorder?.setOnInfoListener(null)
+        mediaRecorder?.setPreviewDisplay(null)
         try {
-            camera?.stopPreview()
             mediaRecorder?.stop()
+        } catch(e: RuntimeException) {
+            Logger.e(e.message)
+            mediaRecorder = null
+            mediaRecorder = MediaRecorder()
+            toastUtils!!.toast(context.getString(R.string.record_time_is_too_short))
+            if (mediaFile != null && mediaFile!!.exists()) {
+                mediaFile!!.delete()
+                mediaFile = null
+            }
+        }finally {
             mediaRecorder?.release()
             mediaRecorder = null
+        }
+        if (mediaFile != null){
+            stopPreview()
             listener?.afterStopRecord(mediaFile!!)
-        } catch(e: Exception) {
+        }
+    }
+
+    private fun stopPreview(){
+        try {
+            camera?.setPreviewCallback(null)
+            camera?.stopPreview()
+            camera?.setPreviewDisplay(null)
+            Logger.i("=======stop preview======")
+        }catch (e:IOException){
             Logger.e(e.message)
-            Handler().postDelayed(Runnable {
-                mediaRecorder?.stop()
-                mediaRecorder?.release()
-                mediaRecorder = null
-            }, 1500)
-            toastUtils!!.toast(context.getString(R.string.record_time_is_too_short))
         }
     }
 
     fun setCameraParameters() {
-        try {
-            previewSize = camera!!.parameters.supportedPreviewSizes.get(0)
-            val pictureSize = camera!!.parameters.supportedPictureSizes.get(8)
-            val parameters = camera!!.getParameters() // 获取相机参数
+        previewSize = camera!!.parameters.supportedPreviewSizes.get(0)
+        val pictureSize = camera!!.parameters.supportedPictureSizes.get(8)
+        val parameters = camera!!.getParameters() // 获取相机参数
 //        holder.setFixedSize(width, height)//照片的大小
-            parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
-            parameters?.setPreviewSize(previewSize!!.width, previewSize!!.height) // 设置预览大小
-            parameters?.setPictureSize(pictureSize.width, pictureSize.height) // 设置保存的图片尺寸
-            parameters?.setJpegQuality(100) // 设置照片质量
-            val supportedFocusModes = parameters?.getSupportedFocusModes()
-            if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
-                camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
-            } else {
-                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
-            }
-            camera?.setParameters(parameters)
-        } catch(e: Exception) {
-            Logger.e(e.message)
-            dialogUtisl!!.showPermissionDialog(context.getString(R.string.no_camera_permission))
+        parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
+        parameters?.setPreviewSize(previewSize!!.width, previewSize!!.height) // 设置预览大小
+        parameters?.setPictureSize(pictureSize.width, pictureSize.height) // 设置保存的图片尺寸
+        parameters?.setJpegQuality(100) // 设置照片质量
+        val supportedFocusModes = parameters?.getSupportedFocusModes()
+        if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
+            camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
+        } else {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
         }
+        camera?.setParameters(parameters)
     }
 
     fun changeCameraFacing(ivFlash: ImageView): Int {
@@ -215,14 +228,9 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             Camera.Parameters.FLASH_MODE_ON -> ivFlash.setImageResource(R.drawable.flash_on)
             Camera.Parameters.FLASH_MODE_TORCH -> ivFlash.setImageResource(R.drawable.flash_on)
         }
-        try {
-            val parameters = camera!!.parameters
-            parameters.flashMode = flashType
-            camera!!.parameters = parameters
-        } catch(e: Exception) {
-            Logger.e(e.message)
-            dialogUtisl!!.showPermissionDialog(context.getString(R.string.no_record_permission))
-        }
+        val parameters = camera!!.parameters
+        parameters.flashMode = flashType
+        camera!!.parameters = parameters
     }
 
     fun setCameraDisplayOrientation(activity: Activity,
@@ -259,10 +267,22 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         this.listener = listener
     }
 
+    override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
+//  每一帧的回调
+
+    }
+
     fun releaseCamera() {
-        camera?.stopPreview()
-        camera?.release()
-        camera = null
+        try {
+            camera?.setPreviewCallback(null)
+            camera?.stopPreview()
+//            这句要在stopPreview后执行，不然会卡顿或者花屏
+            camera?.setPreviewDisplay(null)
+            camera?.release()
+            camera = null
+        } catch(e: Exception) {
+            Logger.e(e.message)
+        }
     }
 
 

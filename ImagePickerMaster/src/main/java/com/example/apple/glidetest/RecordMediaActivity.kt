@@ -85,6 +85,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
     private val finishListener = object : MediaSurfaceView.OnMediaFinishListener {
+
         override fun afterStopRecord(mediaFile: File) {
             media = Media(null, mediaFile.absolutePath, null, Media.MediaType.VID)
             media!!.date = System.currentTimeMillis().toString()
