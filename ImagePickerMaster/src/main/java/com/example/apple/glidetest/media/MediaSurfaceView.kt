@@ -4,13 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.hardware.Camera
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
 import android.util.AttributeSet
-import android.view.Surface
+import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
@@ -45,7 +44,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-            setCameraParameters()
+            previewSize = setCameraParameters(camera!!)
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
@@ -65,14 +64,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         camerasCount = Camera.getNumberOfCameras()
         surfaceView.holder.setKeepScreenOn(true)
         surfaceView.holder.addCallback(surfaceCallBack)
-    }
-
-    fun startPreview(holder: SurfaceHolder) {
-        camera!!.setPreviewCallback(this)
-        camera!!.setPreviewDisplay(holder)
-        setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
-        camera!!.startPreview()
-        Logger.d("------>startPreview")
     }
 
     fun takePicture() {
@@ -130,7 +121,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.start()
 
     }
-//  meizu  stop called in an invalid state: 0  stop failed: -1007
+
+    //  meizu  stop called in an invalid state: 0  stop failed: -1007
     fun stopRecord() {
         Logger.d("------>stopRecord")
         mediaRecorder?.setOnErrorListener(null)
@@ -147,45 +139,71 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 mediaFile!!.delete()
                 mediaFile = null
             }
-        }finally {
+        } finally {
             mediaRecorder?.release()
             mediaRecorder = null
         }
-        if (mediaFile != null){
+        if (mediaFile != null) {
             stopPreview()
             listener?.afterStopRecord(mediaFile!!)
         }
     }
 
-    private fun stopPreview(){
-        try {
-            camera?.setPreviewCallback(null)
-            camera?.stopPreview()
-            camera?.setPreviewDisplay(null)
-            Logger.i("=======stop preview======")
-        }catch (e:IOException){
-            Logger.e(e.message)
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        when (event!!.action) {
+            MotionEvent.ACTION_DOWN -> {
+//                显示对焦指示器
+                if (event.pointerCount == 1) {
+                    listener?.touchFocus(event.x, event.y)
+                    handleFocus(event.x, event.y)
+                }
+                if (event.pointerCount == 2)
+                    Logger.e("pointerCount==" + 2)
+            }
+        }
+        return super.onTouchEvent(event)
+    }
+
+    var handlerTime: Int = 0
+
+    private fun handleFocus(x: Float, y: Float) {
+        if (camera != null) {
+            val parameters = camera!!.parameters
+            val focusRect = calculateTapArea(x, y, 1f, context)
+            camera!!.cancelAutoFocus()
+            if (parameters.maxNumFocusAreas > 0) {
+                val focusAreas = ArrayList<Camera.Area>()
+                focusAreas.add(Camera.Area(focusRect, 800))
+                parameters.focusAreas = focusAreas
+            } else {
+                Logger.i("focus area not supported")
+                listener?.onFocusSuccess()
+                return
+            }
+            val currentFocusMode = parameters.focusMode
+            try {
+                parameters.focusMode = Camera.Parameters.FOCUS_MODE_AUTO
+                camera!!.parameters = parameters
+                camera!!.autoFocus { success, camera ->
+                    if (success && handlerTime > 1) {
+                        val params = camera!!.parameters
+                        params.focusMode = currentFocusMode
+                        camera.parameters = params
+                        handlerTime = 0
+                        listener!!.onFocusSuccess()
+                        Logger.e("onFocusSuccess")
+                    } else {
+                        handlerTime++
+                        handleFocus(x, y)
+                    }
+                }
+            } catch (e: Exception) {
+                Logger.e(e.message + "--->autoFocus fail")
+            }
+
         }
     }
 
-    fun setCameraParameters() {
-        previewSize = camera!!.parameters.supportedPreviewSizes.get(0)
-        val pictureSize = camera!!.parameters.supportedPictureSizes.get(8)
-        val parameters = camera!!.getParameters() // 获取相机参数
-//        holder.setFixedSize(width, height)//照片的大小
-        parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
-        parameters?.setPreviewSize(previewSize!!.width, previewSize!!.height) // 设置预览大小
-        parameters?.setPictureSize(pictureSize.width, pictureSize.height) // 设置保存的图片尺寸
-        parameters?.setJpegQuality(100) // 设置照片质量
-        val supportedFocusModes = parameters?.getSupportedFocusModes()
-        if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
-            camera?.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
-        } else {
-            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
-        }
-        camera?.setParameters(parameters)
-    }
 
     fun changeCameraFacing(ivFlash: ImageView): Int {
         if (camerasCount > 1) {
@@ -233,43 +251,41 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         camera!!.parameters = parameters
     }
 
-    fun setCameraDisplayOrientation(activity: Activity,
-                                    cameraId: Int, camera: android.hardware.Camera) {
-        val info = android.hardware.Camera.CameraInfo()
-        android.hardware.Camera.getCameraInfo(cameraId, info)
-        val rotation = activity.windowManager.defaultDisplay.rotation
-        var degrees = 0
-        when (rotation) {
-            Surface.ROTATION_0 -> degrees = 0
-            Surface.ROTATION_90 -> degrees = 90
-            Surface.ROTATION_180 -> degrees = 180
-            Surface.ROTATION_270 -> degrees = 270
-        }
-
-        var result: Int
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (info.orientation + degrees) % 360
-            result = (360 - result) % 360  //  compensate the mirror
-        } else {  // back-facing
-            result = (info.orientation - degrees + 360) % 360
-        }
-        camera.setDisplayOrientation(result)
-    }
-
-    interface OnMediaFinishListener {
+    interface OnMediaListener {
         fun afterTakePicture(mediaFile: File)
         fun afterStopRecord(mediaFile: File)
+        fun onFocusSuccess()
+        fun touchFocus(x: Float, y: Float)
     }
 
-    private var listener: OnMediaFinishListener? = null
+    private var listener: OnMediaListener? = null
 
-    fun setOnMediaFinishListener(listener: OnMediaFinishListener) {
+    fun setOnMediaFinishListener(listener: OnMediaListener) {
         this.listener = listener
     }
 
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
 //  每一帧的回调
 
+    }
+
+    fun startPreview(holder: SurfaceHolder) {
+        camera!!.setPreviewCallback(this)
+        camera!!.setPreviewDisplay(holder)
+        setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
+        camera!!.startPreview()
+        Logger.d("------>startPreview")
+    }
+
+    private fun stopPreview() {
+        try {
+            camera?.setPreviewCallback(null)
+            camera?.stopPreview()
+            camera?.setPreviewDisplay(null)
+            Logger.i("=======stop preview======")
+        } catch (e: IOException) {
+            Logger.e(e.message)
+        }
     }
 
     fun releaseCamera() {
@@ -287,8 +303,13 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
 
     fun getCamera() {
-        if (camera == null)
-            camera = Camera.open(currentCameraFacing)
+        if (camera == null) {
+            try {
+                camera = Camera.open(currentCameraFacing)
+            } catch(e: Exception) {
+                Logger.e(e.message)
+            }
+        }
     }
 
     fun destroy() {

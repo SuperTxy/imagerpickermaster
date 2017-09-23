@@ -1,5 +1,7 @@
 package com.example.apple.glidetest
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.app.Activity
 import android.content.Intent
 import android.graphics.PixelFormat
@@ -71,8 +73,8 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         videoView.visibility = View.GONE
         ivPreview.visibility = View.GONE
 //        Handler().postDelayed(Runnable {
-            if (!isCamera)
-                surfaceView.startRecord()
+        if (!isCamera)
+            surfaceView.startRecord()
 //        }, 500)
     }
 
@@ -84,7 +86,15 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         }
     }
 
-    private val finishListener = object : MediaSurfaceView.OnMediaFinishListener {
+    private val mediaListener = object : MediaSurfaceView.OnMediaListener {
+        override fun touchFocus(x: Float, y: Float) {
+            handleFoucs(x, y)
+        }
+
+        override fun onFocusSuccess() {
+            focusView.visibility = View.INVISIBLE
+            Logger.e((focusView.visibility == View.INVISIBLE).toString())
+        }
 
         override fun afterStopRecord(mediaFile: File) {
             media = Media(null, mediaFile.absolutePath, null, Media.MediaType.VID)
@@ -108,7 +118,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
 
     fun initListener() {
-        surfaceView.setOnMediaFinishListener(finishListener)
+        surfaceView.setOnMediaFinishListener(mediaListener)
         tvBack.setOnClickListener {
             if (surfaceView.mediaFile != null && surfaceView.mediaFile!!.exists()) {
                 surfaceView.mediaFile?.delete()
@@ -156,6 +166,38 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         videoView.visibility = if (isFinish && !isCamera) View.VISIBLE else View.GONE
         surfaceView.visibility = if (isFinish) View.GONE else View.VISIBLE
         ivPreview.visibility = if (isFinish && isCamera) View.VISIBLE else View.GONE
+    }
+
+    fun handleFoucs(x: Float, y: Float): Boolean {
+        var x = x
+        var y = y
+        val screenWidth = TxyScreenUtils.getScreenWidth(this)
+        if (y > btnRecord.getTop()) {
+            return false
+        }
+        focusView.setVisibility(View.VISIBLE)
+        if (x < focusView.getWidth() / 2) {
+            x = (focusView.getWidth() / 2).toFloat()
+        }
+        if (x > screenWidth - focusView.getWidth() / 2) {
+            x = (screenWidth - focusView.getWidth() / 2).toFloat()
+        }
+        if (y < focusView.getWidth() / 2) {
+            y = (focusView.getWidth() / 2).toFloat()
+        }
+        if (y > btnRecord.getTop() - focusView.getWidth() / 2) {
+            y = (btnRecord.getTop() - focusView.getWidth() / 2).toFloat()
+        }
+        focusView.setX(x - focusView.getWidth() / 2)
+        focusView.setY(y - focusView.getHeight() / 2)
+        val scaleX = ObjectAnimator.ofFloat(focusView, "scaleX", 1f, 0.6f)
+        val scaleY = ObjectAnimator.ofFloat(focusView, "scaleY", 1f, 0.6f)
+        val alpha = ObjectAnimator.ofFloat(focusView, "alpha", 1f, 0.3f, 1f, 0.3f, 1f, 0.3f, 1f)
+        val animSet = AnimatorSet()
+        animSet.play(scaleX).with(scaleY).before(alpha)
+        animSet.duration = 400
+        animSet.start()
+        return true
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
