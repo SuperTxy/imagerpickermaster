@@ -1,13 +1,11 @@
 package com.example.apple.glidetest.media
 
 import android.app.Activity
-import android.content.Context
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.RectF
 import android.hardware.Camera
 import android.view.Surface
-import com.txy.androidutils.TxyScreenUtils
 
 /**
  * Created by Apple on 17/9/23.
@@ -55,23 +53,26 @@ fun setCameraParameters(camera: Camera): Camera.Size {
     return previewSize
 }
 
-// handle focus fun
- fun calculateTapArea(x: Float, y: Float, coefficient: Float, context: Context): Rect {
+fun calculateTapArea(x: Float, y: Float, coefficient: Float, width: Int, height: Int): Rect {
     val focusAreaSize = 300f
     val areaSize = java.lang.Float.valueOf(focusAreaSize * coefficient)!!.toInt()
-    val centerX = (x / TxyScreenUtils.getScreenHeight(context) * 2000 - 1000).toInt()
-    val centerY = (y / TxyScreenUtils.getScreenWidth(context) * 2000 - 1000).toInt()
-    val left = clamp(centerX - areaSize / 2, -1000, 1000)
-    val top = clamp(centerY - areaSize / 2, -1000, 1000)
-    val rectF = RectF(left.toFloat(), top.toFloat(), (left + areaSize).toFloat(), (top + areaSize).toFloat())
-    return Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF
-            .bottom))
+    val centerX = (x / width * 2000 - 1000).toInt()
+    val centerY = (y / height * 2000 - 1000).toInt()
+
+    val halfAreaSize = areaSize / 2
+    val rectF = RectF(clamp(centerX - halfAreaSize, -1000, 1000).toFloat(), clamp(centerY - halfAreaSize, -1000, 1000).toFloat(), clamp(centerX + halfAreaSize, -1000, 1000).toFloat(), clamp(centerY + halfAreaSize, -1000, 1000).toFloat())
+    return Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom))
 }
 
 fun clamp(x: Int, min: Int, max: Int): Int {
-    if (x > max) return max
-    if (x < min) return min
+    if (x > max) {
+        return max
+    }
+    if (x < min) {
+        return min
+    }
     return x
 }
+
 
 

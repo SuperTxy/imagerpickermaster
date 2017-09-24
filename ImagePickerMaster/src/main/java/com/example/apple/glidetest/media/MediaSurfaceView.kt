@@ -155,7 +155,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 //                显示对焦指示器
                 if (event.pointerCount == 1) {
                     listener?.touchFocus(event.x, event.y)
-                    handleFocus(event.x, event.y)
+                    handleFocusMetering(event)
                 }
                 if (event.pointerCount == 2)
                     Logger.e("pointerCount==" + 2)
@@ -164,46 +164,43 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         return super.onTouchEvent(event)
     }
 
-    var handlerTime: Int = 0
-
-    private fun handleFocus(x: Float, y: Float) {
-        if (camera != null) {
-            val parameters = camera!!.parameters
-            val focusRect = calculateTapArea(x, y, 1f, context)
-            camera!!.cancelAutoFocus()
-            if (parameters.maxNumFocusAreas > 0) {
-                val focusAreas = ArrayList<Camera.Area>()
-                focusAreas.add(Camera.Area(focusRect, 800))
-                parameters.focusAreas = focusAreas
-            } else {
-                Logger.i("focus area not supported")
+    private fun handleFocusMetering(event: MotionEvent) {
+        val focusRect = calculateTapArea(event.x, event.y, 1f, width, height)
+        val meteringRect = calculateTapArea(event.x, event.y, 1.5f, width, height)
+        camera!!.cancelAutoFocus()
+        val params = camera!!.parameters
+        if (params.maxNumFocusAreas > 0) {
+            val focusAreas = java.util.ArrayList<Camera.Area>()
+            focusAreas.add(Camera.Area(focusRect, 800))
+            params.focusAreas = focusAreas
+        } else {
+            Logger.i("focus areas not supported")
+            listener?.onFocusSuccess()
+            return
+        }
+        if (params.maxNumMeteringAreas > 0) {
+            val meteringAreas = java.util.ArrayList<Camera.Area>()
+            meteringAreas.add(Camera.Area(meteringRect, 800))
+            params.meteringAreas = meteringAreas
+        } else {
+            Logger.i("metering areas not supported")
+            listener?.onFocusSuccess()
+            return
+        }
+        val currentFocusMode = params.focusMode
+        try {
+            params.focusMode = Camera.Parameters.FOCUS_MODE_MACRO
+            camera!!.parameters = params
+            camera!!.autoFocus { success, camera ->
+                val params1 = camera.parameters
+                params.focusMode = currentFocusMode
+                camera.parameters = params1
                 listener?.onFocusSuccess()
-                return
             }
-            val currentFocusMode = parameters.focusMode
-            try {
-                parameters.focusMode = Camera.Parameters.FOCUS_MODE_AUTO
-                camera!!.parameters = parameters
-                camera!!.autoFocus { success, camera ->
-                    if (success && handlerTime > 1) {
-                        val params = camera!!.parameters
-                        params.focusMode = currentFocusMode
-                        camera.parameters = params
-                        handlerTime = 0
-                        listener!!.onFocusSuccess()
-                        Logger.e("onFocusSuccess")
-                    } else {
-                        handlerTime++
-                        handleFocus(x, y)
-                    }
-                }
-            } catch (e: Exception) {
-                Logger.e(e.message + "--->autoFocus fail")
-            }
-
+        } catch (e: Exception) {
+            Logger.e(e.message + "--->autoFocus fail")
         }
     }
-
 
     fun changeCameraFacing(ivFlash: ImageView): Int {
         if (camerasCount > 1) {

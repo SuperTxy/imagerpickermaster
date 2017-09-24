@@ -93,7 +93,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
         override fun onFocusSuccess() {
             focusView.visibility = View.INVISIBLE
-            Logger.e((focusView.visibility == View.INVISIBLE).toString())
         }
 
         override fun afterStopRecord(mediaFile: File) {
