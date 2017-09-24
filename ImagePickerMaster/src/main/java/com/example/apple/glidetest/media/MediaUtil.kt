@@ -2,72 +2,43 @@ package com.example.apple.glidetest.media
 
 import android.app.Activity
 import android.graphics.ImageFormat
-import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
 import android.hardware.Camera
 import android.view.MotionEvent
 import android.view.Surface
 import com.orhanobut.logger.Logger
+import java.util.*
 
 /**
  * Created by Apple on 17/9/23.
  */
-
-private val DEFAULT_WIDTH = 1920
-private val DEFAULT_HEIGHT = 1080
-
-fun getBestPreviewSizeValue(sizeList: List<Camera.Size>): Point {
-    var bestX = 0
-    var bestY = 0
-    var size = 0
-    for (it in sizeList){
-        if (it.width == DEFAULT_WIDTH && it.height == DEFAULT_HEIGHT) {
-            Logger.d("get default preview size!!!")
-            return Point(DEFAULT_WIDTH, DEFAULT_HEIGHT)
-        }
+private val sizeComparator = CameraSizeComparator()
+fun getPreviewOrPictureSize(list:List<Camera.Size> ,th:Int,rate:Float):Camera.Size{
+    Collections.sort(list, sizeComparator)
+    for (it in list){
+        if (it.width > th && equalRate(it,rate))
+            return  it
     }
-    for (it in sizeList) {
-        val newSize = Math.abs(it.width * it.width) + Math.abs(it.height * it.height)
-        val ratio = it.height.toFloat() / it.width.toFloat()
-        if (newSize >= size && ratio == 9f/16f) {
-            bestX = it.width
-            bestY = it.height
-            size = newSize
-        } else if (newSize < size) continue
-    }
-    if (bestX > 0 && bestY > 0)
-        return Point(bestX, bestY)
-    else return Point(sizeList.get(0).width, sizeList.get(0).height)
+    return getBestSize(list,rate)
 }
 
-fun getBestPictureSizeValue(sizeList: List<Camera.Size>, screenResolution: Point): Point {
-    val tempList = ArrayList<Camera.Size>()
-    for (it in sizeList) {
-        if (it.width == DEFAULT_WIDTH && it.height == DEFAULT_HEIGHT) {
-            Logger.d("get default picture size!!!")
-            return Point(DEFAULT_WIDTH, DEFAULT_HEIGHT)
-        }
-        if (it.width >= screenResolution.x && it.height >= screenResolution.y)
-            tempList.add(it)
-    }
-    var bestX = 0
-    var bestY = 0
-    var diff = Integer.MAX_VALUE
-    if (tempList.size > 0) {
-        for (it in tempList) {
-            val newDiff = Math.abs(it.width - screenResolution.x) + Math.abs(it.height - screenResolution.y)
-            val ratio = it.height.toFloat() / it.width.toFloat()
-            if (newDiff < diff && ratio == 9f/16f) {
-                bestX = it.width
-                bestY = it.height
-                diff = newDiff
-            }
+private fun getBestSize(list:List<Camera.Size>,rate:Float):Camera.Size{
+    var previewDisparity = 100f
+    var size = list.get(0)
+    for (it in list){
+        val prop = it.width.toFloat() / it.height.toFloat()
+        if (Math.abs(rate -prop) < previewDisparity){
+            previewDisparity = Math.abs(rate - prop)
+            size = it
         }
     }
-    if (bestX > 0 && bestY > 0)
-        return Point(bestX, bestY)
-    else return Point(sizeList.get(7).width, sizeList.get(7).height)
+    return size
+}
+
+private fun equalRate(s: Camera.Size, rate: Float): Boolean {
+    val r = s.width.toFloat() / s.height.toFloat()
+    return Math.abs(r - rate) <= 0.2
 }
 
 fun setCameraDisplayOrientation(activity: Activity,
@@ -93,17 +64,16 @@ fun setCameraDisplayOrientation(activity: Activity,
     camera.setDisplayOrientation(result)
 }
 
-fun setCameraParameters(camera: Camera): Point {
+fun setCameraParameters(camera: Camera,screenProp:Float): Camera.Size {
     val parameters = camera.getParameters() // 获取相机参数
-    val previewSize = getBestPreviewSizeValue(parameters.supportedPreviewSizes)
-    val screenResolution = Point(parameters.pictureSize.width,parameters.pictureSize.height)
-    val pictureSize = getBestPictureSizeValue(parameters.supportedPictureSizes,screenResolution)
-    Logger.e(previewSize.x.toString()+"--->previewSize-->"+previewSize.y)
-    Logger.e(pictureSize.x.toString()+"--->pictureSize-->"+pictureSize.y)
+    val previewSize = getPreviewOrPictureSize(parameters.supportedPreviewSizes,1000,screenProp)
+    val pictureSize = getPreviewOrPictureSize(parameters.supportedPictureSizes,2000,screenProp)
+    Logger.e(previewSize.width.toString()+"--->previewSize-->"+previewSize.height)
+    Logger.e(pictureSize.width.toString()+"--->pictureSize-->"+pictureSize.height)
 //        holder.setFixedSize(width, height)//照片的大小
     parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
-    parameters?.setPreviewSize(previewSize.x, previewSize.y) // 设置预览大小
-    parameters?.setPictureSize(pictureSize.x, pictureSize.y) // 设置保存的图片尺寸
+    parameters?.setPreviewSize(previewSize.width, previewSize.height) // 设置预览大小
+    parameters?.setPictureSize(pictureSize.width, pictureSize.height) // 设置保存的图片尺寸
     parameters?.setJpegQuality(100) // 设置照片质量
     val supportedFocusModes = parameters?.getSupportedFocusModes()
     if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {

@@ -46,26 +46,10 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         dialogUtisl = TxyDialogUtils(this)
         isCamera = intent.getBooleanExtra(PickerSettings.IS_CAMERA, true)
         slideHolder = SlideHolder(view)
+        ivSwitch.visibility = if (surfaceView!!.camerasCount > 1) View.VISIBLE else View.GONE
         changeMediaType(isCamera)
         initListener()
-        initSurface()
         resetView(false)
-    }
-
-    private fun initSurface() {
-        ivSwitch.visibility = if (surfaceView!!.camerasCount > 1) View.VISIBLE else View.GONE
-//        val size = surfaceView.previewSize
-//        if (size != null) {
-//            val screenWidth = TxyScreenUtils.getScreenWidth(this)
-//            val params = surfaceView.layoutParams
-//            var rate = size.y.toFloat() / size.x.toFloat()
-//            if (rate < 1)
-//                rate = size.x.toFloat() / size.y.toFloat()
-//            params.height = (screenWidth * rate).toInt()
-//            params.width = screenWidth
-//            surfaceView.layoutParams = params
-//            Logger.e(params.height.toString() + "----->" + params.width.toString())
-//        }
     }
 
     override fun onRecordStart() {

@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.graphics.Point
 import android.hardware.Camera
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
@@ -41,11 +40,12 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     var isCamera: Boolean = false
     private var toastUtils: TxyToastUtils? = null
     private var dialogUtisl: TxyDialogUtils? = null
-    var previewSize:Point ?=null
+    private var screenProp = -1f
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-            previewSize = setCameraParameters(camera!!)
+            Logger.e(screenProp.toString())
+            setCameraParameters(camera!!,screenProp)
             Logger.e(camera!!.parameters.previewSize.width.toString()+"--->previewSize-->"+camera!!.parameters.previewSize.height)
             Logger.e(camera!!.parameters.pictureSize.width.toString()+"--->pictureSize-->"+camera!!.parameters.pictureSize.height)
         }
@@ -58,6 +58,12 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             Logger.d("surfaceCreated---->")
             startPreview(holder!!)
         }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        if (screenProp < 0)
+            screenProp = measuredHeight.toFloat() / measuredWidth
     }
 
     init {
