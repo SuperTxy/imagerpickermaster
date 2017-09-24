@@ -44,7 +44,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-            Logger.e(screenProp.toString())
             setCameraParameters(camera!!,screenProp)
             Logger.e(camera!!.parameters.previewSize.width.toString()+"--->previewSize-->"+camera!!.parameters.previewSize.height)
             Logger.e(camera!!.parameters.pictureSize.width.toString()+"--->pictureSize-->"+camera!!.parameters.pictureSize.height)
@@ -62,8 +61,10 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        if (screenProp < 0)
+        if (screenProp < 0) {
             screenProp = measuredHeight.toFloat() / measuredWidth
+            Logger.e(measuredHeight.toString()+"---->"+measuredWidth)
+        }
     }
 
     init {
@@ -251,6 +252,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             }
             releaseCamera()
             camera = Camera.open(currentCameraFacing)
+            setCameraParameters(camera!!,screenProp)
             startPreview(holder)
         } else toastUtils!!.toast("手机不支持前置摄像头！")
         return currentCameraFacing
@@ -300,7 +302,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
 //  每一帧的回调
-
     }
 
     fun startPreview(holder: SurfaceHolder) {

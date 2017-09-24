@@ -67,7 +67,7 @@ fun setCameraDisplayOrientation(activity: Activity,
 fun setCameraParameters(camera: Camera,screenProp:Float): Camera.Size {
     val parameters = camera.getParameters() // 获取相机参数
     val previewSize = getPreviewOrPictureSize(parameters.supportedPreviewSizes,1000,screenProp)
-    val pictureSize = getPreviewOrPictureSize(parameters.supportedPictureSizes,2000,screenProp)
+    val pictureSize = getPreviewOrPictureSize(parameters.supportedPictureSizes,1200,screenProp)
     Logger.e(previewSize.width.toString()+"--->previewSize-->"+previewSize.height)
     Logger.e(pictureSize.width.toString()+"--->pictureSize-->"+pictureSize.height)
 //        holder.setFixedSize(width, height)//照片的大小

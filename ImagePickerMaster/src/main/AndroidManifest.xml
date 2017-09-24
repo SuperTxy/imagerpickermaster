@@ -25,6 +25,7 @@
             android:name=".PickerActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".RecordMediaActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:screenOrientation="portrait" />
     </application>
 
