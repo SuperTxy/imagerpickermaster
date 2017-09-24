@@ -161,12 +161,15 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             MotionEvent.ACTION_POINTER_DOWN -> oldDist = getFingerSpacing(event)
             MotionEvent.ACTION_MOVE -> {
                 val newDist = getFingerSpacing(event)
-                if (newDist > oldDist) {
-                    handleZoom(true)
-                } else if (newDist < oldDist) {
-                    handleZoom(false)
+                val zoomGradient = (width / 16f).toInt()
+                if ((newDist - oldDist).toInt()/zoomGradient != 0) {
+                    if (newDist > oldDist) {
+                        handleZoom(true)
+                    } else if (newDist < oldDist) {
+                        handleZoom(false)
+                    }
+                    oldDist = newDist
                 }
-                oldDist = newDist
             }
         }
         return true
