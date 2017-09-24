@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.media.MediaSurfaceView
@@ -87,8 +88,8 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
     private val mediaListener = object : MediaSurfaceView.OnMediaListener {
-        override fun touchFocus(x: Float, y: Float) {
-            handleFoucs(x, y)
+        override fun touchFocus(event: MotionEvent) {
+            handleFoucs(event)
         }
 
         override fun onFocusSuccess() {
@@ -167,9 +168,9 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         ivPreview.visibility = if (isFinish && isCamera) View.VISIBLE else View.GONE
     }
 
-    fun handleFoucs(x: Float, y: Float): Boolean {
-        var x = x
-        var y = y
+    fun handleFoucs(event: MotionEvent): Boolean {
+        var x = event.x
+        var y = event.y
         val screenWidth = TxyScreenUtils.getScreenWidth(this)
         if (y > btnRecord.getTop()) {
             return false

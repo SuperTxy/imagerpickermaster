@@ -5,6 +5,7 @@ import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.RectF
 import android.hardware.Camera
+import android.view.MotionEvent
 import android.view.Surface
 
 /**
@@ -72,6 +73,12 @@ fun clamp(x: Int, min: Int, max: Int): Int {
         return min
     }
     return x
+}
+
+fun getFingerSpacing(event: MotionEvent): Float {
+    val x = event.getX(0) - event.getX(1)
+    val y = event.getY(0) - event.getY(1)
+    return Math.sqrt((x * x + y * y).toDouble()).toFloat()
 }
 
 

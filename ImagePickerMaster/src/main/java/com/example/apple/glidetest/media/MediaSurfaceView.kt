@@ -149,19 +149,44 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
     }
 
+    private var oldDist = 1f
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        when (event!!.action) {
-            MotionEvent.ACTION_DOWN -> {
 //                显示对焦指示器
-                if (event.pointerCount == 1) {
-                    listener?.touchFocus(event.x, event.y)
-                    handleFocusMetering(event)
+        if (event!!.pointerCount == 1) {
+            listener?.touchFocus(event)
+            handleFocusMetering(event)
+        } else
+            when (event.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_POINTER_DOWN -> oldDist = getFingerSpacing(event)
+            MotionEvent.ACTION_MOVE -> {
+                val newDist = getFingerSpacing(event)
+                if (newDist > oldDist) {
+                    handleZoom(true)
+                } else if (newDist < oldDist) {
+                    handleZoom(false)
                 }
-                if (event.pointerCount == 2)
-                    Logger.e("pointerCount==" + 2)
+                oldDist = newDist
             }
         }
-        return super.onTouchEvent(event)
+        return true
+    }
+
+    private fun handleZoom(isZoomIn: Boolean) {
+        val params = camera!!.parameters
+        if (params.isZoomSupported) {
+            val maxZoom = params.maxZoom
+            var zoom = params.zoom
+            if (isZoomIn && zoom < maxZoom) {
+                zoom++
+            } else if (zoom > 0) {
+                zoom--
+            }
+            params.zoom = zoom
+            camera!!.parameters = params
+        } else {
+            Logger.i("zoom not supported")
+        }
     }
 
     private fun handleFocusMetering(event: MotionEvent) {
@@ -252,7 +277,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         fun afterTakePicture(mediaFile: File)
         fun afterStopRecord(mediaFile: File)
         fun onFocusSuccess()
-        fun touchFocus(x: Float, y: Float)
+        fun touchFocus(event: MotionEvent)
     }
 
     private var listener: OnMediaListener? = null
