@@ -5,7 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.hardware.Camera
+import android.hardware.*
 import android.media.CamcorderProfile
 import android.media.MediaRecorder
 import android.util.AttributeSet
@@ -18,7 +18,6 @@ import com.example.apple.glidetest.R
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyFileUtils
 import com.txy.androidutils.TxyToastUtils
-import com.txy.androidutils.dialog.TxyDialogUtils
 import kotlinx.android.synthetic.main.activity_record_media.view.*
 import java.io.File
 import java.io.FileOutputStream
@@ -39,14 +38,16 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var videoFlashType = Camera.Parameters.FLASH_MODE_OFF
     var isCamera: Boolean = false
     private var toastUtils: TxyToastUtils? = null
-    private var dialogUtisl: TxyDialogUtils? = null
     private var screenProp = -1f
+    private var cameraAngle = 90
+    private var angle = 0
+    private var sm: SensorManager? = null
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-            setCameraParameters(camera!!,screenProp)
-            Logger.e(camera!!.parameters.previewSize.width.toString()+"--->previewSize-->"+camera!!.parameters.previewSize.height)
-            Logger.e(camera!!.parameters.pictureSize.width.toString()+"--->pictureSize-->"+camera!!.parameters.pictureSize.height)
+            setCameraParameters(camera!!, screenProp)
+            Logger.e(camera!!.parameters.previewSize.width.toString() + "--->previewSize-->" + camera!!.parameters.previewSize.height)
+            Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->pictureSize-->" + camera!!.parameters.pictureSize.height)
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
@@ -63,12 +64,11 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         if (screenProp < 0) {
             screenProp = measuredHeight.toFloat() / measuredWidth
-            Logger.e(measuredHeight.toString()+"---->"+measuredWidth)
+            Logger.e(measuredHeight.toString() + "---->" + measuredWidth)
         }
     }
 
     init {
-        dialogUtisl = TxyDialogUtils(context)
         getCamera()
         toastUtils = TxyToastUtils(context)
         camerasCount = Camera.getNumberOfCameras()
@@ -76,7 +76,24 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         surfaceView.holder.addCallback(surfaceCallBack)
     }
 
+    private val sensorEventListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            if (Sensor.TYPE_ACCELEROMETER != event.sensor.type) {
+                return
+            }
+            val values = event.values
+            angle = getSensorAngle(values[0], values[1])
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
+    }
+
     fun takePicture() {
+        var nowAngle: Int = 0
+        if (cameraAngle == 90)
+            nowAngle = Math.abs(angle + cameraAngle) % 360
+        else if (cameraAngle == 270)
+            nowAngle = Math.abs(cameraAngle - angle)
         camera!!.takePicture(null, null, object : Camera.PictureCallback {
             override fun onPictureTaken(data: ByteArray?, camera: Camera?) {
                 Logger.e("onPictureTaken-->" + data + camera)
@@ -84,9 +101,10 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 val fos = FileOutputStream(mediaFile)
                 val matrix = Matrix()
                 if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                    matrix.setRotate(90f)
+                    matrix.setRotate(nowAngle.toFloat())
                 } else {
-                    matrix.setRotate(-90f)
+                    matrix.setRotate(360f - nowAngle)
+                    matrix.postScale(-1f, 1f)
                 }
                 var bitmap = BitmapFactory.decodeByteArray(data, 0, data!!.size)
                 bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false)
@@ -101,6 +119,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun startRecord() {
         Logger.d("initMediaRecorder")
+        val nowAngle = (angle + 90) % 360
         camera!!.unlock()
         mediaFile = TxyFileUtils.createVIDFile(context)
         mediaRecorder = MediaRecorder()
@@ -110,7 +129,23 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.setVideoSource(MediaRecorder.VideoSource.CAMERA)
 //        设置视频输出格式和编码
         mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_480P))
-        mediaRecorder?.setOrientationHint(90)
+        if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+//            预览倒立的处理
+            if (cameraAngle == 270) {
+//           横屏
+                if (nowAngle == 0)
+                    mediaRecorder?.setOrientationHint(180)
+                else if (nowAngle == 270)
+                    mediaRecorder?.setOrientationHint(270)
+                else mediaRecorder?.setOrientationHint(90)
+            } else {
+                if (nowAngle == 90)
+                    mediaRecorder?.setOrientationHint(270)
+                else if (nowAngle == 270)
+                    mediaRecorder?.setOrientationHint(90)
+                else mediaRecorder?.setOrientationHint(nowAngle)
+            }
+        } else mediaRecorder?.setOrientationHint(nowAngle)
 //        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
 //        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
 //        mediaRecorder?.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
@@ -168,20 +203,20 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             handleFocusMetering(event)
         } else
             when (event.action and MotionEvent.ACTION_MASK) {
-            MotionEvent.ACTION_POINTER_DOWN -> oldDist = getFingerSpacing(event)
-            MotionEvent.ACTION_MOVE -> {
-                val newDist = getFingerSpacing(event)
-                val zoomGradient = (width / 16f).toInt()
-                if ((newDist - oldDist).toInt()/zoomGradient != 0) {
-                    if (newDist > oldDist) {
-                        handleZoom(true)
-                    } else if (newDist < oldDist) {
-                        handleZoom(false)
+                MotionEvent.ACTION_POINTER_DOWN -> oldDist = getFingerSpacing(event)
+                MotionEvent.ACTION_MOVE -> {
+                    val newDist = getFingerSpacing(event)
+                    val zoomGradient = (width / 16f).toInt()
+                    if ((newDist - oldDist).toInt() / zoomGradient != 0) {
+                        if (newDist > oldDist) {
+                            handleZoom(true)
+                        } else if (newDist < oldDist) {
+                            handleZoom(false)
+                        }
+                        oldDist = newDist
                     }
-                    oldDist = newDist
                 }
             }
-        }
         return true
     }
 
@@ -242,7 +277,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun changeCameraFacing(ivFlash: ImageView): Int {
         if (camerasCount > 1) {
-            currentCameraFacing
             if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_BACK) {
                 currentCameraFacing = Camera.CameraInfo.CAMERA_FACING_FRONT
                 ivFlash.visibility = View.INVISIBLE
@@ -252,7 +286,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             }
             releaseCamera()
             camera = Camera.open(currentCameraFacing)
-            setCameraParameters(camera!!,screenProp)
+            setCameraParameters(camera!!, screenProp)
             startPreview(holder)
         } else toastUtils!!.toast("手机不支持前置摄像头！")
         return currentCameraFacing
@@ -307,7 +341,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     fun startPreview(holder: SurfaceHolder) {
         camera!!.setPreviewCallback(this)
         camera!!.setPreviewDisplay(holder)
-        setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
+        cameraAngle = setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
         camera!!.startPreview()
         Logger.d("------>startPreview")
     }
@@ -321,6 +355,21 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         } catch (e: IOException) {
             Logger.e(e.message)
         }
+    }
+
+    fun registerSensorManager(context: Context) {
+        if (sm == null) {
+            sm = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        }
+        sm!!.registerListener(sensorEventListener, sm!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager
+                .SENSOR_DELAY_NORMAL)
+    }
+
+    fun unregisterSensorManager(context: Context) {
+        if (sm == null) {
+            sm = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        }
+        sm!!.unregisterListener(sensorEventListener)
     }
 
     fun releaseCamera() {
@@ -349,7 +398,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun destroy() {
         toastUtils?.destroy()
-        dialogUtisl?.destroy()
         mediaRecorder?.release()
         mediaRecorder = null
         releaseCamera()

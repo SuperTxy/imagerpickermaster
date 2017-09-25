@@ -42,7 +42,7 @@ private fun equalRate(s: Camera.Size, rate: Float): Boolean {
 }
 
 fun setCameraDisplayOrientation(activity: Activity,
-                                cameraId: Int, camera: android.hardware.Camera) {
+                                cameraId: Int, camera: android.hardware.Camera):Int {
     val info = android.hardware.Camera.CameraInfo()
     android.hardware.Camera.getCameraInfo(cameraId, info)
     val rotation = activity.windowManager.defaultDisplay.rotation
@@ -62,6 +62,7 @@ fun setCameraDisplayOrientation(activity: Activity,
         result = (info.orientation - degrees + 360) % 360
     }
     camera.setDisplayOrientation(result)
+    return result
 }
 
 fun setCameraParameters(camera: Camera,screenProp:Float): Camera.Size {
@@ -79,7 +80,7 @@ fun setCameraParameters(camera: Camera,screenProp:Float): Camera.Size {
     if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
         camera.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
-    } else if(supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_AUTO)){
+    } else if(supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)){
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
     }
     camera.setParameters(parameters)
@@ -111,6 +112,47 @@ fun getFingerSpacing(event: MotionEvent): Float {
     val x = event.getX(0) - event.getX(1)
     val y = event.getY(0) - event.getY(1)
     return Math.sqrt((x * x + y * y).toDouble()).toFloat()
+}
+
+fun getSensorAngle(x: Float, y: Float): Int {
+    if (Math.abs(x) > Math.abs(y)) {
+        /**
+         * 横屏倾斜角度比较大
+         */
+        if (x > 4) {
+            /**
+             * 左边倾斜
+             */
+            return 270
+        } else if (x < -4) {
+            /**
+             * 右边倾斜
+             */
+            return 90
+        } else {
+            /**
+             * 倾斜角度不够大
+             */
+            return 0
+        }
+    } else {
+        if (y > 7) {
+            /**
+             * 左边倾斜
+             */
+            return 0
+        } else if (y < -7) {
+            /**
+             * 右边倾斜
+             */
+            return 180
+        } else {
+            /**
+             * 倾斜角度不够大
+             */
+            return 0
+        }
+    }
 }
 
 

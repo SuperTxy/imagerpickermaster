@@ -12,6 +12,7 @@ import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.example.apple.glidetest.utils.loadImage
+import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.activity_big_image.*
 import kotlinx.android.synthetic.main.title_bar.*
@@ -31,6 +32,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     private var medias = FolderProvider.instance.selectedFolder!!.medias
     private var imageProvider = SelectMediaProvider.instance
     private var toastUtils: TxyToastUtils? = null
+    private var isFull: Boolean = false //是否全屏显示图片
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +56,14 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
             setResult(RESULT_OK, intent)
             finish()
         }
+
+        viewPager.setOnClickListener {
+            Logger.d("viewpager onClick")
+            titleBar.visibility = if (isFull) View.INVISIBLE else View.VISIBLE
+            flBottom.visibility = if (isFull) View.INVISIBLE else View.VISIBLE
+            isFull = !isFull
+        }
+
         ivRight.setOnClickListener {
             val media = medias.get(viewPager.currentItem)
             if (imageProvider.maxSelectToast(this@BigImageActivity, ivRight.isSelected))

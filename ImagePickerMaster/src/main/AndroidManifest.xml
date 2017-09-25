@@ -19,6 +19,7 @@
             android:name=".CommonPickerActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:name=".BigImageActivity"
             android:screenOrientation="portrait" />
         <activity

@@ -188,6 +188,16 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         btnRecord.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    override fun onResume() {
+        super.onResume()
+        surfaceView.registerSensorManager(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        surfaceView.unregisterSensorManager(this)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         btnRecord.destroy()
