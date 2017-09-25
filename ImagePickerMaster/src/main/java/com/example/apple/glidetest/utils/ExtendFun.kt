@@ -23,15 +23,16 @@ import java.io.File
 /**
  * Created by Apple on 17/7/31.
  */
-//TODO("Glide 4.1.1")
+
 fun loadImage(media: Media, imageView: ImageView) {
     val options = RequestOptions()
-            .centerCrop()
+            .fitCenter()
             .error(R.drawable.default_image)
     if (media.dir.isNullOrEmpty()) {
         Logger.e("此文件不存在！")
-    } else if (media.isVideo)
-        loadBitmap(media, imageView)
+    } else if (media.isVideo) {
+        Glide.with(imageView.context).asBitmap().load(File(media.path)).apply(options).into(imageView)
+    }
     else if (media.isGif)
         Glide.with(imageView.context).load(File(media.path)).apply(options).into(imageView)
     else Glide.with(imageView.context).load(File(media.path)).apply(options).into(imageView)

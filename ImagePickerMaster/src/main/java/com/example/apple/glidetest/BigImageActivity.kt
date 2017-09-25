@@ -92,11 +92,11 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     inner class MyPagerAdapter : PagerAdapter() {
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
-            val view = View.inflate(this@BigImageActivity, R.layout.video_pager, null)
             val media = medias.get(position)
+            val view = View.inflate(this@BigImageActivity, R.layout.video_pager, null)
             loadImage(media, view.photoView)
-            view.ivPlay.visibility = if (media.isVideo) View.VISIBLE else View.GONE
             container.addView(view)
+            view.ivPlay.visibility = if (media.isVideo) View.VISIBLE else View.GONE
             view.ivPlay.setOnClickListener {
                 videoView.visibility = View.VISIBLE
                 videoView.play(medias.get(viewPager.currentItem).path)

@@ -85,7 +85,6 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         lp.height = (screenWidth * player!!.videoHeight / player!!.videoWidth.toFloat()).toInt()
         view!!.surfaceView.layoutParams = lp
         Logger.e(media?.toString())
-
     }
 
     override fun onCompletion(mp: MediaPlayer?) {
