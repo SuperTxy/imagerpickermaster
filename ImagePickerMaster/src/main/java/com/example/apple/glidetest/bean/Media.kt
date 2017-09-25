@@ -61,7 +61,8 @@ class Media(var date: String? = null, var path: String, var size: String? = null
     var isSizeLarge10M: Boolean = false
         get() {
             if (size != null) {
-                return size!!.toLong() >= 10 * 1024 * 1024
+//                todo("在此放开大小的限制")
+                return size!!.toLong() >= 100 * 1024 * 1024
             }
             return false
         }
