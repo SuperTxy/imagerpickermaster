@@ -54,12 +54,11 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
     override fun onRecordStart() {
         surfaceView.visibility = View.VISIBLE
-        videoView.visibility = View.GONE
-        ivPreview.visibility = View.GONE
-//        Handler().postDelayed(Runnable {
-        if (!isCamera)
+        if (!isCamera) {
+            videoView.stop()
+            videoView.visibility = View.GONE
             surfaceView.startRecord()
-//        }, 500)
+        }else   ivPreview.visibility = View.GONE
     }
 
     override fun onRecordFinish() {
@@ -103,6 +102,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     fun initListener() {
         surfaceView.setOnMediaFinishListener(mediaListener)
         tvBack.setOnClickListener {
+            if (!isCamera) videoView.stop()
             if (surfaceView.mediaFile != null && surfaceView.mediaFile!!.exists()) {
                 surfaceView.mediaFile?.delete()
                 surfaceView.mediaFile = null
