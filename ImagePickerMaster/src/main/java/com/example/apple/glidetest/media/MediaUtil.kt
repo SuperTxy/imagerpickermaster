@@ -7,7 +7,6 @@ import android.graphics.RectF
 import android.hardware.Camera
 import android.view.MotionEvent
 import android.view.Surface
-import com.orhanobut.logger.Logger
 import java.util.*
 
 /**
@@ -69,14 +68,17 @@ fun setCameraParameters(camera: Camera,screenProp:Float): Camera.Size {
     val parameters = camera.getParameters() // 获取相机参数
     val previewSize = getPreviewOrPictureSize(parameters.supportedPreviewSizes,1000,screenProp)
     val pictureSize = getPreviewOrPictureSize(parameters.supportedPictureSizes,1200,screenProp)
-    Logger.e(previewSize.width.toString()+"--->previewSize-->"+previewSize.height)
-    Logger.e(pictureSize.width.toString()+"--->pictureSize-->"+pictureSize.height)
-//        holder.setFixedSize(width, height)//照片的大小
-    parameters?.setPictureFormat(ImageFormat.JPEG) // 设置图片格式
     parameters?.setPreviewSize(previewSize.width, previewSize.height) // 设置预览大小
     parameters?.setPictureSize(pictureSize.width, pictureSize.height) // 设置保存的图片尺寸
-    parameters?.setJpegQuality(100) // 设置照片质量
-    val supportedFocusModes = parameters?.getSupportedFocusModes()
+    val pictureFormats = parameters!!.supportedPictureFormats
+    for(it in pictureFormats){
+        if (it == ImageFormat.JPEG){
+            parameters.setPictureFormat(ImageFormat.JPEG)
+            parameters.setJpegQuality(100)
+            break
+        }
+    }
+    val supportedFocusModes = parameters.getSupportedFocusModes()
     if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
         camera.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上

@@ -45,9 +45,10 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-            setCameraParameters(camera!!, screenProp)
-            Logger.e(camera!!.parameters.previewSize.width.toString() + "--->previewSize-->" + camera!!.parameters.previewSize.height)
-            Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->pictureSize-->" + camera!!.parameters.pictureSize.height)
+//            setCameraParameters(camera!!, screenProp)
+//            Logger.e(measuredHeight.toString() + "---->" + measuredWidth+"-->"+screenProp)
+//            Logger.e(camera!!.parameters.previewSize.width.toString() + "--->previewSize-->" + camera!!.parameters.previewSize.height)
+//            Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->pictureSize-->" + camera!!.parameters.pictureSize.height)
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
@@ -125,8 +126,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder = MediaRecorder()
         mediaRecorder?.reset()
         mediaRecorder?.setCamera(camera)
-        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
         mediaRecorder?.setVideoSource(MediaRecorder.VideoSource.CAMERA)
+        mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
 //        设置视频输出格式和编码
         mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_480P))
         if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
@@ -147,7 +148,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             }
         } else mediaRecorder?.setOrientationHint(nowAngle)
 //        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-//        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT)
+//        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
 //        mediaRecorder?.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
 //        mediaRecorder?.setVideoFrameRate(4)
 //        mediaRecorder?.setVideoSize(camera!!.parameters.previewSize.width,camera!!.parameters.previewSize.height)
@@ -342,6 +343,10 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         camera!!.setPreviewCallback(this)
         camera!!.setPreviewDisplay(holder)
         cameraAngle = setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
+        setCameraParameters(camera!!, screenProp)
+        Logger.e(measuredHeight.toString() + "---->" + measuredWidth+"-->"+screenProp)
+        Logger.e(camera!!.parameters.previewSize.width.toString() + "--->previewSize-->" + camera!!.parameters.previewSize.height)
+        Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->pictureSize-->" + camera!!.parameters.pictureSize.height)
         camera!!.startPreview()
         Logger.d("------>startPreview")
     }

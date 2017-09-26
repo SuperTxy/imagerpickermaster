@@ -17,7 +17,7 @@ class Folder(var dir: String, var name: String) {
 
     fun addMedia(media: Media, index:Int?=null) {
         if (!medias.contains(media)) {
-//            java.lang.ArrayIndexOutOfBoundsException: length=10; index=10
+//            java.lang.ArrayIndexOutOfBoundsException: length=10; index=10  java.lang.ArrayIndexOutOfBoundsException: length=15; index=15
             if (index!=null && index >= 0) medias.add(index,media)
             else medias.add(media)
         }

@@ -56,7 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:paddingStart="15dp"
-                android:drawableLeft="@drawable/camera" />
+                android:drawableLeft="@drawable/camera1" />
 
             <TextView
                 android:textColor="@color/color777777"
