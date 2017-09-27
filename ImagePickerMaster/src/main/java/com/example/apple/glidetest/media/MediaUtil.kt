@@ -7,27 +7,29 @@ import android.graphics.RectF
 import android.hardware.Camera
 import android.view.MotionEvent
 import android.view.Surface
+import java.io.File
 import java.util.*
 
 /**
  * Created by Apple on 17/9/23.
  */
 private val sizeComparator = CameraSizeComparator()
-fun getPreviewOrPictureSize(list:List<Camera.Size> ,th:Int,rate:Float):Camera.Size{
+
+fun getPreviewOrPictureSize(list: List<Camera.Size>, th: Int, rate: Float): Camera.Size {
     Collections.sort(list, sizeComparator)
-    for (it in list){
-        if (it.width > th && equalRate(it,rate))
-            return  it
+    for (it in list) {
+        if (it.width > th && equalRate(it, rate))
+            return it
     }
-    return getBestSize(list,rate)
+    return getBestSize(list, rate)
 }
 
-private fun getBestSize(list:List<Camera.Size>,rate:Float):Camera.Size{
+private fun getBestSize(list: List<Camera.Size>, rate: Float): Camera.Size {
     var previewDisparity = 100f
     var size = list.get(0)
-    for (it in list){
+    for (it in list) {
         val prop = it.width.toFloat() / it.height.toFloat()
-        if (Math.abs(rate -prop) < previewDisparity){
+        if (Math.abs(rate - prop) < previewDisparity) {
             previewDisparity = Math.abs(rate - prop)
             size = it
         }
@@ -41,7 +43,7 @@ private fun equalRate(s: Camera.Size, rate: Float): Boolean {
 }
 
 fun setCameraDisplayOrientation(activity: Activity,
-                                cameraId: Int, camera: android.hardware.Camera):Int {
+                                cameraId: Int, camera: android.hardware.Camera): Int {
     val info = android.hardware.Camera.CameraInfo()
     android.hardware.Camera.getCameraInfo(cameraId, info)
     val rotation = activity.windowManager.defaultDisplay.rotation
@@ -64,15 +66,15 @@ fun setCameraDisplayOrientation(activity: Activity,
     return result
 }
 
-fun setCameraParameters(camera: Camera,screenProp:Float): Camera.Size {
+fun setCameraParameters(camera: Camera, screenProp: Float): Camera.Size {
     val parameters = camera.getParameters() // 获取相机参数
-    val previewSize = getPreviewOrPictureSize(parameters.supportedPreviewSizes,1000,screenProp)
-    val pictureSize = getPreviewOrPictureSize(parameters.supportedPictureSizes,1200,screenProp)
+    val previewSize = getPreviewOrPictureSize(parameters.supportedPreviewSizes, 1000, screenProp)
+    val pictureSize = getPreviewOrPictureSize(parameters.supportedPictureSizes, 1200, screenProp)
     parameters?.setPreviewSize(previewSize.width, previewSize.height) // 设置预览大小
     parameters?.setPictureSize(pictureSize.width, pictureSize.height) // 设置保存的图片尺寸
     val pictureFormats = parameters!!.supportedPictureFormats
-    for(it in pictureFormats){
-        if (it == ImageFormat.JPEG){
+    for (it in pictureFormats) {
+        if (it == ImageFormat.JPEG) {
             parameters.setPictureFormat(ImageFormat.JPEG)
             parameters.setJpegQuality(100)
             break
@@ -82,7 +84,7 @@ fun setCameraParameters(camera: Camera,screenProp:Float): Camera.Size {
     if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
         camera.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
-    } else if(supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)){
+    } else if (supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
     }
     camera.setParameters(parameters)
@@ -155,6 +157,13 @@ fun getSensorAngle(x: Float, y: Float): Int {
             return 0
         }
     }
+}
+
+fun deleteMediaFile(file: File?): File? {
+    if (file != null && file.exists()) {
+        file.delete()
+    }
+    return null
 }
 
 

@@ -45,10 +45,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
-//            setCameraParameters(camera!!, screenProp)
-//            Logger.e(measuredHeight.toString() + "---->" + measuredWidth+"-->"+screenProp)
-//            Logger.e(camera!!.parameters.previewSize.width.toString() + "--->previewSize-->" + camera!!.parameters.previewSize.height)
-//            Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->pictureSize-->" + camera!!.parameters.pictureSize.height)
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
@@ -65,7 +61,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         if (screenProp < 0) {
             screenProp = measuredHeight.toFloat() / measuredWidth
-            Logger.e(measuredHeight.toString() + "---->" + measuredWidth)
+//            Logger.e(measuredHeight.toString() + "---->" + measuredWidth)
         }
     }
 
@@ -122,6 +118,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         Logger.d("initMediaRecorder")
         val nowAngle = (angle + 90) % 360
         camera!!.unlock()
+        surfaceView.mediaFile = deleteMediaFile(surfaceView.mediaFile)
         mediaFile = TxyFileUtils.createVIDFile(context)
         mediaRecorder = MediaRecorder()
         mediaRecorder?.reset()
@@ -165,7 +162,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             mediaRecorder?.release()
         }
         mediaRecorder?.start()
-
     }
 
     //  meizu  stop called in an invalid state: 0  stop failed: -1007
@@ -197,27 +193,45 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     private var oldDist = 1f
 
+    private var downX = 0f
+    private var downY = 0f
     override fun onTouchEvent(event: MotionEvent?): Boolean {
 //                显示对焦指示器
         if (event!!.pointerCount == 1) {
-            listener?.touchFocus(event)
-            handleFocusMetering(event)
-        } else
-            when (event.action and MotionEvent.ACTION_MASK) {
-                MotionEvent.ACTION_POINTER_DOWN -> oldDist = getFingerSpacing(event)
-                MotionEvent.ACTION_MOVE -> {
-                    val newDist = getFingerSpacing(event)
-                    val zoomGradient = (width / 16f).toInt()
-                    if ((newDist - oldDist).toInt() / zoomGradient != 0) {
-                        if (newDist > oldDist) {
-                            handleZoom(true)
-                        } else if (newDist < oldDist) {
-                            handleZoom(false)
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    downX = event.rawX
+                    downY = event.rawY
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    val upX = event.rawX
+                    val upY = event.rawY
+                    if (Math.abs(upY - downY) <= Math.abs(upX - downX)) {
+                        if (Math.abs(upX - downX) < 5) {
+                            listener?.touchFocus(event)
+                            handleFocusMetering(event)
+                        } else {
+                            if (upX - downX < 0) listener?.switchToVideo()
+                            else listener?.switchToCamera()
                         }
-                        oldDist = newDist
                     }
                 }
             }
+        } else when (event.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_POINTER_DOWN -> oldDist = getFingerSpacing(event)
+            MotionEvent.ACTION_MOVE -> {
+                val newDist = getFingerSpacing(event)
+                val zoomGradient = (width / 16f).toInt()
+                if ((newDist - oldDist).toInt() / zoomGradient != 0) {
+                    if (newDist > oldDist) {
+                        handleZoom(true)
+                    } else if (newDist < oldDist) {
+                        handleZoom(false)
+                    }
+                    oldDist = newDist
+                }
+            }
+        }
         return true
     }
 
@@ -317,6 +331,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             Camera.Parameters.FLASH_MODE_ON -> ivFlash.setImageResource(R.drawable.flash_on)
             Camera.Parameters.FLASH_MODE_TORCH -> ivFlash.setImageResource(R.drawable.flash_on)
         }
+        if (camera == null) getCamera()
         val parameters = camera!!.parameters
         parameters.flashMode = flashType
         camera!!.parameters = parameters
@@ -327,6 +342,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         fun afterStopRecord(mediaFile: File)
         fun onFocusSuccess()
         fun touchFocus(event: MotionEvent)
+        fun switchToVideo()
+        fun switchToCamera()
     }
 
     private var listener: OnMediaListener? = null
@@ -341,14 +358,14 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun startPreview(holder: SurfaceHolder) {
         camera!!.setPreviewCallback(this)
-        camera!!.setPreviewDisplay(holder)
-        cameraAngle = setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
-        setCameraParameters(camera!!, screenProp)
-        Logger.e(measuredHeight.toString() + "---->" + measuredWidth+"-->"+screenProp)
-        Logger.e(camera!!.parameters.previewSize.width.toString() + "--->previewSize-->" + camera!!.parameters.previewSize.height)
-        Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->pictureSize-->" + camera!!.parameters.pictureSize.height)
-        camera!!.startPreview()
-        Logger.d("------>startPreview")
+        try {
+            camera!!.setPreviewDisplay(holder)
+            cameraAngle = setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
+            setCameraParameters(camera!!, screenProp)
+            camera!!.startPreview()
+        } catch(e: IOException) {
+            Logger.e(holder.isCreating.toString())
+        }
     }
 
     private fun stopPreview() {

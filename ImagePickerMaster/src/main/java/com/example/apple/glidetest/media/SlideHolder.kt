@@ -2,12 +2,10 @@ package com.example.apple.glidetest.media
 
 import android.graphics.Color
 import android.support.v4.content.ContextCompat
-import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
 import com.example.apple.glidetest.R
 import com.example.apple.glidetest.RecordMediaActivity
-import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyScreenUtils
 import kotlinx.android.synthetic.main.activity_record_media.view.*
 
@@ -15,9 +13,8 @@ import kotlinx.android.synthetic.main.activity_record_media.view.*
  * Created by Apple on 17/9/14.
  */
 
-class SlideHolder(private var view: View) : View.OnTouchListener {
+class SlideHolder(private var view: View){
 
-    private var downX = 0f
     var isFinish: Boolean = false
     var isRedLeft: Boolean = true
         set(value) {
@@ -32,10 +29,9 @@ class SlideHolder(private var view: View) : View.OnTouchListener {
         view.tvVideo.setOnClickListener {
             switchToVideo()
         }
-        view.setOnTouchListener(this)
     }
 
-    private fun switchToVideo() {
+     fun switchToVideo() {
         if (isRedLeft) {
             isRedLeft = false
             switchStatus()
@@ -45,7 +41,7 @@ class SlideHolder(private var view: View) : View.OnTouchListener {
         }
     }
 
-    private fun switchToCamera() {
+     fun switchToCamera() {
         if (!isRedLeft) {
             isRedLeft = true
             switchStatus()
@@ -54,24 +50,6 @@ class SlideHolder(private var view: View) : View.OnTouchListener {
             }
         }
     }
-
-    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        if (isFinish) return true
-        when (event!!.action) {
-            MotionEvent.ACTION_DOWN -> {
-                downX = event.rawX
-                Logger.d("ACTION_DOWN" + downX)
-            }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                var upX = event.rawX
-                if (upX - downX < 0) switchToVideo()
-                else switchToCamera()
-                Logger.d("ACTION_UP" + isRedLeft)
-            }
-        }
-        return true
-    }
-
 
     fun switchStatus() {
         view.tvVideoHint.text = view.context.getString(R.string.press_to_record)

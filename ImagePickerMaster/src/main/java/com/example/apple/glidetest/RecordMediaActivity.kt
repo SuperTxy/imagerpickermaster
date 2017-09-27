@@ -13,6 +13,7 @@ import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.media.MediaSurfaceView
 import com.example.apple.glidetest.media.SlideHolder
 import com.example.apple.glidetest.media.VideoRecordBtn
+import com.example.apple.glidetest.media.deleteMediaFile
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.txy.androidutils.TxyScreenUtils
@@ -50,6 +51,9 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         changeMediaType(isCamera)
         initListener()
         resetView(false)
+//        videoView.setOnClickListener {
+//            Logger.e("videoView.setOnClickListener ")
+//        }
     }
 
     override fun onRecordStart() {
@@ -58,7 +62,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
             videoView.stop()
             videoView.visibility = View.GONE
             surfaceView.startRecord()
-        }else   ivPreview.visibility = View.GONE
+        } else ivPreview.visibility = View.GONE
     }
 
     override fun onRecordFinish() {
@@ -70,6 +74,14 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
     private val mediaListener = object : MediaSurfaceView.OnMediaListener {
+        override fun switchToCamera() {
+            slideHolder!!.switchToCamera()
+        }
+
+        override fun switchToVideo() {
+           slideHolder!!.switchToVideo()
+        }
+
         override fun touchFocus(event: MotionEvent) {
             handleFoucs(event)
         }
@@ -103,19 +115,13 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         surfaceView.setOnMediaFinishListener(mediaListener)
         tvBack.setOnClickListener {
             if (!isCamera) videoView.stop()
-            if (surfaceView.mediaFile != null && surfaceView.mediaFile!!.exists()) {
-                surfaceView.mediaFile?.delete()
-                surfaceView.mediaFile = null
-            }
+            surfaceView.mediaFile = deleteMediaFile(surfaceView.mediaFile)
             slideHolder?.switchStatus()
             slideHolder?.isFinish = false
             resetView(false)
         }
         tvCancel.setOnClickListener {
-            val mediaFile = surfaceView.mediaFile
-            if (mediaFile != null && mediaFile.exists()) {
-                mediaFile.delete()
-            }
+            surfaceView.mediaFile = deleteMediaFile(surfaceView.mediaFile)
             finish()
         }
         tvOk.setOnClickListener {
@@ -199,9 +205,9 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
     override fun onDestroy() {
+        videoView.destroy()
         super.onDestroy()
         btnRecord.destroy()
-        videoView.destroy()
         surfaceView.destroy()
         dialogUtisl?.destroy()
     }

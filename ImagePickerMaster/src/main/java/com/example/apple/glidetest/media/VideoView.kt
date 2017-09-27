@@ -7,6 +7,7 @@ import android.support.annotation.AttrRes
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
 import android.widget.FrameLayout
@@ -15,7 +16,9 @@ import com.example.apple.glidetest.R
 import com.example.apple.glidetest.bean.Media
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyScreenUtils
+import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.videoview.view.*
+import java.io.File
 
 /**
  * Created by Apple on 17/9/12.
@@ -29,6 +32,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     private var position: Int = 0
     var media: Media? = null
     private var isRepeat: Boolean = false
+    private var toastUtils: TxyToastUtils? = null
     private var view: View? = null
 
     constructor(context: Context) : this(context, null) {}
@@ -38,6 +42,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     constructor(context: Context, attrs: AttributeSet?, @AttrRes defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
         view = LayoutInflater.from(context).inflate(R.layout.videoview, this)
         view!!.surfaceView.holder.addCallback(this)
+        toastUtils = TxyToastUtils(context)
         player = MediaPlayer()
         setOnClickListener {
             this.visibility = View.GONE
@@ -48,11 +53,13 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     fun play(dataResource: String, isRepeat: Boolean = false) {
         this.isRepeat = isRepeat
         if (!TextUtils.equals(dataResource, this.dataResource)) {
+            stop()
             this.dataResource = dataResource
             position = 0
-            player!!.reset()
             player!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
             try {
+                if (!File(dataResource).exists())
+                    toastUtils?.toastCenterStr("文件不存在")
                 player!!.setDataSource(dataResource)
                 player!!.setScreenOnWhilePlaying(true)
                 player!!.setOnCompletionListener(this)
@@ -70,7 +77,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
         Logger.d("mediaplayer   onError------------" + what + "extra-->" + extra)
-        Toast.makeText(context, "播放出错了！", Toast.LENGTH_SHORT).show()
+        toastUtils?.toastCenterStr("播放出错了！")
         this.visibility = View.GONE
         return false
     }
@@ -119,15 +126,19 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     fun stop() {
         if (player != null && dataResource != null) {
             player!!.stop()
+            player!!.reset()
             dataResource = null
         }
     }
 
     fun destroy() {
-        if (player != null) {
-            if (player!!.isPlaying)
-                player!!.stop()
-            player!!.release()
-        }
+        stop()
+        player?.release()
+        player = null
+        toastUtils?.destroy()
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return true
     }
 }
