@@ -61,15 +61,14 @@ abstract class PickerBaseActivity : Activity(), Observer {
         if (savedInstanceState == null) {
             imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 0)
             imageProvider!!.setSelect(initialSelect)
-            loadMedias()
         } else {
             if (imageProvider!!.maxSelect == 0) {
                 imageProvider!!.maxSelect = intent.getIntExtra(PickerSettings.MAX_SELECT, 0)
                 imageProvider!!.setSelect(initialSelect)
             }
-            initData()
             tmpFile = savedInstanceState.getSerializable("tmpFile") as File?
         }
+        loadMedias()
         folderPopup = FolderPopup(this)
 
         btnReload!!.setOnClickListener {
@@ -166,7 +165,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
             permissionUtils!!.checkRecordVideoPermission {
                 RecordMediaActivity.startForResult(this, isCamera)
             }
-        }else  permissionUtils!!.checkCameraPermission {
+        } else permissionUtils!!.checkCameraPermission {
             RecordMediaActivity.startForResult(this, isCamera)
         }
     }
@@ -206,6 +205,12 @@ abstract class PickerBaseActivity : Activity(), Observer {
 
     abstract fun initData()
     abstract fun onPickerOk()
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        if (tmpFile != null)
+            outState!!.putSerializable("tmpFile", tmpFile)
+    }
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)

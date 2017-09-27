@@ -51,9 +51,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         changeMediaType(isCamera)
         initListener()
         resetView(false)
-//        videoView.setOnClickListener {
-//            Logger.e("videoView.setOnClickListener ")
-//        }
     }
 
     override fun onRecordStart() {

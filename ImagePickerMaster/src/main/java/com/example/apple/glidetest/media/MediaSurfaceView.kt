@@ -277,7 +277,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
         val currentFocusMode = params.focusMode
         try {
-            params.focusMode = Camera.Parameters.FOCUS_MODE_MACRO
+            params.focusMode = Camera.Parameters.FOCUS_MODE_AUTO
             camera!!.parameters = params
             camera!!.autoFocus { success, camera ->
                 val params1 = camera.parameters
@@ -362,6 +362,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             camera!!.setPreviewDisplay(holder)
             cameraAngle = setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
             setCameraParameters(camera!!, screenProp)
+            Logger.e(camera!!.parameters.pictureSize.width.toString()+"--->"+camera!!.parameters.pictureSize.height.toString())
             camera!!.startPreview()
         } catch(e: IOException) {
             Logger.e(holder.isCreating.toString())
