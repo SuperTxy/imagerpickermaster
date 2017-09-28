@@ -7,7 +7,6 @@ import android.support.annotation.AttrRes
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.View
 import android.widget.FrameLayout
@@ -77,7 +76,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
 
     override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
         Logger.d("mediaplayer   onError------------" + what + "extra-->" + extra)
-        toastUtils?.toastCenterStr("播放出错了！")
+//        toastUtils?.toastCenterStr("播放出错了！")
         this.visibility = View.GONE
         return false
     }
@@ -136,9 +135,5 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         player?.release()
         player = null
         toastUtils?.destroy()
-    }
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return true
     }
 }

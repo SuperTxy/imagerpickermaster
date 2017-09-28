@@ -252,6 +252,9 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
     }
 
+    /**
+     * 触摸对焦，触摸测光
+     */
     private fun handleFocusMetering(event: MotionEvent) {
         val focusRect = calculateTapArea(event.x, event.y, 1f, width, height)
         val meteringRect = calculateTapArea(event.x, event.y, 1.5f, width, height)

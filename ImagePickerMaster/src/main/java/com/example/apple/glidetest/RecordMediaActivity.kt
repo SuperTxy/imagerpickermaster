@@ -109,6 +109,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
 
     fun initListener() {
+        videoView.setOnClickListener {  }
         surfaceView.setOnMediaFinishListener(mediaListener)
         tvBack.setOnClickListener {
             if (!isCamera) videoView.stop()
