@@ -42,6 +42,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var cameraAngle = 90
     private var angle = 0
     private var sm: SensorManager? = null
+    private var previewSize: Camera.Size? = null
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
@@ -127,6 +128,9 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
 //        设置视频输出格式和编码
         mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_480P))
+//        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+//        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+//        mediaRecorder?.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
         if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 //            预览倒立的处理
             if (cameraAngle == 270) {
@@ -144,12 +148,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 else mediaRecorder?.setOrientationHint(nowAngle)
             }
         } else mediaRecorder?.setOrientationHint(nowAngle)
-//        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-//        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-//        mediaRecorder?.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
-//        mediaRecorder?.setVideoFrameRate(4)
-//        mediaRecorder?.setVideoSize(camera!!.parameters.previewSize.width,camera!!.parameters.previewSize.height)
-//        mediaRecorder?.setMaxDuration(12000)
         mediaRecorder?.setOutputFile(mediaFile!!.getAbsolutePath())
         mediaRecorder?.setPreviewDisplay(holder.surface)
         try {
@@ -164,9 +162,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.start()
     }
 
-    //  meizu  stop called in an invalid state: 0  stop failed: -1007
     fun stopRecord() {
-        Logger.d("------>stopRecord")
         mediaRecorder?.setOnErrorListener(null)
         mediaRecorder?.setOnInfoListener(null)
         mediaRecorder?.setPreviewDisplay(null)
@@ -196,7 +192,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var downX = 0f
     private var downY = 0f
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-//                显示对焦指示器
         if (event!!.pointerCount == 1) {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -252,9 +247,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
     }
 
-    /**
-     * 触摸对焦，触摸测光
-     */
     private fun handleFocusMetering(event: MotionEvent) {
         val focusRect = calculateTapArea(event.x, event.y, 1f, width, height)
         val meteringRect = calculateTapArea(event.x, event.y, 1.5f, width, height)
@@ -364,8 +356,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         try {
             camera!!.setPreviewDisplay(holder)
             cameraAngle = setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
-            setCameraParameters(camera!!, screenProp)
-            Logger.e(camera!!.parameters.pictureSize.width.toString()+"--->"+camera!!.parameters.pictureSize.height.toString())
+            previewSize = setCameraParameters(camera!!, screenProp)
+            Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->" + camera!!.parameters.pictureSize.height.toString())
             camera!!.startPreview()
         } catch(e: IOException) {
             Logger.e(holder.isCreating.toString())
@@ -377,7 +369,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             camera?.setPreviewCallback(null)
             camera?.stopPreview()
             camera?.setPreviewDisplay(null)
-            Logger.i("=======stop preview======")
         } catch (e: IOException) {
             Logger.e(e.message)
         }

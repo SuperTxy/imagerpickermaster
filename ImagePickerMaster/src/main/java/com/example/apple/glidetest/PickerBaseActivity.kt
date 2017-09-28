@@ -79,7 +79,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
                 folderPopup!!.show(btnCenter!!, object : FolderPopup.OnFolderSelectedListener {
                     override fun OnFolderSelected() {
                         btnCenter!!.text = folderProvider!!.selectedFolder!!.name
-                        adapter!!.refresh(folderProvider!!.selectedFolder!!.medias)
+                        adapter?.refresh(folderProvider!!.selectedFolder!!.medias)
                     }
                 })
             }

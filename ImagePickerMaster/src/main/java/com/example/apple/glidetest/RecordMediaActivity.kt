@@ -200,6 +200,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     override fun onPause() {
         super.onPause()
         surfaceView.unregisterSensorManager(this)
+        videoView.pause()
     }
 
     override fun onDestroy() {

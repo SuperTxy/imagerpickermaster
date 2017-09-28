@@ -15,7 +15,7 @@ import java.util.*
  */
 private val sizeComparator = CameraSizeComparator()
 
-fun getPreviewOrPictureSize(list: List<Camera.Size>, th: Int, rate: Float): Camera.Size {
+fun getSuitableSize(list: List<Camera.Size>, th: Int, rate: Float): Camera.Size {
     Collections.sort(list, sizeComparator)
     for (it in list) {
         if (it.width > th && equalRate(it, rate))
@@ -68,8 +68,8 @@ fun setCameraDisplayOrientation(activity: Activity,
 
 fun setCameraParameters(camera: Camera, screenProp: Float): Camera.Size {
     val parameters = camera.getParameters() // 获取相机参数
-    val previewSize = getPreviewOrPictureSize(parameters.supportedPreviewSizes, 1000, screenProp)
-    val pictureSize = getPreviewOrPictureSize(parameters.supportedPictureSizes, 1200, screenProp)
+    val previewSize = getSuitableSize(parameters.supportedPreviewSizes, 1000, screenProp)
+    val pictureSize = getSuitableSize(parameters.supportedPictureSizes, 1200, screenProp)
     parameters?.setPreviewSize(previewSize.width, previewSize.height) // 设置预览大小
     parameters?.setPictureSize(pictureSize.width, pictureSize.height) // 设置保存的图片尺寸
     val pictureFormats = parameters!!.supportedPictureFormats

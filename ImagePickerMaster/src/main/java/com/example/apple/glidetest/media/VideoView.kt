@@ -30,7 +30,6 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     private var player: MediaPlayer? = null
     private var position: Int = 0
     var media: Media? = null
-    private var isRepeat: Boolean = false
     private var toastUtils: TxyToastUtils? = null
     private var view: View? = null
 
@@ -50,7 +49,6 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     }
 
     fun play(dataResource: String, isRepeat: Boolean = false) {
-        this.isRepeat = isRepeat
         if (!TextUtils.equals(dataResource, this.dataResource)) {
             stop()
             this.dataResource = dataResource
@@ -60,6 +58,12 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
                 if (!File(dataResource).exists())
                     toastUtils?.toastCenterStr("文件不存在")
                 player!!.setDataSource(dataResource)
+                player!!.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT)
+                player!!.setOnVideoSizeChangedListener(MediaPlayer.OnVideoSizeChangedListener { mp, width, height ->
+                    updateVideoViewSize(player!!.getVideoWidth().toFloat(), player!!
+                            .getVideoHeight().toFloat())
+                })
+                player!!.isLooping = isRepeat
                 player!!.setScreenOnWhilePlaying(true)
                 player!!.setOnCompletionListener(this)
                 player!!.setOnPreparedListener(this)
@@ -85,17 +89,19 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
         media?.duration = player!!.duration.toLong()
         media?.width = player!!.videoWidth.toString()
         media?.height = player!!.videoHeight.toString()
-        val screenWidth = TxyScreenUtils.getScreenWidth(context)
-        val lp = view!!.surfaceView.layoutParams
-        lp.width = screenWidth
-        lp.height = (screenWidth * player!!.videoHeight / player!!.videoWidth.toFloat()).toInt()
-        view!!.surfaceView.layoutParams = lp
         Logger.e(media?.toString())
     }
 
+    private fun updateVideoViewSize(videoWidth: Float, videoHeight: Float) {
+        val screenWidth = TxyScreenUtils.getScreenWidth(context)
+        val lp = view!!.surfaceView.layoutParams
+        lp.width = screenWidth
+        lp.height = (screenWidth *videoHeight / videoWidth).toInt()
+        view!!.surfaceView.layoutParams = lp
+    }
+
     override fun onCompletion(mp: MediaPlayer?) {
-        if (isRepeat) player?.start()
-        else this.visibility = View.GONE
+        if (mp!= null && !mp.isLooping) this.visibility = View.GONE
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
@@ -103,6 +109,7 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder?) {
+//        stop()
     }
 
     override fun surfaceCreated(holder: SurfaceHolder?) {
