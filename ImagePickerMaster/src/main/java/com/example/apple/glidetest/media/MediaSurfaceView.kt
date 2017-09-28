@@ -50,6 +50,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
             Logger.d("surfaceDestroyed---->")
+            stopPreview()
         }
 
         override fun surfaceCreated(holder: SurfaceHolder?) {
@@ -357,15 +358,17 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             camera!!.setPreviewDisplay(holder)
             cameraAngle = setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
             previewSize = setCameraParameters(camera!!, screenProp)
-            Logger.e(camera!!.parameters.pictureSize.width.toString() + "--->" + camera!!.parameters.pictureSize.height.toString())
+            Logger.e(camera!!.parameters.pictureSize.width.toString() + "startPreview--->" + camera!!.parameters.pictureSize.height.toString())
             camera!!.startPreview()
         } catch(e: IOException) {
+            Logger.e(e.message)
             Logger.e(holder.isCreating.toString())
         }
     }
 
     private fun stopPreview() {
         try {
+            Logger.e("-----stopPreview-------")
             camera?.setPreviewCallback(null)
             camera?.stopPreview()
             camera?.setPreviewDisplay(null)

@@ -33,7 +33,9 @@ class VideoView : FrameLayout, SurfaceHolder.Callback, MediaPlayer.OnCompletionL
     private var toastUtils: TxyToastUtils? = null
     private var view: View? = null
 
-    constructor(context: Context) : this(context, null) {}
+    constructor(context: Context) : this(context, null) {
+
+    }
 
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0) {}
 
