@@ -60,6 +60,8 @@ class SlideHolder(private var view: View){
         view.tvVideo.paint.textSize = selectedDimen(!isRedLeft)
         view.tvCamera.setTextColor(selectedColor(isRedLeft))
         view.tvVideo.setTextColor(selectedColor(!isRedLeft))
+        view.tvCamera.setShadowLayer(if (!isRedLeft)16f else 0f,1f,1f,Color.BLACK)
+        view.tvVideo.setShadowLayer(if (isRedLeft)16f else 0f,1f,1f,Color.BLACK)
         view.tvCamera.invalidate()
         view.tvVideo.invalidate()
         view.viewRed.visibility = View.VISIBLE

@@ -29,7 +29,7 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginLeft="10dp"
-        android:background="#fff"
+        android:background="@drawable/blank_shape_stroke"
         android:gravity="center"
         android:textColor="@color/color333333"
         android:textSize="20sp"

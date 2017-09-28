@@ -16,7 +16,7 @@
         android:visibility="gone"
         android:layout_gravity="center"
         android:id="@+id/ivVideo"
-        android:src="@drawable/play_pictures"
+        android:src="@drawable/play_pictures2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

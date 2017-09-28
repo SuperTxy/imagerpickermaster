@@ -107,6 +107,10 @@
             android:layout_marginBottom="33dp" />
 
         <TextView
+            android:shadowDx="1.0"
+            android:shadowDy="1.0"
+            android:shadowRadius="16.0"
+            android:shadowColor="@color/colorblack"
             android:id="@+id/tvCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -125,6 +129,10 @@
             android:layout_alignTop="@+id/btnRecord"
             android:layout_marginTop="30dp"
             android:padding="15dp"
+            android:shadowColor="@color/colorblack"
+            android:shadowDx="1.0"
+            android:shadowDy="1.0"
+            android:shadowRadius="16.0"
             android:text="返回"
             android:textColor="#fff"
             android:textSize="16sp" />
