@@ -80,15 +80,19 @@ fun setCameraParameters(camera: Camera, screenProp: Float): Camera.Size {
             break
         }
     }
-    val supportedFocusModes = parameters.getSupportedFocusModes()
-    if (supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)//连续对焦
-        camera.cancelAutoFocus()//如果要实现连续的自动对焦，这一句必须加上
-    } else if (supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO)//自动对焦
-    }
+    if (!setFoucusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE, parameters))
+        setFoucusMode(Camera.Parameters.FOCUS_MODE_AUTO, parameters)
+
     camera.setParameters(parameters)
     return previewSize
+}
+
+fun setFoucusMode(focusMode: String, params: Camera.Parameters): Boolean {
+    if (params.supportedFocusModes.contains(focusMode)) {
+        params.focusMode = focusMode
+        return true
+    }
+    return false
 }
 
 fun calculateTapArea(x: Float, y: Float, coefficient: Float, width: Int, height: Int): Rect {

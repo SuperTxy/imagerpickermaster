@@ -9,6 +9,7 @@
     tools:context="com.example.apple.glidetest.RecordMediaActivity">
 
     <com.example.apple.glidetest.media.MediaSurfaceView
+        android:layout_gravity="center"
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

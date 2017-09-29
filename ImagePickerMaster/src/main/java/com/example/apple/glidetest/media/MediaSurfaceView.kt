@@ -119,6 +119,11 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     fun startRecord() {
         Logger.d("initMediaRecorder")
         val nowAngle = (angle + 90) % 360
+        val params = camera!!.parameters
+        val previewSize = getSuitableSize(params.supportedPreviewSizes, 720, 720f / 480)
+        params.setPreviewSize(previewSize.width, previewSize.height)
+        setFoucusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,params)
+        camera!!.parameters = params
         camera!!.unlock()
         surfaceView.mediaFile = deleteMediaFile(surfaceView.mediaFile)
         mediaFile = TxyFileUtils.createVIDFile(context)
@@ -129,9 +134,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
 //        设置视频输出格式和编码
         mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_480P))
-//        mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-//        mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-//        mediaRecorder?.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
         if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 //            预览倒立的处理
             if (cameraAngle == 270) {
@@ -161,6 +163,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             mediaRecorder?.release()
         }
         mediaRecorder?.start()
+        Logger.e(camera!!.parameters.focusMode+ "-------focusMode----")
+        Logger.e(camera!!.parameters.previewSize.width.toString() + "-------previewSize----" + camera!!.parameters.previewSize.height.toString())
     }
 
     fun stopRecord() {
@@ -358,7 +362,10 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             camera!!.setPreviewDisplay(holder)
             cameraAngle = setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
             previewSize = setCameraParameters(camera!!, screenProp)
-            Logger.e(camera!!.parameters.pictureSize.width.toString() + "startPreview--->" + camera!!.parameters.pictureSize.height.toString())
+            Logger.e("-----startPreview-------")
+            Logger.e(camera!!.parameters.pictureSize.width.toString() + "-------pictureSize----" + camera!!.parameters.pictureSize.height.toString())
+            Logger.e(camera!!.parameters.previewSize.width.toString() + "-------previewSize----" + camera!!.parameters.previewSize.height.toString())
+            Logger.e(camera!!.parameters.focusMode+ "-------focusMode----")
             camera!!.startPreview()
         } catch(e: IOException) {
             Logger.e(e.message)

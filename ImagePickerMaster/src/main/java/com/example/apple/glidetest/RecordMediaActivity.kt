@@ -64,7 +64,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
     override fun onRecordFinish() {
-        tvVideoHint.visibility = View.VISIBLE
+        tvVideoHint.visibility = if(!isCamera) View.VISIBLE else View.INVISIBLE
         if (isCamera) {
             surfaceView.takePicture()
         } else {
