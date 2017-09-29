@@ -119,11 +119,11 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     fun startRecord() {
         Logger.d("initMediaRecorder")
         val nowAngle = (angle + 90) % 360
-        val params = camera!!.parameters
-        val previewSize = getSuitableSize(params.supportedPreviewSizes, 720, 720f / 480)
-        params.setPreviewSize(previewSize.width, previewSize.height)
-        setFoucusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,params)
-        camera!!.parameters = params
+//        val params = camera!!.parameters
+//        val previewSize = getSuitableSize(params.supportedPreviewSizes, 720, 720f / 480)
+//        params.setPreviewSize(previewSize.width, previewSize.height)
+//        setFoucusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,params)
+//        camera!!.parameters = params
         camera!!.unlock()
         surfaceView.mediaFile = deleteMediaFile(surfaceView.mediaFile)
         mediaFile = TxyFileUtils.createVIDFile(context)
