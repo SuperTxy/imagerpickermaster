@@ -31,12 +31,12 @@ public class FocusView extends View {
 
     public FocusView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        this.size = TxyScreenUtils.getScreenWidth(context) / 6;
+        this.size = TxyScreenUtils.getScreenWidth(context) / 5;
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
         mPaint.setColor(ContextCompat.getColor(context,R.color.colore93a3a));
-        mPaint.setStrokeWidth(4);
+        mPaint.setStrokeWidth(TxyScreenUtils.dp2px(context,2));
         mPaint.setStyle(Paint.Style.STROKE);
     }
 

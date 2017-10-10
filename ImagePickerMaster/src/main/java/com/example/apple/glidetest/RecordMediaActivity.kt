@@ -9,13 +9,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
-import com.example.apple.glidetest.bean.Media
 import com.example.apple.glidetest.media.MediaSurfaceView
 import com.example.apple.glidetest.media.SlideHolder
 import com.example.apple.glidetest.media.VideoRecordBtn
 import com.example.apple.glidetest.media.deleteMediaFile
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
+import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.dialog.TxyDialogUtils
 import kotlinx.android.synthetic.main.activity_record_media.*
@@ -25,9 +25,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
     var isCamera: Boolean = false
     private var slideHolder: SlideHolder? = null
-    var media: Media? = null
     private var dialogUtisl: TxyDialogUtils? = null
-
 
     companion object {
         fun startForResult(context: Activity, isCamera: Boolean) {
@@ -57,14 +55,12 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         tvVideoHint.visibility = View.INVISIBLE
         surfaceView.visibility = View.VISIBLE
         if (!isCamera) {
-            videoView.stop()
-            videoView.visibility = View.GONE
             surfaceView.startRecord()
-        } else ivPreview.visibility = View.GONE
+        }
     }
 
     override fun onRecordFinish() {
-        tvVideoHint.visibility = if(!isCamera) View.VISIBLE else View.INVISIBLE
+        tvVideoHint.visibility = if (!isCamera) View.VISIBLE else View.INVISIBLE
         if (isCamera) {
             surfaceView.takePicture()
         } else {
@@ -78,7 +74,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         }
 
         override fun switchToVideo() {
-           slideHolder!!.switchToVideo()
+            slideHolder!!.switchToVideo()
         }
 
         override fun touchFocus(event: MotionEvent) {
@@ -89,21 +85,12 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
             focusView.visibility = View.INVISIBLE
         }
 
-        override fun afterStopRecord(mediaFile: File) {
-            media = Media(null, mediaFile.absolutePath, null, Media.MediaType.VID)
-            media!!.date = System.currentTimeMillis().toString()
-            media!!.size = mediaFile.length().toString()
+        override fun afterStopRecord() {
             resetView(true)
-            videoView.play(mediaFile.absolutePath, true)
-            videoView.media = media
             slideHolder?.finish()
         }
 
         override fun afterTakePicture(mediaFile: File) {
-            media = Media(null, mediaFile.absolutePath, null, Media.MediaType.IMG)
-            media!!.date = System.currentTimeMillis().toString()
-            media!!.size = mediaFile.length().toString()
-            ivPreview.setImageURI(Uri.fromFile(mediaFile))
             resetView(true)
             slideHolder?.finish()
         }
@@ -111,11 +98,9 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
 
     fun initListener() {
-        videoView.setOnClickListener {  }
         surfaceView.setOnMediaFinishListener(mediaListener)
         tvBack.setOnClickListener {
-            if (!isCamera) videoView.stop()
-            surfaceView.mediaFile = deleteMediaFile(surfaceView.mediaFile)
+            surfaceView.resetState()
             slideHolder?.switchStatus()
             slideHolder?.isFinish = false
             resetView(false)
@@ -126,7 +111,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         }
         tvOk.setOnClickListener {
             sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(surfaceView.mediaFile)))
-            intent.putExtra(PickerSettings.RESULT, media!!)
+            intent.putExtra(PickerSettings.RESULT, surfaceView.media!!)
             setResult(RESULT_OK, intent)
             finish()
         }
@@ -150,18 +135,19 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         tvCancel.visibility = if (isFinish) View.GONE else View.VISIBLE
         ivSwitch.visibility = if (isFinish) View.GONE else View.VISIBLE
         tvBack.visibility = if (!isFinish) View.GONE else View.VISIBLE
-        tvOk.visibility = if (!isFinish) View.GONE else View.VISIBLE
+        tvBack.text = if (isFinish && isCamera) "重拍" else "返回"
+        btnRecord.visibility = if (isFinish && isCamera) View.GONE else View.VISIBLE
+        tvOk.visibility = if (!isFinish) View.INVISIBLE else View.VISIBLE
         tvCamera.visibility = if (btnRecord.isCamera || (!btnRecord.isCamera && !isFinish)) View.VISIBLE else View.GONE
-        videoView.visibility = if (isFinish && !isCamera) View.VISIBLE else View.GONE
-        surfaceView.visibility = if (isFinish) View.GONE else View.VISIBLE
-        ivPreview.visibility = if (isFinish && isCamera) View.VISIBLE else View.GONE
     }
 
     fun handleFoucs(event: MotionEvent): Boolean {
         var x = event.x
         var y = event.y
         val screenWidth = TxyScreenUtils.getScreenWidth(this)
-        if (y > btnRecord.getTop()) {
+        val top = llBottom.getTop()
+        Logger.e(llBottom.getTop().toString())
+        if (y > llBottom.getTop()) {
             return false
         }
         focusView.setVisibility(View.VISIBLE)
@@ -174,13 +160,13 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         if (y < focusView.getWidth() / 2) {
             y = (focusView.getWidth() / 2).toFloat()
         }
-        if (y > btnRecord.getTop() - focusView.getWidth() / 2) {
-            y = (btnRecord.getTop() - focusView.getWidth() / 2).toFloat()
+        if (y > llBottom.getTop() - focusView.getWidth() / 2) {
+            y = (llBottom.getTop() - focusView.getWidth() / 2).toFloat()
         }
         focusView.setX(x - focusView.getWidth() / 2)
         focusView.setY(y - focusView.getHeight() / 2)
-        val scaleX = ObjectAnimator.ofFloat(focusView, "scaleX", 1f, 0.6f)
-        val scaleY = ObjectAnimator.ofFloat(focusView, "scaleY", 1f, 0.6f)
+        val scaleX = ObjectAnimator.ofFloat(focusView, "scaleX", 1f, 0.7f)
+        val scaleY = ObjectAnimator.ofFloat(focusView, "scaleY", 1f, 0.7f)
         val alpha = ObjectAnimator.ofFloat(focusView, "alpha", 1f, 0.3f, 1f, 0.3f, 1f, 0.3f, 1f)
         val animSet = AnimatorSet()
         animSet.play(scaleX).with(scaleY).before(alpha)
@@ -202,11 +188,9 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     override fun onPause() {
         super.onPause()
         surfaceView.unregisterSensorManager(this)
-        videoView.pause()
     }
 
     override fun onDestroy() {
-        videoView.destroy()
         super.onDestroy()
         btnRecord.destroy()
         surfaceView.destroy()

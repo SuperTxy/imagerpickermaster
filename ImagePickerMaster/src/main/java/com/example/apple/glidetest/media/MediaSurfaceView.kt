@@ -6,7 +6,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.hardware.*
+import android.media.AudioManager
 import android.media.CamcorderProfile
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -15,10 +17,11 @@ import android.view.SurfaceView
 import android.view.View
 import android.widget.ImageView
 import com.example.apple.glidetest.R
+import com.example.apple.glidetest.bean.Media
 import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyFileUtils
+import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.TxyToastUtils
-import kotlinx.android.synthetic.main.activity_record_media.view.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -42,7 +45,9 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var cameraAngle = 90
     private var angle = 0
     private var sm: SensorManager? = null
-    private var previewSize: Camera.Size? = null
+    private var isPlaying: Boolean = false
+    private var player: MediaPlayer? = null
+    var media: Media? = null
 
     private var surfaceCallBack = object : SurfaceHolder.Callback {
         override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
@@ -50,12 +55,16 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
             Logger.d("surfaceDestroyed---->")
-            stopPreview()
+            if (isPlaying)
+                stopVideo()
+            else stopPreview()
         }
 
         override fun surfaceCreated(holder: SurfaceHolder?) {
             Logger.d("surfaceCreated---->")
-            startPreview(holder!!)
+            if (isPlaying)
+                playVideo()
+            else startPreview(holder!!)
         }
     }
 
@@ -63,7 +72,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         if (screenProp < 0) {
             screenProp = measuredHeight.toFloat() / measuredWidth
-//            Logger.e(measuredHeight.toString() + "---->" + measuredWidth)
         }
     }
 
@@ -71,8 +79,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         getCamera()
         toastUtils = TxyToastUtils(context)
         camerasCount = Camera.getNumberOfCameras()
-        surfaceView.holder.setKeepScreenOn(true)
-        surfaceView.holder.addCallback(surfaceCallBack)
+        holder.setKeepScreenOn(true)
+        holder.addCallback(surfaceCallBack)
     }
 
     private val sensorEventListener = object : SensorEventListener {
@@ -110,22 +118,28 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
                 fos.flush()
                 fos.close()
+                media = Media(null, mediaFile!!.absolutePath, null, Media.MediaType.IMG)
+                media!!.date = System.currentTimeMillis().toString()
+                media!!.size = mediaFile!!.length().toString()
                 listener?.afterTakePicture(mediaFile!!)
                 camera?.stopPreview()
             }
         })
     }
 
+    fun resetState(){
+        mediaFile = deleteMediaFile(mediaFile)
+        if (isPlaying) stopVideo()
+        startPreview(holder)
+        val lp = this.layoutParams
+        lp.height = TxyScreenUtils.getScreenHeight(context)
+        this.layoutParams = lp
+    }
+
     fun startRecord() {
         Logger.d("initMediaRecorder")
-        val nowAngle = (angle + 90) % 360
-//        val params = camera!!.parameters
-//        val previewSize = getSuitableSize(params.supportedPreviewSizes, 720, 720f / 480)
-//        params.setPreviewSize(previewSize.width, previewSize.height)
-//        setFoucusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO,params)
-//        camera!!.parameters = params
         camera!!.unlock()
-        surfaceView.mediaFile = deleteMediaFile(surfaceView.mediaFile)
+        resetState()
         mediaFile = TxyFileUtils.createVIDFile(context)
         mediaRecorder = MediaRecorder()
         mediaRecorder?.reset()
@@ -134,23 +148,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
 //        设置视频输出格式和编码
         mediaRecorder?.setProfile(CamcorderProfile.get(currentCameraFacing, CamcorderProfile.QUALITY_480P))
-        if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-//            预览倒立的处理
-            if (cameraAngle == 270) {
-//           横屏
-                if (nowAngle == 0)
-                    mediaRecorder?.setOrientationHint(180)
-                else if (nowAngle == 270)
-                    mediaRecorder?.setOrientationHint(270)
-                else mediaRecorder?.setOrientationHint(90)
-            } else {
-                if (nowAngle == 90)
-                    mediaRecorder?.setOrientationHint(270)
-                else if (nowAngle == 270)
-                    mediaRecorder?.setOrientationHint(90)
-                else mediaRecorder?.setOrientationHint(nowAngle)
-            }
-        } else mediaRecorder?.setOrientationHint(nowAngle)
+        mediaRecorder?.setOrientationHint(getAngle())
         mediaRecorder?.setOutputFile(mediaFile!!.getAbsolutePath())
         mediaRecorder?.setPreviewDisplay(holder.surface)
         try {
@@ -163,8 +161,23 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             mediaRecorder?.release()
         }
         mediaRecorder?.start()
-        Logger.e(camera!!.parameters.focusMode+ "-------focusMode----")
+        Logger.e(camera!!.parameters.focusMode + "-------focusMode----")
         Logger.e(camera!!.parameters.previewSize.width.toString() + "-------previewSize----" + camera!!.parameters.previewSize.height.toString())
+    }
+
+    private fun getAngle(): Int {
+        var nowAngle = (angle + 90) % 360
+        if (currentCameraFacing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            if (cameraAngle == 270) {
+                if (nowAngle == 0) nowAngle = 180
+                else if (nowAngle == 270) nowAngle = 270
+                else nowAngle = 90
+            } else {
+                if (nowAngle == 90) nowAngle = 270
+                else if (nowAngle == 270) nowAngle = 90
+            }
+        }
+        return nowAngle
     }
 
     fun stopRecord() {
@@ -188,7 +201,11 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
         if (mediaFile != null) {
             stopPreview()
-            listener?.afterStopRecord(mediaFile!!)
+            media = Media(null, mediaFile!!.absolutePath, null, Media.MediaType.VID)
+            media!!.date = System.currentTimeMillis().toString()
+            media!!.size = mediaFile!!.length().toString()
+            playVideo()
+            listener?.afterStopRecord()
         }
     }
 
@@ -337,9 +354,57 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         camera!!.parameters = parameters
     }
 
+    private fun playVideo() {
+        if (mediaFile == null || !mediaFile!!.exists()) return
+        if (player == null)
+            player = MediaPlayer()
+        player!!.reset()
+        player!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        player!!.setDataSource(mediaFile!!.absolutePath)
+        player!!.setSurface(holder.surface)
+        player!!.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT)
+        player!!.setOnVideoSizeChangedListener { mp, width, height ->
+            updateVideoViewSize(player!!.getVideoHeight().toFloat() / player!!.getVideoWidth())
+        }
+        player!!.isLooping = true
+        player!!.setScreenOnWhilePlaying(true)
+        player!!.setOnPreparedListener {
+            if (media != null && media!!.duration == 0L) {
+                media?.duration = player!!.duration.toLong()
+                media?.width = player!!.videoWidth.toString()
+                media?.height = player!!.videoHeight.toString()
+                Logger.e(media?.toString())
+            }
+            player!!.start()
+            isPlaying = true
+        }
+        player!!.setOnErrorListener { mp, what, extra ->
+            Logger.e("mediaplayer   onError------------" + what + "extra-->" + extra)
+            false
+        }
+        player!!.prepare()
+    }
+
+     fun stopVideo() {
+        isPlaying = false
+        if (player != null && player!!.isPlaying) {
+            player!!.stop()
+            player!!.release()
+            player = null
+        }
+    }
+
+    private fun updateVideoViewSize(rate: Float) {
+        val screenWidth = TxyScreenUtils.getScreenWidth(context)
+        val lp = this.layoutParams
+        lp.width = screenWidth
+        lp.height = (screenWidth * rate).toInt()
+        this.layoutParams = lp
+    }
+
     interface OnMediaListener {
         fun afterTakePicture(mediaFile: File)
-        fun afterStopRecord(mediaFile: File)
+        fun afterStopRecord()
         fun onFocusSuccess()
         fun touchFocus(event: MotionEvent)
         fun switchToVideo()
@@ -361,11 +426,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         try {
             camera!!.setPreviewDisplay(holder)
             cameraAngle = setCameraDisplayOrientation(context as Activity, currentCameraFacing, camera!!)
-            previewSize = setCameraParameters(camera!!, screenProp)
+            setCameraParameters(camera!!, screenProp)
             Logger.e("-----startPreview-------")
-            Logger.e(camera!!.parameters.pictureSize.width.toString() + "-------pictureSize----" + camera!!.parameters.pictureSize.height.toString())
-            Logger.e(camera!!.parameters.previewSize.width.toString() + "-------previewSize----" + camera!!.parameters.previewSize.height.toString())
-            Logger.e(camera!!.parameters.focusMode+ "-------focusMode----")
             camera!!.startPreview()
         } catch(e: IOException) {
             Logger.e(e.message)

@@ -9,43 +9,32 @@
     tools:context="com.example.apple.glidetest.RecordMediaActivity">
 
     <com.example.apple.glidetest.media.MediaSurfaceView
-        android:layout_gravity="center"
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_gravity="center" />
 
     <ImageView
-        android:id="@+id/ivPreview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:id="@+id/ivFlash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:src="@drawable/flash_on" />
 
-    <com.example.apple.glidetest.media.VideoView
-        android:id="@+id/videoView"
+    <LinearLayout
+        android:id="@+id/llBottom"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:visibility="gone" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:id="@+id/ivFlash"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:src="@drawable/flash_on" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
 
         <TextView
             android:id="@+id/tvVideoHint"
             android:layout_width="wrap_content"
             android:layout_height="26dp"
-            android:layout_above="@+id/llSlide"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="15dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/show_record_toast"
             android:gravity="center"
             android:paddingLeft="15dp"
@@ -55,10 +44,8 @@
             android:textSize="14sp" />
 
         <LinearLayout
-            android:id="@+id/llSlide"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/btnRecord"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
@@ -98,77 +85,49 @@
 
         </LinearLayout>
 
-        <com.example.apple.glidetest.media.VideoRecordBtn
-            android:id="@+id/btnRecord"
-            android:layout_width="109dp"
-            android:layout_height="109dp"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="33dp" />
+        <FrameLayout
+            android:layout_marginBottom="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="109dp">
 
-        <TextView
-            android:shadowDx="1.0"
-            android:shadowDy="1.0"
-            android:shadowRadius="16.0"
-            android:shadowColor="@color/colorblack"
-            android:id="@+id/tvCancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/btnRecord"
-            android:layout_marginTop="30dp"
-            android:padding="15dp"
-            android:text="取消"
-            android:textColor="#fff"
-            android:textSize="16sp"
-            tools:visibility="gone" />
+            <com.example.apple.glidetest.media.VideoRecordBtn
+                android:id="@+id/btnRecord"
+                android:layout_width="109dp"
+                android:layout_height="109dp"
+                android:layout_gravity="center_horizontal" />
 
-        <TextView
-            android:id="@+id/tvBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/btnRecord"
-            android:layout_marginTop="30dp"
-            android:padding="15dp"
-            android:shadowColor="@color/colorblack"
-            android:shadowDx="1.0"
-            android:shadowDy="1.0"
-            android:shadowRadius="16.0"
-            android:text="返回"
-            android:textColor="#fff"
-            android:textSize="16sp" />
+            <TextView
+                android:id="@+id/tvCancel"
+                style="@style/ImageLeftTextView"
+                android:text="取消" />
 
-        <ImageView
-            android:id="@+id/ivSwitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/btnRecord"
-            android:layout_marginTop="30dp"
-            android:padding="15dp"
-            android:src="@drawable/overturn"
-            tools:visibility="visible" />
+            <TextView
+                android:id="@+id/tvBack"
+                style="@style/ImageLeftTextView"
+                android:text="返回"
+                tools:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tvOk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignTop="@+id/btnRecord"
-            android:layout_gravity="bottom|right"
-            android:layout_marginTop="30dp"
-            android:padding="15dp"
-            android:text="完成"
-            android:textColor="@color/colore93a3a"
-            android:textSize="16sp"
-            tools:visibility="gone" />
+            <ImageView
+                android:id="@+id/ivSwitch"
+                style="@style/ImageRightTv"
+                android:src="@drawable/overturn"
+                tools:visibility="visible" />
 
-        <com.example.apple.glidetest.media.FocusView
-            android:id="@+id/focusView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:visibility="invisible" />
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/tvOk"
+                style="@style/ImageRightTv"
+                android:text="完成"
+                android:textColor="@color/colore93a3a"
+                android:textSize="16sp"
+                tools:visibility="gone" />
+        </FrameLayout>
 
+    </LinearLayout>
+
+    <com.example.apple.glidetest.media.FocusView
+        android:visibility="invisible"
+        android:id="@+id/focusView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 </FrameLayout>
