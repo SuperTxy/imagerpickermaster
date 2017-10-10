@@ -15,6 +15,12 @@
         android:layout_gravity="center" />
 
     <ImageView
+        android:id="@+id/ivPreview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <ImageView
         android:id="@+id/ivFlash"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -86,9 +92,9 @@
         </LinearLayout>
 
         <FrameLayout
-            android:layout_marginBottom="30dp"
             android:layout_width="match_parent"
-            android:layout_height="109dp">
+            android:layout_height="109dp"
+            android:layout_marginBottom="30dp">
 
             <com.example.apple.glidetest.media.VideoRecordBtn
                 android:id="@+id/btnRecord"
@@ -125,9 +131,9 @@
     </LinearLayout>
 
     <com.example.apple.glidetest.media.FocusView
-        android:visibility="invisible"
         android:id="@+id/focusView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:visibility="invisible" />
 </FrameLayout>

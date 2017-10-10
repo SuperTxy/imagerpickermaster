@@ -15,7 +15,7 @@ import com.example.apple.glidetest.media.VideoRecordBtn
 import com.example.apple.glidetest.media.deleteMediaFile
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
-import com.orhanobut.logger.Logger
+import com.example.apple.glidetest.utils.loadImage
 import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.dialog.TxyDialogUtils
 import kotlinx.android.synthetic.main.activity_record_media.*
@@ -69,6 +69,11 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     }
 
     private val mediaListener = object : MediaSurfaceView.OnMediaListener {
+        override fun reviewImage() {
+            ivPreview.visibility = View.VISIBLE
+            loadImage(surfaceView.media!!,ivPreview)
+        }
+
         override fun switchToCamera() {
             slideHolder!!.switchToCamera()
         }
@@ -100,6 +105,8 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     fun initListener() {
         surfaceView.setOnMediaFinishListener(mediaListener)
         tvBack.setOnClickListener {
+            if (surfaceView.isShowPicture)
+                ivPreview.visibility = View.GONE
             surfaceView.resetState()
             slideHolder?.switchStatus()
             slideHolder?.isFinish = false
@@ -145,8 +152,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         var x = event.x
         var y = event.y
         val screenWidth = TxyScreenUtils.getScreenWidth(this)
-        val top = llBottom.getTop()
-        Logger.e(llBottom.getTop().toString())
         if (y > llBottom.getTop()) {
             return false
         }

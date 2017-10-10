@@ -46,6 +46,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var angle = 0
     private var sm: SensorManager? = null
     private var isPlaying: Boolean = false
+    var isShowPicture: Boolean = false
     private var player: MediaPlayer? = null
     var media: Media? = null
 
@@ -55,8 +56,11 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
             Logger.d("surfaceDestroyed---->")
-            if (isPlaying)
+            if (isPlaying) {
                 stopVideo()
+                isPlaying = true
+            } else if (isCamera && mediaFile != null)
+                isShowPicture = true
             else stopPreview()
         }
 
@@ -64,6 +68,8 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             Logger.d("surfaceCreated---->")
             if (isPlaying)
                 playVideo()
+            else if (isShowPicture)
+                listener?.reviewImage()
             else startPreview(holder!!)
         }
     }
@@ -127,7 +133,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         })
     }
 
-    fun resetState(){
+    fun resetState() {
         mediaFile = deleteMediaFile(mediaFile)
         if (isPlaying) stopVideo()
         startPreview(holder)
@@ -385,7 +391,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         player!!.prepare()
     }
 
-     fun stopVideo() {
+    fun stopVideo() {
         isPlaying = false
         if (player != null && player!!.isPlaying) {
             player!!.stop()
@@ -409,6 +415,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         fun touchFocus(event: MotionEvent)
         fun switchToVideo()
         fun switchToCamera()
+        fun reviewImage()
     }
 
     private var listener: OnMediaListener? = null
@@ -473,7 +480,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             Logger.e(e.message)
         }
     }
-
 
     fun getCamera() {
         if (camera == null) {
