@@ -41,20 +41,4 @@
             android:textColor="#fff"
             android:textSize="14sp" />
     </FrameLayout>
-
-    <ImageView
-        android:id="@+id/ivPlay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:src="@drawable/play_pictures2"
-        android:visibility="gone"
-        tools:visibility="visible" />
-
-    <com.example.apple.glidetest.media.VideoView
-        android:background="#0f0"
-        android:id="@+id/videoView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
 </FrameLayout>

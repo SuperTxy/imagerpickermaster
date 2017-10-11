@@ -1,22 +1,30 @@
 package com.example.apple.glidetest
 
+import android.animation.ObjectAnimator
 import android.app.Activity
 import android.content.Intent
+import android.media.AudioManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
+import android.view.SurfaceHolder
+import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import com.example.apple.glidetest.provider.FolderProvider
 import com.example.apple.glidetest.provider.SelectMediaProvider
 import com.example.apple.glidetest.utils.PickerSettings
 import com.example.apple.glidetest.utils.StatusBarUtil
 import com.example.apple.glidetest.utils.loadImage
 import com.orhanobut.logger.Logger
+import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.activity_big_image.*
 import kotlinx.android.synthetic.main.title_bar.*
 import kotlinx.android.synthetic.main.video_pager.view.*
+
 
 class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
@@ -32,7 +40,11 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     private var medias = FolderProvider.instance.selectedFolder!!.medias
     private var imageProvider = SelectMediaProvider.instance
     private var toastUtils: TxyToastUtils? = null
-    private var isFull: Boolean = false //是否全屏显示图片
+    private var player: MediaPlayer? = null
+    private var currentPosition: Int = 0
+    private var isFull: Boolean = false
+    private var lastItemPosition: Int = 0
+    private var flItems: ArrayList<FrameLayout> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +54,16 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         btnOK.isEnabled = imageProvider.selectedMedias.size > 0
         viewPager.addOnPageChangeListener(this)
         viewPager.adapter = MyPagerAdapter()
+        initSurfaces()
+        handlePos()
+        initListener()
+    }
+
+    private fun handlePos() {
         val pos = intent.getIntExtra(POSITION, 0)
         viewPager.currentItem = pos
+        lastItemPosition = pos
         onPageSelected(pos)
-        initListener()
     }
 
     private fun initListener() {
@@ -55,13 +73,6 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         btnOK.setOnClickListener {
             setResult(RESULT_OK, intent)
             finish()
-        }
-
-        viewPager.setOnClickListener {
-            Logger.d("viewpager onClick")
-            titleBar.visibility = if (isFull) View.INVISIBLE else View.VISIBLE
-            flBottom.visibility = if (isFull) View.INVISIBLE else View.VISIBLE
-            isFull = !isFull
         }
 
         ivRight.setOnClickListener {
@@ -89,19 +100,67 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         }
     }
 
+    private fun initSurfaces() {
+        for (i in 0..4) {
+            val contentView = View.inflate(this@BigImageActivity, R.layout.video_pager, null) as FrameLayout
+            contentView.surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
+                override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+                }
+
+                override fun surfaceDestroyed(holder: SurfaceHolder?) {
+                    Logger.d("-----------surfaceDestroyed--------------")
+                    if (player != null && player!!.isPlaying)
+                        currentPosition = player!!.currentPosition
+                    stopPlay()
+                }
+
+                override fun surfaceCreated(holder: SurfaceHolder?) {
+                    Logger.d("-----------surfaceCreated--------------")
+                    playVideo(medias[viewPager.currentItem].path, contentView.surfaceView)
+                    if (currentPosition > 0) {
+                        player!!.seekTo(currentPosition)
+                        currentPosition = 0
+                    }
+                }
+
+            })
+            contentView.ivPlay.setOnClickListener {
+                contentView.ivPlay.visibility = View.GONE
+                if (!isFull) handleFull()
+                if (player != null) player!!.start()
+                else {
+                    contentView.photoView.visibility = View.GONE
+                    contentView.surfaceView.visibility = View.VISIBLE
+                }
+            }
+            contentView.surfaceView.setOnClickListener {
+                if (player != null && player!!.isPlaying) {
+                    player?.pause()
+                    if (isFull) handleFull()
+                    contentView.ivPlay.visibility = View.VISIBLE
+                } else handleFull()
+            }
+            flItems.add(contentView)
+        }
+    }
+
     inner class MyPagerAdapter : PagerAdapter() {
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val media = medias.get(position)
-            val view = View.inflate(this@BigImageActivity, R.layout.video_pager, null)
-            loadImage(media, view.photoView)
-            container.addView(view)
-            view.ivPlay.visibility = if (media.isVideo) View.VISIBLE else View.GONE
-            view.ivPlay.setOnClickListener {
-                videoView.visibility = View.VISIBLE
-                videoView.play(medias.get(viewPager.currentItem).path)
+//            val photoView = PhotoView(this@BigImageActivity)
+            val contentView = flItems.get(position % 5)
+            if (contentView.parent != null)
+                (contentView.parent as ViewGroup).removeView(contentView)
+            contentView.surfaceView.visibility = View.GONE
+            contentView.ivPlay.visibility = if (media.isVideo) View.VISIBLE else View.INVISIBLE
+            loadImage(media, contentView.photoView)
+            contentView.photoView.setOnPhotoTapListener { view, x, y ->
+                toastUtils!!.toastCenterStr("setOnPhotoTapListener")
+                handleFull()
             }
-            return view
+            container.addView(contentView)
+            return contentView
         }
 
         override fun isViewFromObject(view: View?, `object`: Any?): Boolean {
@@ -117,6 +176,17 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         }
     }
 
+    private fun handleFull() {
+        if (isFull) {
+            ObjectAnimator.ofFloat(flBottom, "translationY", flBottom.translationY, 0f).setDuration(300).start()
+            ObjectAnimator.ofFloat(titleBar, "translationY", titleBar.translationY, 0f).setDuration(300).start()
+        } else {
+            ObjectAnimator.ofFloat(flBottom, "translationY", 0f, flBottom.height.toFloat()).setDuration(300).start()
+            ObjectAnimator.ofFloat(titleBar, "translationY", 0f, -titleBar.height.toFloat()).setDuration(300).start()
+        }
+        isFull = !isFull
+    }
+
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
 
     }
@@ -125,21 +195,66 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         val media = medias.get(position)
         ivRight.isSelected = imageProvider.isMediaExist(media)
         ivRight.text = imageProvider.orderOfMedia(media)
-        videoView.stop()
+        if (isFull) handleFull()
+
+        val fl = flItems[lastItemPosition % 5]
+        if (medias[lastItemPosition].isVideo) {
+            if (player != null) {
+                fl.ivPlay.visibility = View.VISIBLE
+                fl.photoView.visibility = View.VISIBLE
+                fl.surfaceView.visibility = View.GONE
+            }
+        }
+        fl.photoView.setOnPhotoTapListener(null)
+
+        lastItemPosition = position
     }
 
     override fun onPageScrollStateChanged(state: Int) {
-
     }
 
-    override fun onPause() {
-        super.onPause()
-        videoView.pause()
+    private fun playVideo(dataSource: String, surfaceView: SurfaceView) {
+        if (player == null)
+            player = MediaPlayer()
+        player!!.reset()
+        player!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        player!!.setDataSource(dataSource)
+        player!!.setDisplay(surfaceView.holder)
+        player!!.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT)
+        player!!.setOnVideoSizeChangedListener { mp, width, height ->
+            updateVideoViewSize(player!!.getVideoHeight().toFloat() / player!!.getVideoWidth(), surfaceView)
+        }
+        player!!.setScreenOnWhilePlaying(true)
+        player!!.setOnErrorListener { mp, what, extra ->
+            Logger.e("mediaplayer   onError------------" + what + "extra-->" + extra)
+            false
+        }
+        player!!.setOnCompletionListener {
+            flItems[viewPager.currentItem % 5].ivPlay.visibility = View.VISIBLE
+            if (isFull) handleFull()
+        }
+        player!!.prepare()
+        player!!.start()
+    }
+
+    private fun updateVideoViewSize(rate: Float, surfaceView: SurfaceView) {
+        val screenWidth = TxyScreenUtils.getScreenWidth(this)
+        val lp = surfaceView.layoutParams
+        lp.width = screenWidth
+        lp.height = (screenWidth * rate).toInt()
+        surfaceView.layoutParams = lp
+    }
+
+    fun stopPlay() {
+        if (player != null) {
+            player!!.stop()
+            player!!.release()
+            player = null
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         toastUtils?.destroy()
-        videoView.destroy()
     }
 }
