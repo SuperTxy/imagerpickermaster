@@ -24,7 +24,7 @@ import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.activity_big_image.*
 import kotlinx.android.synthetic.main.title_bar.*
 import kotlinx.android.synthetic.main.video_pager.view.*
-
+import uk.co.senab.photoview.PhotoView
 
 class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
@@ -129,7 +129,8 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
                 if (!isFull) handleFull()
                 if (player != null) player!!.start()
                 else {
-                    contentView.photoView.visibility = View.GONE
+                    if (contentView.getChildAt(1) is PhotoView)
+                        contentView.getChildAt(1).visibility = View.GONE
                     contentView.surfaceView.visibility = View.VISIBLE
                 }
             }
@@ -148,15 +149,20 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
         override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val media = medias.get(position)
-//            val photoView = PhotoView(this@BigImageActivity)
             val contentView = flItems.get(position % 5)
-            if (contentView.parent != null)
+            if (contentView.parent != null) {
                 (contentView.parent as ViewGroup).removeView(contentView)
+            }
+            if (contentView.getChildAt(1) is PhotoView) {
+                Logger.e("is PhotoView")
+                contentView.removeView(contentView.getChildAt(1))
+            }
+            val photoView = PhotoView(this@BigImageActivity)
+            contentView.addView(photoView, 1)
             contentView.surfaceView.visibility = View.GONE
             contentView.ivPlay.visibility = if (media.isVideo) View.VISIBLE else View.INVISIBLE
-            loadImage(media, contentView.photoView)
-            contentView.photoView.setOnPhotoTapListener { view, x, y ->
-                toastUtils!!.toastCenterStr("setOnPhotoTapListener")
+            loadImage(media, photoView)
+            photoView.setOnPhotoTapListener { view, x, y ->
                 handleFull()
             }
             container.addView(contentView)
@@ -196,17 +202,15 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
         ivRight.isSelected = imageProvider.isMediaExist(media)
         ivRight.text = imageProvider.orderOfMedia(media)
         if (isFull) handleFull()
-
-        val fl = flItems[lastItemPosition % 5]
         if (medias[lastItemPosition].isVideo) {
+            val fl = flItems[lastItemPosition % 5]
             if (player != null) {
                 fl.ivPlay.visibility = View.VISIBLE
-                fl.photoView.visibility = View.VISIBLE
+                if (fl.getChildAt(1) is PhotoView)
+                    fl.getChildAt(1).visibility = View.VISIBLE
                 fl.surfaceView.visibility = View.GONE
             }
         }
-        fl.photoView.setOnPhotoTapListener(null)
-
         lastItemPosition = position
     }
 
