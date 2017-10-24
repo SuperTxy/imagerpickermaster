@@ -3,7 +3,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-//apply plugin: 'maven'
 
 android {
     compileSdkVersion 25
@@ -22,21 +21,6 @@ android {
         }
     }
 }
-//uploadArchives {
-//    repositories {
-//        mavenDeployer {
-//
-//            repository(url: "http://10.10.0.3:9081/nexus/content/repositories/releases/") {
-//                authentication(userName: "admin", password: "admin123")
-//            }
-//            pom.version = "v1.3.6"
-//            pom.artifactId = "imagerpickermaster"
-//            pom.groupId = "com.github.SuperTxy"
-//            pom.name = "imagerpickermaster"
-//            pom.packaging = 'aar'
-//        }
-//    }
-//}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -57,93 +41,25 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-def siteUrl = 'https://github.com/SuperTxy/imagerpickermaster'
-def gitUrl = 'https://github.com/SuperTxy/imagerpickermaster.git'
-group = 'com.github.SuperTxy'
-version = 'v1.6.5'
+apply from: './install.gradle'
+apply from: './bintray.gradle'
 
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                name 'imagepickermaster' //可选
-                description 'image picker with video'
-                url siteUrl
+/*
+apply from: './bintray.data.gradle'
+apply plugin: 'maven'
+uploadArchives {
+    repositories {
+        mavenDeployer {
 
-                //软件开源协议
-                licenses {
-                    licenses {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-
-//                开发者基本信息
-                developers {
-                    developer {
-                        id 'SuperTxy'
-                        name 'xiaoyan tan'
-                        email 'txyswl@gmail.com'
-                    }
-                }
-
-//                scm
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
+            repository(url: "http://10.10.0.3:9081/nexus/content/repositories/releases/") {
+                authentication(userName: "admin", password: "admin123")
             }
+            pom.version = libraryVersion
+            pom.artifactId = libraryName
+            pom.groupId = publishedGroupId
+            pom.name = libraryName
+            pom.packaging = 'aar'
+            pom.dependencies = []
         }
     }
-}
-
-//生成jar包的task
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-//生成jarDoc的task
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-//生成JavaDoc的jar
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-//tasks.withType(JavaCompile) {
-//    options.encoding = "UTF-8"
-//}
-//tasks.withType(Javadoc) {
-//    options.addStringOption('Xdoclint:none', '-quiet')
-//    options.addStringOption('encoding', 'UTF-8')
-//    options.addStringOption('charSet', 'UTF-8')
-//}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-//读取Bintray相关的信息
-def properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-bintray {
-    user = properties.getProperty('bintray.user')
-    key = properties.getProperty('bintray.apikey')
-
-    configurations = ['archives']
-    pkg {
-        repo = ''//Repository名字 需要自己在bintray网站上先添加
-        name = ''//发布到Bintray上的项目名字
-        userOrg = ''//Bintray的组织id
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true // 是否是公开项目。
-    }
-}
-repositories {
-    mavenCentral()
-}
+}*/
