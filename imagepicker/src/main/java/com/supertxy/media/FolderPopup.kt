@@ -9,7 +9,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
-import com.supertxy.media.image.R
 import com.supertxy.media.provider.FolderProvider
 import com.supertxy.media.utils.getView
 import com.supertxy.media.utils.loadBitmap

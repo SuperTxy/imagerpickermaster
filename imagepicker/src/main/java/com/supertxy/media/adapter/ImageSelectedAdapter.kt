@@ -4,7 +4,7 @@ import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import com.supertxy.media.image.R
+import com.supertxy.media.R
 import com.supertxy.media.bean.Change
 import com.supertxy.media.bean.Media
 import com.supertxy.media.provider.SelectMediaProvider

@@ -21,7 +21,6 @@ import com.supertxy.media.utils.PickerSettings
 import com.supertxy.media.utils.StatusBarUtil
 import com.supertxy.media.view.GridItemDecoration
 import com.orhanobut.logger.Logger
-import com.supertxy.media.image.R
 import com.txy.androidutils.TxyFileUtils
 import com.txy.androidutils.TxyScreenUtils
 import kotlinx.android.synthetic.main.activity_common_picker.*

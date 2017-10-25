@@ -11,9 +11,9 @@ import android.view.SurfaceHolder
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.Toast
-import com.supertxy.media.image.R
-import com.supertxy.media.bean.Media
 import com.orhanobut.logger.Logger
+import com.supertxy.media.R
+import com.supertxy.media.bean.Media
 import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.videoview.view.*

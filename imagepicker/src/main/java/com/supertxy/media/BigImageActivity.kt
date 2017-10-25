@@ -19,7 +19,6 @@ import com.supertxy.media.utils.PickerSettings
 import com.supertxy.media.utils.StatusBarUtil
 import com.supertxy.media.utils.loadImage
 import com.orhanobut.logger.Logger
-import com.supertxy.media.image.R
 import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.activity_big_image.*

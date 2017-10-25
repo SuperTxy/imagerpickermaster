@@ -7,7 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
-import com.supertxy.media.image.R;
+
+import com.supertxy.media.R;
 import com.txy.androidutils.TxyScreenUtils;
 
 /**
@@ -35,7 +36,7 @@ public class FocusView extends View {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
         mPaint.setDither(true);
-        mPaint.setColor(ContextCompat.getColor(context,R.color.colore93a3a));
+        mPaint.setColor(ContextCompat.getColor(context, R.color.colore93a3a));
         mPaint.setStrokeWidth(TxyScreenUtils.dp2px(context,2));
         mPaint.setStyle(Paint.Style.STROKE);
     }

@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
-import com.supertxy.media.image.R
 import com.supertxy.media.media.MediaSurfaceView
 import com.supertxy.media.media.SlideHolder
 import com.supertxy.media.media.VideoRecordBtn

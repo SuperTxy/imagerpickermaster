@@ -16,9 +16,9 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.widget.ImageView
-import com.supertxy.media.image.R
 import com.supertxy.media.bean.Media
 import com.orhanobut.logger.Logger
+import com.supertxy.media.R
 import com.txy.androidutils.TxyFileUtils
 import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.TxyToastUtils

@@ -14,7 +14,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.supertxy.media.image.R;
+import com.supertxy.media.R;
 import com.txy.androidutils.TxyPermissionUtils;
 import com.txy.androidutils.TxyScreenUtils;
 import com.txy.androidutils.TxyToastUtils;

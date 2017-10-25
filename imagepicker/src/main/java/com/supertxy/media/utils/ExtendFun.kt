@@ -14,10 +14,10 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
-import com.supertxy.media.image.R
 import com.supertxy.media.bean.Media
 import com.supertxy.media.provider.SelectMediaProvider
 import com.orhanobut.logger.Logger
+import com.supertxy.media.R
 import java.io.File
 
 /**

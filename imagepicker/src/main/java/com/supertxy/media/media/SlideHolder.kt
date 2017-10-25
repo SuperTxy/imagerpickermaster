@@ -4,7 +4,7 @@ import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.view.View
 import android.widget.LinearLayout
-import com.supertxy.media.image.R
+import com.supertxy.media.R
 import com.supertxy.media.RecordMediaActivity
 import com.txy.androidutils.TxyScreenUtils
 import kotlinx.android.synthetic.main.activity_record_media.view.*
