@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
-import com.example.apple.glidetest.CommonPickerActivity
-import com.example.apple.glidetest.PickerActivity
-import com.example.apple.glidetest.bean.Media
-import com.example.apple.glidetest.utils.PickerSettings
-import com.example.apple.glidetest.utils.loadImage
+import com.supertxy.media.CommonPickerActivity
+import com.supertxy.media.PickerActivity
+import com.supertxy.media.bean.Media
+import com.supertxy.media.utils.PickerSettings
+import com.supertxy.media.utils.loadImage
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -68,7 +68,7 @@ class MainActivity : Activity() {
             } else {
                 holder = convertView.tag as ViewHolder
             }
-            loadImage(getItem(position),holder.ivImage)
+            loadImage(getItem(position), holder.ivImage)
             return convertView
         }
 
