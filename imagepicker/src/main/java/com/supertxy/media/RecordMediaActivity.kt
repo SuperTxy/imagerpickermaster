@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import com.supertxy.media.media.MediaSurfaceView
-import com.supertxy.media.media.SlideHolder
 import com.supertxy.media.media.VideoRecordBtn
 import com.supertxy.media.media.deleteMediaFile
 import com.supertxy.media.utils.PickerSettings
@@ -19,12 +18,11 @@ import com.supertxy.media.utils.loadImage
 import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.dialog.TxyDialogUtils
 import kotlinx.android.synthetic.main.activity_record_media.*
-import java.io.File
+import kotlinx.android.synthetic.main.layout_slide_view.*
 
 class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
 
     var isCamera: Boolean = false
-    private var slideHolder: SlideHolder? = null
     private var dialogUtisl: TxyDialogUtils? = null
 
     companion object {
@@ -44,9 +42,9 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         btnRecord.setOnRecordListener(this)
         dialogUtisl = TxyDialogUtils(this)
         isCamera = intent.getBooleanExtra(PickerSettings.IS_CAMERA, true)
-        slideHolder = SlideHolder(view)
         ivSwitch.visibility = if (surfaceView!!.camerasCount > 1) View.VISIBLE else View.GONE
         changeMediaType(isCamera)
+        if (!isCamera) slideView.switch()
         initListener()
         resetView(false)
     }
@@ -74,14 +72,9 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
             loadImage(surfaceView.media!!, ivPreview)
         }
 
-        override fun switchToCamera() {
-            slideHolder!!.switchToCamera()
+        override fun switch() {
+                slideView.switch()
         }
-
-        override fun switchToVideo() {
-            slideHolder!!.switchToVideo()
-        }
-
         override fun touchFocus(event: MotionEvent) {
             handleFoucs(event)
         }
@@ -90,14 +83,9 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
             focusView.visibility = View.INVISIBLE
         }
 
-        override fun afterStopRecord() {
+        override fun finish() {
             resetView(true)
-            slideHolder?.finish()
-        }
-
-        override fun afterTakePicture(mediaFile: File) {
-            resetView(true)
-            slideHolder?.finish()
+            slideView.finish()
         }
     }
 
@@ -108,8 +96,7 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
             if (surfaceView.isShowPicture)
                 ivPreview.visibility = View.GONE
             surfaceView.resetState()
-            slideHolder?.switchStatus()
-            slideHolder?.isFinish = false
+            slideView.isFinish = false
             resetView(false)
         }
         tvCancel.setOnClickListener {
@@ -133,7 +120,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
     fun changeMediaType(isCamera: Boolean) {
         this.isCamera = isCamera
         btnRecord.isCamera = isCamera
-        slideHolder!!.isRedLeft = isCamera
         surfaceView.isCamera = isCamera
         surfaceView.setFlashMode(ivFlash)
     }
@@ -145,7 +131,6 @@ class RecordMediaActivity : Activity(), VideoRecordBtn.OnRecordListener {
         tvBack.text = if (isFinish && isCamera) "重拍" else "返回"
         btnRecord.visibility = if (isFinish && isCamera) View.GONE else View.VISIBLE
         tvOk.visibility = if (!isFinish) View.INVISIBLE else View.VISIBLE
-        tvCamera.visibility = if (btnRecord.isCamera || (!btnRecord.isCamera && !isFinish)) View.VISIBLE else View.GONE
     }
 
     fun handleFoucs(event: MotionEvent): Boolean {

@@ -12,4 +12,6 @@
     <string name="press_to_record">长按拍摄短视频</string>
     <string name="press_to_record_again">长按重新录制</string>
     <string name="all_medias">所有图片</string>
+    <string name="damage_image">此图片文件已损坏！</string>
+    <string name="delete_image">此图片已被删除</string>
 </resources>

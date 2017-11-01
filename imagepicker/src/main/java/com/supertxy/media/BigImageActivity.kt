@@ -13,12 +13,12 @@ import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import com.orhanobut.logger.Logger
 import com.supertxy.media.provider.FolderProvider
 import com.supertxy.media.provider.SelectMediaProvider
 import com.supertxy.media.utils.PickerSettings
 import com.supertxy.media.utils.StatusBarUtil
 import com.supertxy.media.utils.loadImage
-import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.TxyToastUtils
 import kotlinx.android.synthetic.main.activity_big_image.*
@@ -48,8 +48,8 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        StatusBarUtil.setStatusBarColor(this, R.color.color1a1a1a)
         setContentView(R.layout.activity_big_image)
+        StatusBarUtil.setStatusBarColor(this, R.color.color1a1a1a)
         toastUtils = TxyToastUtils(this)
         btnOK.isEnabled = imageProvider.selectedMedias.size > 0
         viewPager.addOnPageChangeListener(this)
@@ -79,9 +79,9 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
             val media = medias.get(viewPager.currentItem)
             if (imageProvider.maxSelectToast(this@BigImageActivity, ivRight.isSelected))
             else if (media.dir.isNullOrEmpty() && !ivRight.isSelected)
-                toastUtils?.toast("此图片已被删除")
+                toastUtils?.toast(R.string.delete_image)
             else if (imageProvider.damageMedias.contains(media) && !ivRight.isSelected) {
-                toastUtils?.toast("此图片文件已损坏！")
+                toastUtils?.toast(R.string.damage_image)
             } else if (media.isVideo && media.isDurationlarge12) {
                 toastUtils?.toast("视频限定时长12秒！")
             } else if (media.isVideo && media.isSizeLarge10M) {
@@ -116,10 +116,17 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
 
                 override fun surfaceCreated(holder: SurfaceHolder?) {
                     Logger.d("-----------surfaceCreated--------------")
-                    playVideo(medias[viewPager.currentItem].path, contentView.surfaceView)
-                    if (currentPosition > 0) {
-                        player!!.seekTo(currentPosition)
-                        currentPosition = 0
+                    val media = medias[viewPager.currentItem]
+                    if (imageProvider.damageMedias.contains(media)) {
+                        toastUtils?.toast(R.string.damage_image)
+                    } else if (media.dir.isNullOrEmpty()) {
+                        toastUtils?.toast(R.string.delete_image)
+                    } else {
+                        playVideo(media.path, contentView.surfaceView)
+                        if (currentPosition > 0) {
+                            player!!.seekTo(currentPosition)
+                            currentPosition = 0
+                        }
                     }
                 }
 

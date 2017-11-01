@@ -16,9 +16,9 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.widget.ImageView
-import com.supertxy.media.bean.Media
 import com.orhanobut.logger.Logger
 import com.supertxy.media.R
+import com.supertxy.media.bean.Media
 import com.txy.androidutils.TxyFileUtils
 import com.txy.androidutils.TxyScreenUtils
 import com.txy.androidutils.TxyToastUtils
@@ -55,7 +55,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
 
         override fun surfaceDestroyed(holder: SurfaceHolder?) {
-            Logger.d("surfaceDestroyed---->")
             if (isPlaying) {
                 stopVideo()
                 isPlaying = true
@@ -65,7 +64,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
 
         override fun surfaceCreated(holder: SurfaceHolder?) {
-            Logger.d("surfaceCreated---->")
             if (isPlaying)
                 playVideo()
             else if (isShowPicture)
@@ -127,7 +125,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 media = Media(null, mediaFile!!.absolutePath, null, Media.MediaType.IMG)
                 media!!.date = System.currentTimeMillis().toString()
                 media!!.size = mediaFile!!.length().toString()
-                listener?.afterTakePicture(mediaFile!!)
+                listener?.finish()
                 camera?.stopPreview()
             }
         })
@@ -211,7 +209,7 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             media!!.date = System.currentTimeMillis().toString()
             media!!.size = mediaFile!!.length().toString()
             playVideo()
-            listener?.afterStopRecord()
+            listener?.finish()
         }
     }
 
@@ -229,13 +227,15 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     val upX = event.rawX
                     val upY = event.rawY
-                    if (Math.abs(upY - downY) <= Math.abs(upX - downX)) {
-                        if (Math.abs(upX - downX) < 5) {
+                    val dX = upX - downX
+                    if (Math.abs(upY - downY) <= Math.abs(dX)) {
+                        if (Math.abs(dX) < 5) {
                             listener?.touchFocus(event)
                             handleFocusMetering(event)
                         } else {
-                            if (upX - downX < 0) listener?.switchToVideo()
-                            else listener?.switchToCamera()
+                            if (dX < 0 && isCamera || (dX > 0 && !isCamera)) {
+                                listener?.switch()
+                            }
                         }
                     }
                 }
@@ -409,12 +409,14 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     interface OnMediaListener {
-        fun afterTakePicture(mediaFile: File)
-        fun afterStopRecord()
+//        fun afterTakePicture(mediaFile: File)
+//        fun afterStopRecord()
+        fun finish()
         fun onFocusSuccess()
         fun touchFocus(event: MotionEvent)
-        fun switchToVideo()
-        fun switchToCamera()
+//        fun switchToVideo()
+//        fun switchToCamera()
+        fun switch()
         fun reviewImage()
     }
 

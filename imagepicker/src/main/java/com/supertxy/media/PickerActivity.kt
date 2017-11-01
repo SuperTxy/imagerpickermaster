@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import com.orhanobut.logger.Logger
 import com.supertxy.media.adapter.CommonImageAdapter
 import com.supertxy.media.adapter.ImageSelectedAdapter
 import com.supertxy.media.bean.Change
@@ -16,7 +17,6 @@ import com.supertxy.media.provider.SelectMediaProvider
 import com.supertxy.media.utils.PickerSettings
 import com.supertxy.media.utils.StatusBarUtil
 import com.supertxy.media.view.GridItemDecoration
-import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyScreenUtils
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.android.synthetic.main.title_bar.*
@@ -26,6 +26,11 @@ class PickerActivity : PickerBaseActivity() {
 
     companion object {
         private val CLASSNAME: String = "className"
+        /**
+         * @param context
+         * @param maxSelect 一次最大可选择图片数
+         * @param initialSelect  初始选中的列表（上一次选中的）
+         */
         fun startForResult(context: Activity, maxSelect: Int, initialSelect: ArrayList<Media>) {
             val intent = Intent(context, PickerActivity::class.java)
             intent.putExtra(PickerSettings.MAX_SELECT, maxSelect)
