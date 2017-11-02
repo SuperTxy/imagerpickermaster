@@ -107,7 +107,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             nowAngle = Math.abs(cameraAngle - angle)
         camera!!.takePicture(null, null, object : Camera.PictureCallback {
             override fun onPictureTaken(data: ByteArray?, camera: Camera?) {
-                Logger.e("onPictureTaken-->" + data + camera)
                 mediaFile = TxyFileUtils.createIMGFile(context)
                 val fos = FileOutputStream(mediaFile)
                 val matrix = Matrix()
@@ -141,7 +140,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun startRecord() {
-        Logger.d("initMediaRecorder")
         camera!!.unlock()
         resetState()
         mediaFile = TxyFileUtils.createVIDFile(context)
@@ -165,8 +163,6 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             mediaRecorder?.release()
         }
         mediaRecorder?.start()
-        Logger.e(camera!!.parameters.focusMode + "-------focusMode----")
-        Logger.e(camera!!.parameters.previewSize.width.toString() + "-------previewSize----" + camera!!.parameters.previewSize.height.toString())
     }
 
     private fun getAngle(): Int {
@@ -245,11 +241,12 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
             MotionEvent.ACTION_MOVE -> {
                 val newDist = getFingerSpacing(event)
                 val zoomGradient = (width / 16f).toInt()
-                if ((newDist - oldDist).toInt() / zoomGradient != 0) {
+                val scaleDis = newDist - oldDist
+                if (scaleDis.toInt() / zoomGradient != 0) {
                     if (newDist > oldDist) {
-                        handleZoom(true)
+                        handleZoom(scaleDis)
                     } else if (newDist < oldDist) {
-                        handleZoom(false)
+                        handleZoom(scaleDis)
                     }
                     oldDist = newDist
                 }
@@ -258,18 +255,17 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
         return true
     }
 
-    private fun handleZoom(isZoomIn: Boolean) {
+    private fun handleZoom(scaleDis: Float) {
         val params = camera!!.parameters
         if (params.isZoomSupported) {
             val maxZoom = params.maxZoom
-            var zoom = params.zoom
-            if (isZoomIn && zoom < maxZoom) {
-                zoom++
-            } else if (zoom > 0) {
-                zoom--
-            }
+            val scaleZoom = scaleDis / (width / 2) * maxZoom
+            var zoom = params.zoom + scaleZoom.toInt()
+            if (zoom > maxZoom) zoom = maxZoom
+            else if (zoom < 0) zoom = 0
             params.zoom = zoom
             camera!!.parameters = params
+            Logger.e(zoom.toString() + "--------------")
         } else {
             Logger.i("zoom not supported")
         }
@@ -409,13 +405,9 @@ class MediaSurfaceView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     interface OnMediaListener {
-//        fun afterTakePicture(mediaFile: File)
-//        fun afterStopRecord()
         fun finish()
         fun onFocusSuccess()
         fun touchFocus(event: MotionEvent)
-//        fun switchToVideo()
-//        fun switchToCamera()
         fun switch()
         fun reviewImage()
     }

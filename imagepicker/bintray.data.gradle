@@ -11,7 +11,7 @@ ext {
     siteUrl = 'https://github.com/SuperTxy/imagerpickermaster'
     gitUrl = 'https://github.com/SuperTxy/imagerpickermaster.git'
 
-    libraryVersion = 'v1.6.5'
+    libraryVersion = 'v1.6.6'
 
     developerId = 'supertxy'
     developerName = 'xiaoyan tan'
