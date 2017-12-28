@@ -190,6 +190,7 @@ class BigImageActivity : Activity(), ViewPager.OnPageChangeListener {
     }
 
     private fun handleFull() {
+//        TODO("全屏动画没执行")
         if (isFull) {
             ObjectAnimator.ofFloat(flBottom, "translationY", flBottom.translationY, 0f).setDuration(300).start()
             ObjectAnimator.ofFloat(titleBar, "translationY", titleBar.translationY, 0f).setDuration(300).start()

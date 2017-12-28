@@ -11,6 +11,7 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import com.orhanobut.logger.Logger
 import com.supertxy.media.adapter.CommonImageAdapter
 import com.supertxy.media.bean.Folder
 import com.supertxy.media.bean.Media
@@ -18,7 +19,6 @@ import com.supertxy.media.provider.FolderProvider
 import com.supertxy.media.provider.SelectMediaProvider
 import com.supertxy.media.utils.PickerSettings
 import com.supertxy.media.utils.isGif
-import com.orhanobut.logger.Logger
 import com.txy.androidutils.TxyPermissionUtils
 import java.io.File
 import java.util.*
@@ -42,6 +42,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
     protected var tvText: TextView? = null
     protected var folderPopup: FolderPopup? = null
     private var READ_PERMISSION = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+    private var hasLoad: Boolean = false
 
     override fun onResume() {
         super.onResume()
@@ -87,19 +88,23 @@ abstract class PickerBaseActivity : Activity(), Observer {
     }
 
     fun loadMedias() {
-        permissionUtils!!.checkStoragePermission(Runnable {
-            Thread(Runnable {
-                if (this@PickerBaseActivity is PickerActivity) {
-                    loadVideos()
-                }
-                loadImages()
-                folderProvider!!.allFolder?.sort()
-                Handler(mainLooper).post {
-                    initData()
-                }
+        if (!hasLoad) {
+            permissionUtils!!.checkStoragePermission(Runnable {
+                Thread(Runnable {
+                    if (this@PickerBaseActivity is PickerActivity) {
+                        loadVideos()
+                    }
+                    Logger.e(Thread.currentThread().name)
+                    loadImages()
+                    folderProvider!!.allFolder?.sort()
+                    Handler(mainLooper).post {
+                        initData()
+                    }
 
-            }).start()
-        })
+                }).start()
+            })
+        }
+        hasLoad = true
     }
 
     private fun loadVideos() {
@@ -140,6 +145,7 @@ abstract class PickerBaseActivity : Activity(), Observer {
         val cursor = contentResolver.query(contentUri, null, where, null, sortOrder)
         val allFolder = folderProvider!!.selectedFolder
         while (cursor.moveToNext()) {
+            Logger.d(Thread.currentThread().name)
             val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
             val date = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED))
             val size = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.SIZE))

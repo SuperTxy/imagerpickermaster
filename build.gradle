@@ -19,6 +19,9 @@ allprojects {
         jcenter()
         maven { url 'https://jitpack.io' }
         maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+        maven {
+            url  "https://dl.bintray.com/supertxy/maven"
+        }
     }
 }
 
